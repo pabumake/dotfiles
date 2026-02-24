@@ -15,6 +15,8 @@ dotfile exists in ------------------> gnu stow storage
 
 # Enable Stow linking
 
+`cd ~/dotfiles/` then
+
 `stow nvim`
 
 this is then enabled, probably the tool needs a restart to see effect
