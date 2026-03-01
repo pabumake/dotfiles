@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "theme": {
+    "active": "catppuccin-mocha",
+    "index_url": "https://raw.githubusercontent.com/pabumake/gh-manager/main/themes/index.json",
+    "auto_update_index": true
+  }
+}
