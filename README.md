@@ -15,9 +15,12 @@ Personal macOS and terminal configuration managed with [GNU Stow](https://www.gn
 | `zsh` | Shell configuration and aliases |
 | `gh-manager` | GitHub Manager configuration |
 
-Supporting applications installed by the bootstrap include
-[Hidden Bar](https://github.com/dwarvesf/hidden) for native menu-bar icon
-visibility. Its icon positions remain device-specific macOS state.
+Bootstrap offers [Hidden Bar](https://github.com/dwarvesf/hidden),
+[Ice](https://github.com/jordanbaird/Ice), or no menu-bar manager. The choice is
+remembered locally and can be changed safely with `--switch-bar-manager`. Ice is
+the default on supported macOS versions unless another choice is selected.
+Provider preferences have tracked first-run baselines and guarded backup helpers;
+other applications' icon positions remain device-specific macOS state.
 
 ## Quick start
 
@@ -51,3 +54,40 @@ less "$bootstrap_file"
 
 The longer guides live in `/docs` so this README stays useful as a quick entry
 point. GitHub Pages publishes the site from `main` and `/docs`.
+
+## Thanks
+
+This setup is built on excellent open-source work. Thank you to the maintainers
+and contributors of the projects directly installed, configured, or used as
+inspiration here:
+
+- **Desktop and workflow:** [AeroSpace](https://github.com/nikitabobko/AeroSpace),
+  [JankyBorders](https://github.com/FelixKratz/JankyBorders),
+  [Ghostty](https://github.com/ghostty-org/ghostty),
+  [Herdr](https://github.com/herdrdev/herdr),
+  [Ice](https://github.com/jordanbaird/Ice), and
+  [Hidden Bar](https://github.com/dwarvesf/hidden)
+- **Shell and editor:** [Zsh](https://github.com/zsh-users/zsh),
+  [Starship](https://github.com/starship/starship),
+  [Neovim](https://github.com/neovim/neovim),
+  [LazyVim](https://github.com/LazyVim/LazyVim),
+  [lazy.nvim](https://github.com/folke/lazy.nvim), and
+  [gh-manager](https://github.com/pabumake/gh-manager)
+- **Command-line tooling:** [Git](https://github.com/git/git),
+  [eza](https://github.com/eza-community/eza),
+  [ripgrep](https://github.com/BurntSushi/ripgrep),
+  [fd](https://github.com/sharkdp/fd), [fzf](https://github.com/junegunn/fzf),
+  [lazygit](https://github.com/jesseduffield/lazygit),
+  [Tree-sitter](https://github.com/tree-sitter/tree-sitter), and
+  [Node.js](https://github.com/nodejs/node)
+- **Foundations and design:** [Homebrew](https://github.com/Homebrew/brew),
+  [GNU Stow](https://github.com/aspiers/stow),
+  [Nerd Fonts](https://github.com/ryanoasis/nerd-fonts),
+  [JetBrains Mono](https://github.com/JetBrains/JetBrainsMono), and
+  [Catppuccin](https://github.com/catppuccin/catppuccin)
+- **Inspiration and documentation:** [Omachy](https://github.com/dough654/omachy),
+  [Jekyll](https://github.com/jekyll/jekyll), and the
+  [Minimal theme](https://github.com/pages-themes/minimal)
+
+The Neovim lockfile contains the complete pinned plugin list; those projects and
+their contributors are appreciated as well.

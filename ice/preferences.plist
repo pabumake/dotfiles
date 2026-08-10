@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>AutoRehide</key>
+	<true/>
+	<key>EnableAlwaysHiddenSection</key>
+	<false/>
+	<key>EnableSecondaryContextMenu</key>
+	<true/>
+	<key>HideApplicationMenus</key>
+	<false/>
+	<key>ItemSpacingOffset</key>
+	<real>0</real>
+	<key>RehideInterval</key>
+	<real>10</real>
+	<key>RehideStrategy</key>
+	<integer>1</integer>
+	<key>SectionDividerStyle</key>
+	<integer>0</integer>
+	<key>ShowAllSectionsOnUserDrag</key>
+	<true/>
+	<key>ShowIceIcon</key>
+	<true/>
+	<key>ShowOnClick</key>
+	<true/>
+	<key>ShowOnHover</key>
+	<false/>
+	<key>ShowOnScroll</key>
+	<false/>
+	<key>UseIceBar</key>
+	<false/>
+</dict>
+</plist>

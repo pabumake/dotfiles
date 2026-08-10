@@ -21,5 +21,4 @@ brew "node"
 # macOS applications and font used by the managed configs
 cask "ghostty"
 cask "aerospace"
-cask "hiddenbar"
 cask "font-jetbrains-mono-nerd-font"

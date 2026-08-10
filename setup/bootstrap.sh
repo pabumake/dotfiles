@@ -7,7 +7,7 @@ HOMEBREW_INSTALL_URL="https://raw.githubusercontent.com/Homebrew/install/HEAD/in
 DEFAULT_REPO_DIR="${HOME}/Documents/dotfiles"
 
 FORMULAE=(git stow starship eza herdr borders neovim ripgrep fd fzf lazygit tree-sitter node)
-CASKS=(ghostty aerospace hiddenbar font-jetbrains-mono-nerd-font)
+CASKS=(ghostty aerospace font-jetbrains-mono-nerd-font)
 STOW_PACKAGES=(aerospace borders ghostty herdr nvim starship zsh gh-manager)
 
 DRY_RUN=0
@@ -17,6 +17,8 @@ NO_REPO_UPDATE=0
 BACKUP_CONFLICTS=0
 WITH_HUSHLOGIN=0
 LOCAL_PASS=0
+MENU_BAR_MANAGER=""
+SWITCH_BAR_MANAGER=0
 REPO_DIR="${DEFAULT_REPO_DIR}"
 ORIGINAL_ARGS=("$@")
 
@@ -33,6 +35,8 @@ Options:
   --no-repo-update      Use the current checkout without fetching or pulling
   --backup-conflicts    Approve conflict backups when combined with --yes
   --with-hushlogin      Create ~/.hushlogin after setup
+  --menu-bar-manager M  Select hiddenbar, ice, or none and remember the choice
+  --switch-bar-manager  Show the menu-bar manager selector again
   --repo-dir PATH       Override ~/Documents/dotfiles
   --help                Show this help
 
@@ -41,7 +45,7 @@ Safety rules:
   * Repository updates are fast-forward only.
   * Existing configs are listed and require backup approval before replacement.
   * Installed Homebrew packages are not upgraded unless --upgrade is supplied.
-  * Unlisted Homebrew packages are never removed.
+  * Unrelated Homebrew packages are never removed.
 USAGE
 }
 
@@ -96,6 +100,12 @@ while [ "$#" -gt 0 ]; do
     --no-repo-update) NO_REPO_UPDATE=1 ;;
     --backup-conflicts) BACKUP_CONFLICTS=1 ;;
     --with-hushlogin) WITH_HUSHLOGIN=1 ;;
+    --menu-bar-manager)
+      shift
+      [ "$#" -gt 0 ] || die "--menu-bar-manager requires hiddenbar, ice, or none"
+      MENU_BAR_MANAGER="$1"
+      ;;
+    --switch-bar-manager) SWITCH_BAR_MANAGER=1 ;;
     --repo-dir)
       shift
       [ "$#" -gt 0 ] || die "--repo-dir requires a path"
@@ -107,6 +117,13 @@ while [ "$#" -gt 0 ]; do
   esac
   shift
 done
+
+case "${MENU_BAR_MANAGER}" in
+  ""|hiddenbar|ice|none) ;;
+  *) die "--menu-bar-manager must be hiddenbar, ice, or none" ;;
+esac
+[ "${SWITCH_BAR_MANAGER}" -eq 0 ] || [ -z "${MENU_BAR_MANAGER}" ] || \
+  die "Use either --switch-bar-manager or --menu-bar-manager, not both."
 
 if [ "$(uname -s)" != "Darwin" ]; then
   die "This bootstrap currently supports macOS only."
@@ -142,6 +159,7 @@ print_declared_packages() {
   printf '\n    Casks:'
   for item in "${CASKS[@]}"; do printf ' %s' "${item}"; done
   printf '\n'
+  note "Menu-bar manager: selected separately (Hidden Bar, Ice, or None)."
 }
 
 install_homebrew() {
@@ -182,11 +200,6 @@ if [ -z "${BREW_BIN}" ]; then
   [ -n "${BREW_BIN}" ] || die "Homebrew installer completed but brew was not found"
 fi
 load_brew_environment "${BREW_BIN}"
-
-HIDDEN_BAR_WAS_INSTALLED=0
-if brew list --cask hiddenbar >/dev/null 2>&1; then
-  HIDDEN_BAR_WAS_INSTALLED=1
-fi
 
 ensure_git() {
   if command -v git >/dev/null 2>&1; then
@@ -361,7 +374,8 @@ if [ "${UPGRADE}" -eq 1 ]; then
 else
   note "Install-only mode: existing packages will not be upgraded."
 fi
-note "No unlisted package will be removed. gh-manager remains config-only."
+note "The fixed package phase removes nothing. Menu-bar switching is handled next."
+note "gh-manager remains config-only."
 
 if ! brew bundle check --file="${REPO_DIR}/Brewfile" >/dev/null 2>&1 || [ "${UPGRADE}" -eq 1 ]; then
   if [ "${DRY_RUN}" -eq 1 ]; then
@@ -383,6 +397,342 @@ if ! brew bundle check --file="${REPO_DIR}/Brewfile" >/dev/null 2>&1 || [ "${UPG
 else
   note "All declared dependencies are already installed."
 fi
+
+MENU_BAR_STATE_ROOT="${XDG_STATE_HOME:-${HOME}/.local/state}/pabu-dotfiles"
+MENU_BAR_STATE_DIR="${MENU_BAR_STATE_ROOT}/menu-bar-manager"
+MENU_BAR_SELECTION_FILE="${MENU_BAR_STATE_DIR}/selection"
+MENU_BAR_BACKUP_ROOT="${MENU_BAR_STATE_ROOT}/backups"
+MACOS_MAJOR="$(sw_vers -productVersion | cut -d. -f1)"
+
+saved_menu_bar_manager() {
+  local saved=""
+  if [ -r "${MENU_BAR_SELECTION_FILE}" ]; then
+    IFS= read -r saved < "${MENU_BAR_SELECTION_FILE}" || true
+  fi
+  case "${saved}" in hiddenbar|ice|none) printf '%s\n' "${saved}" ;; esac
+}
+
+ice_cask() {
+  if [ "${MACOS_MAJOR}" -ge 26 ]; then
+    printf '%s\n' "jordanbaird-ice@beta"
+  elif [ "${MACOS_MAJOR}" -ge 14 ]; then
+    printf '%s\n' "jordanbaird-ice"
+  else
+    return 1
+  fi
+}
+
+choose_menu_bar_manager() {
+  local selected=""
+  local answer=""
+  local ice_label="Ice"
+  local ice_available=1
+  if ! ice_cask >/dev/null 2>&1; then
+    ice_label="Ice (unavailable before macOS 14)"
+    ice_available=0
+  fi
+
+  [ -r /dev/tty ] || die "Menu-bar manager selection requires a terminal or --menu-bar-manager."
+  if command -v fzf >/dev/null 2>&1; then
+    if [ "${ice_available}" -eq 1 ]; then
+      selected="$(printf '%s\tice\nHidden Bar\thiddenbar\nNone\tnone\n' "${ice_label}" | \
+        fzf --height=8 --layout=reverse --border --no-multi --delimiter=$'\t' \
+          --with-nth=1 --prompt='Menu-bar manager > ')" || selected=""
+    else
+      selected="$(printf 'Hidden Bar\thiddenbar\nNone\tnone\n' | \
+      fzf --height=8 --layout=reverse --border --no-multi --delimiter=$'\t' \
+          --with-nth=1 --prompt='Menu-bar manager > ')" || selected=""
+    fi
+    if [ -n "${selected}" ]; then
+      printf '%s\n' "${selected##*$'\t'}"
+      return
+    fi
+    printf 'fzf could not open; using the numbered selector.\n' > /dev/tty
+  fi
+
+  printf '\nChoose a menu-bar manager:\n' > /dev/tty
+  if [ "${ice_available}" -eq 1 ]; then
+    printf '  1) %s (default)\n  2) Hidden Bar\n  3) None\n' "${ice_label}" > /dev/tty
+  else
+    printf '  1) Hidden Bar (default)\n  2) None\n' > /dev/tty
+  fi
+  printf 'Selection [1]: ' > /dev/tty
+  IFS= read -r answer < /dev/tty || die "Menu-bar manager selection cancelled."
+  if [ "${ice_available}" -eq 1 ]; then
+    case "${answer}" in
+      ""|1) printf '%s\n' ice ;;
+      2) printf '%s\n' hiddenbar ;;
+      3) printf '%s\n' none ;;
+      *) die "Invalid menu-bar manager selection: ${answer}" ;;
+    esac
+  else
+    case "${answer}" in
+      ""|1) printf '%s\n' hiddenbar ;;
+      2) printf '%s\n' none ;;
+      *) die "Invalid menu-bar manager selection: ${answer}" ;;
+    esac
+  fi
+}
+
+resolve_menu_bar_manager() {
+  local saved selected
+  saved="$(saved_menu_bar_manager)"
+  PREVIOUS_MENU_BAR_MANAGER="${saved}"
+
+  if [ -n "${MENU_BAR_MANAGER}" ]; then
+    :
+  elif [ "${SWITCH_BAR_MANAGER}" -eq 1 ]; then
+    selected="$(choose_menu_bar_manager)" || die "Menu-bar manager selection cancelled."
+    case "${selected}" in hiddenbar|ice|none) MENU_BAR_MANAGER="${selected}" ;; *) die "Menu-bar manager selection failed." ;; esac
+  elif [ -z "${saved}" ]; then
+    if [ -r /dev/tty ]; then
+      selected="$(choose_menu_bar_manager)" || die "Menu-bar manager selection cancelled."
+      case "${selected}" in hiddenbar|ice|none) MENU_BAR_MANAGER="${selected}" ;; *) die "Menu-bar manager selection failed." ;; esac
+    elif ice_cask >/dev/null 2>&1; then
+      MENU_BAR_MANAGER=ice
+      note "No saved menu-bar manager and no interactive terminal; defaulting to Ice."
+    else
+      MENU_BAR_MANAGER=hiddenbar
+      note "Ice is unavailable on this macOS version; defaulting to Hidden Bar."
+    fi
+  else
+    MENU_BAR_MANAGER="${saved}"
+  fi
+  if [ "${MENU_BAR_MANAGER}" = ice ] && ! ice_cask >/dev/null 2>&1; then
+    die "Ice requires macOS 14 or newer."
+  fi
+}
+
+cask_installed() {
+  brew list --cask "$1" >/dev/null 2>&1
+}
+
+provider_domain() {
+  case "$1" in
+    hiddenbar) printf '%s\n' com.dwarvesv.minimalbar ;;
+    ice) printf '%s\n' com.jordanbaird.Ice ;;
+  esac
+}
+
+provider_app() {
+  case "$1" in hiddenbar) printf '%s\n' "Hidden Bar" ;; ice) printf '%s\n' Ice ;; esac
+}
+
+provider_helper() {
+  printf '%s/scripts/%s-settings.sh\n' "${REPO_DIR}" "$1"
+}
+
+provider_baseline() {
+  printf '%s/%s/preferences.plist\n' "${REPO_DIR}" "$1"
+}
+
+provider_running() {
+  local app
+  app="$(provider_app "$1")"
+  [ "$(/usr/bin/osascript -e "application \"${app}\" is running" 2>/dev/null)" = true ]
+}
+
+quit_provider() {
+  local provider="$1" app
+  app="$(provider_app "${provider}")"
+  if provider_running "${provider}"; then
+    run /usr/bin/osascript -e "tell application \"${app}\" to quit" || return 1
+  else
+    note "${app} is not running."
+  fi
+}
+
+backup_provider() {
+  local provider="$1" domain helper timestamp directory destination record
+  domain="$(provider_domain "${provider}")"
+  helper="$(provider_helper "${provider}")"
+  if ! defaults read "${domain}" >/dev/null 2>&1; then
+    note "No ${provider} preferences found to back up."
+    return 0
+  fi
+  timestamp="$(date +%Y%m%d-%H%M%S)"
+  directory="${MENU_BAR_BACKUP_ROOT}/${provider}-${timestamp}-$$"
+  destination="${directory}/preferences.plist"
+  record="${MENU_BAR_STATE_DIR}/last-${provider}-backup"
+  run "${helper}" export --output "${destination}" || return 1
+  if [ "${DRY_RUN}" -eq 0 ]; then
+    umask 077
+    mkdir -p "${MENU_BAR_STATE_DIR}" || return 1
+    printf '%s\n' "${destination}" > "${record}" || return 1
+    chmod 600 "${record}" || return 1
+  fi
+  case "${provider}" in
+    hiddenbar) HIDDENBAR_SWITCH_BACKUP="${destination}" ;;
+    ice) ICE_SWITCH_BACKUP="${destination}" ;;
+  esac
+}
+
+last_provider_backup() {
+  local record="${MENU_BAR_STATE_DIR}/last-$1-backup" path=""
+  if [ -r "${record}" ]; then IFS= read -r path < "${record}" || true; fi
+  if [ -n "${path}" ] && [ -r "${path}" ] && /usr/bin/plutil -lint "${path}" >/dev/null 2>&1; then
+    printf '%s\n' "${path}"
+  fi
+}
+
+restore_or_initialize_provider() {
+  local provider="$1" domain helper baseline backup
+  domain="$(provider_domain "${provider}")"
+  helper="$(provider_helper "${provider}")"
+  baseline="$(provider_baseline "${provider}")"
+  [ -x "${helper}" ] || return 1
+  [ -f "${baseline}" ] || return 1
+  if defaults read "${domain}" >/dev/null 2>&1; then
+    note "Existing $(provider_app "${provider}") preferences found; preserving them."
+    return 0
+  fi
+  backup="$(last_provider_backup "${provider}")"
+  if [ -n "${backup}" ]; then
+    note "Restoring the latest ${provider} preference backup."
+    run "${helper}" import "${backup}" --initial || return 1
+  else
+    note "Importing the tracked initial ${provider} preferences."
+    run "${helper}" import "${baseline}" --initial || return 1
+  fi
+}
+
+persist_menu_bar_manager() {
+  [ "${DRY_RUN}" -eq 1 ] && { note "Dry run: selection would be saved as ${MENU_BAR_MANAGER}."; return; }
+  umask 077
+  mkdir -p "${MENU_BAR_STATE_DIR}" || return 1
+  printf '%s\n' "${MENU_BAR_MANAGER}" > "${MENU_BAR_SELECTION_FILE}.tmp" || return 1
+  mv "${MENU_BAR_SELECTION_FILE}.tmp" "${MENU_BAR_SELECTION_FILE}" || return 1
+  chmod 600 "${MENU_BAR_SELECTION_FILE}" || return 1
+}
+
+restore_backup_for_rollback() {
+  local provider="$1" backup="$2" helper domain
+  [ -n "${backup}" ] && [ -r "${backup}" ] || return 0
+  helper="$(provider_helper "${provider}")"
+  domain="$(provider_domain "${provider}")"
+  if defaults read "${domain}" >/dev/null 2>&1; then
+    "${helper}" import "${backup}" --yes >/dev/null 2>&1 || return 1
+  else
+    "${helper}" import "${backup}" --initial >/dev/null 2>&1 || return 1
+  fi
+}
+
+rollback_menu_bar_switch() {
+  note "Menu-bar switch failed; restoring the previous installation."
+  [ "${DRY_RUN}" -eq 0 ] || return 1
+  if [ "${PREV_HIDDENBAR_INSTALLED}" -eq 0 ] && cask_installed hiddenbar; then
+    brew uninstall --cask hiddenbar >/dev/null 2>&1 || true
+  fi
+  if [ "${PREV_ICE_STABLE_INSTALLED}" -eq 0 ] && cask_installed jordanbaird-ice; then
+    brew uninstall --cask jordanbaird-ice >/dev/null 2>&1 || true
+  fi
+  if [ "${PREV_ICE_BETA_INSTALLED}" -eq 0 ] && cask_installed jordanbaird-ice@beta; then
+    brew uninstall --cask jordanbaird-ice@beta >/dev/null 2>&1 || true
+  fi
+  if [ "${PREV_HIDDENBAR_INSTALLED}" -eq 1 ] && ! cask_installed hiddenbar; then
+    brew install --cask hiddenbar >/dev/null 2>&1 || true
+  fi
+  if [ "${PREV_ICE_STABLE_INSTALLED}" -eq 1 ] && ! cask_installed jordanbaird-ice; then
+    brew install --cask jordanbaird-ice >/dev/null 2>&1 || true
+  fi
+  if [ "${PREV_ICE_BETA_INSTALLED}" -eq 1 ] && ! cask_installed jordanbaird-ice@beta; then
+    brew install --cask jordanbaird-ice@beta >/dev/null 2>&1 || true
+  fi
+  restore_backup_for_rollback hiddenbar "${HIDDENBAR_SWITCH_BACKUP}" || true
+  restore_backup_for_rollback ice "${ICE_SWITCH_BACKUP}" || true
+  case "${PREVIOUS_MENU_BAR_MANAGER}" in
+    hiddenbar|ice) /usr/bin/open -a "$(provider_app "${PREVIOUS_MENU_BAR_MANAGER}")" >/dev/null 2>&1 || true ;;
+  esac
+  return 1
+}
+
+apply_menu_bar_manager() {
+  local desired_ice="" changes=0 remove_hiddenbar=0 remove_ice_stable=0 remove_ice_beta=0 install_cask=""
+  PREV_HIDDENBAR_INSTALLED=0
+  PREV_ICE_STABLE_INSTALLED=0
+  PREV_ICE_BETA_INSTALLED=0
+  HIDDENBAR_SWITCH_BACKUP=""
+  ICE_SWITCH_BACKUP=""
+  cask_installed hiddenbar && PREV_HIDDENBAR_INSTALLED=1
+  cask_installed jordanbaird-ice && PREV_ICE_STABLE_INSTALLED=1
+  cask_installed jordanbaird-ice@beta && PREV_ICE_BETA_INSTALLED=1
+  if [ -z "${PREVIOUS_MENU_BAR_MANAGER}" ]; then
+    if [ "${PREV_HIDDENBAR_INSTALLED}" -eq 1 ] && [ "${PREV_ICE_STABLE_INSTALLED}" -eq 0 ] && [ "${PREV_ICE_BETA_INSTALLED}" -eq 0 ]; then
+      PREVIOUS_MENU_BAR_MANAGER=hiddenbar
+    elif [ "${PREV_HIDDENBAR_INSTALLED}" -eq 0 ] && { [ "${PREV_ICE_STABLE_INSTALLED}" -eq 1 ] || [ "${PREV_ICE_BETA_INSTALLED}" -eq 1 ]; }; then
+      PREVIOUS_MENU_BAR_MANAGER=ice
+    fi
+  fi
+
+  if [ "${MENU_BAR_MANAGER}" = ice ]; then desired_ice="$(ice_cask)"; fi
+  case "${MENU_BAR_MANAGER}" in
+    hiddenbar)
+      [ "${PREV_ICE_STABLE_INSTALLED}" -eq 0 ] || remove_ice_stable=1
+      [ "${PREV_ICE_BETA_INSTALLED}" -eq 0 ] || remove_ice_beta=1
+      [ "${PREV_HIDDENBAR_INSTALLED}" -eq 1 ] || install_cask=hiddenbar
+      ;;
+    ice)
+      [ "${PREV_HIDDENBAR_INSTALLED}" -eq 0 ] || remove_hiddenbar=1
+      if [ "${desired_ice}" = jordanbaird-ice@beta ]; then
+        [ "${PREV_ICE_STABLE_INSTALLED}" -eq 0 ] || remove_ice_stable=1
+        [ "${PREV_ICE_BETA_INSTALLED}" -eq 1 ] || install_cask="${desired_ice}"
+      else
+        [ "${PREV_ICE_BETA_INSTALLED}" -eq 0 ] || remove_ice_beta=1
+        [ "${PREV_ICE_STABLE_INSTALLED}" -eq 1 ] || install_cask="${desired_ice}"
+      fi
+      ;;
+    none)
+      [ "${PREV_HIDDENBAR_INSTALLED}" -eq 0 ] || remove_hiddenbar=1
+      [ "${PREV_ICE_STABLE_INSTALLED}" -eq 0 ] || remove_ice_stable=1
+      [ "${PREV_ICE_BETA_INSTALLED}" -eq 0 ] || remove_ice_beta=1
+      ;;
+  esac
+  [ "${remove_hiddenbar}" -eq 0 ] && [ "${remove_ice_stable}" -eq 0 ] && \
+    [ "${remove_ice_beta}" -eq 0 ] && [ -z "${install_cask}" ] || changes=1
+
+  heading "Menu-bar manager"
+  note "Selected: ${MENU_BAR_MANAGER}"
+  [ -z "${install_cask}" ] || note "Install: ${install_cask}"
+  [ "${remove_hiddenbar}" -eq 0 ] || note "Back up and uninstall: hiddenbar"
+  [ "${remove_ice_stable}" -eq 0 ] || note "Back up and uninstall: jordanbaird-ice"
+  [ "${remove_ice_beta}" -eq 0 ] || note "Back up and uninstall: jordanbaird-ice@beta"
+
+  if [ "${changes}" -eq 0 ]; then
+    note "Installed manager already matches the selection; no package changes needed."
+    persist_menu_bar_manager || die "Could not save the menu-bar manager choice."
+    return
+  fi
+  if [ "${DRY_RUN}" -eq 0 ] && ! confirm "Apply this menu-bar manager switch?"; then
+    die "Menu-bar manager switch declined."
+  fi
+
+  if [ "${remove_hiddenbar}" -eq 1 ]; then
+    backup_provider hiddenbar || { rollback_menu_bar_switch; die "Could not back up Hidden Bar."; }
+    quit_provider hiddenbar || { rollback_menu_bar_switch; die "Could not quit Hidden Bar."; }
+    run brew uninstall --cask hiddenbar || { rollback_menu_bar_switch; die "Could not uninstall Hidden Bar."; }
+  fi
+  if [ "${remove_ice_stable}" -eq 1 ] || [ "${remove_ice_beta}" -eq 1 ]; then
+    backup_provider ice || { rollback_menu_bar_switch; die "Could not back up Ice."; }
+    quit_provider ice || { rollback_menu_bar_switch; die "Could not quit Ice."; }
+  fi
+  if [ "${remove_ice_stable}" -eq 1 ]; then
+    run brew uninstall --cask jordanbaird-ice || { rollback_menu_bar_switch; die "Could not uninstall stable Ice."; }
+  fi
+  if [ "${remove_ice_beta}" -eq 1 ]; then
+    run brew uninstall --cask jordanbaird-ice@beta || { rollback_menu_bar_switch; die "Could not uninstall Ice beta."; }
+  fi
+  if [ -n "${install_cask}" ]; then
+    run brew install --cask "${install_cask}" || { rollback_menu_bar_switch; die "Could not install ${install_cask}."; }
+  fi
+  if [ "${MENU_BAR_MANAGER}" != none ]; then
+    restore_or_initialize_provider "${MENU_BAR_MANAGER}" || { rollback_menu_bar_switch; die "Could not configure ${MENU_BAR_MANAGER}."; }
+    run /usr/bin/open -a "$(provider_app "${MENU_BAR_MANAGER}")" || { rollback_menu_bar_switch; die "Could not open ${MENU_BAR_MANAGER}."; }
+  fi
+  persist_menu_bar_manager || { rollback_menu_bar_switch; die "Could not save the menu-bar manager choice."; }
+}
+
+resolve_menu_bar_manager
+apply_menu_bar_manager
 
 resolve_path() {
   /usr/bin/perl -MCwd=abs_path -e 'my $p = abs_path(shift); print $p if defined $p' "$1" 2>/dev/null
@@ -539,53 +889,27 @@ else
   note "Login message unchanged; use --with-hushlogin to create ~/.hushlogin."
 fi
 
-configure_hidden_bar() {
-  local domain="com.dwarvesv.minimalbar"
-  local has_preferences=0
-
-  heading "Hidden Bar"
-  if defaults read "${domain}" >/dev/null 2>&1; then
-    has_preferences=1
-    note "Existing Hidden Bar preferences found; bootstrap will preserve them."
-  else
-    note "First-run defaults: start at login, click to reveal, auto-collapse after 10 seconds."
-    note "No global hotkey or always-hidden section will be configured."
-    run defaults write "${domain}" isAutoStart -bool true || die "Could not configure Hidden Bar login behavior"
-    run defaults write "${domain}" isAutoHide -bool true || die "Could not configure Hidden Bar auto-collapse"
-    run defaults write "${domain}" numberOfSecondForAutoHide -float 10 || die "Could not configure Hidden Bar collapse delay"
-    run defaults write "${domain}" isShowPreferences -bool true || die "Could not configure Hidden Bar onboarding"
-    run defaults write "${domain}" areSeparatorsHidden -bool false || die "Could not configure Hidden Bar separators"
-    run defaults write "${domain}" alwaysHiddenSectionEnabled -bool false || die "Could not configure Hidden Bar sections"
-    run defaults write "${domain}" useFullStatusBarOnExpandEnabled -bool false || die "Could not configure Hidden Bar expansion"
-  fi
-
-  if [ "${HIDDEN_BAR_WAS_INSTALLED}" -eq 0 ] || [ "${has_preferences}" -eq 0 ]; then
-    note "Hidden Bar will open once for onboarding and login-item registration."
-    run open -a "Hidden Bar" || die "Could not launch Hidden Bar"
-    if [ "${DRY_RUN}" -eq 0 ]; then
-      /bin/sleep 2
-    fi
-    if [ "${has_preferences}" -eq 0 ]; then
-      run defaults write "${domain}" isShowPreferences -bool false || die "Could not complete Hidden Bar onboarding"
-      note "The preferences window will not reopen automatically at future logins."
-    fi
-  else
-    note "Existing Hidden Bar installation will not be relaunched."
-  fi
-}
-
-configure_hidden_bar
-
 heading "Validation"
 if [ "${DRY_RUN}" -eq 1 ]; then
   note "Dry run: would validate bordersrc and start or refresh JankyBorders when AeroSpace is running."
-  note "Dry run: would verify Hidden Bar and its preserved or first-run preferences."
+  note "Dry run: would verify the selected menu-bar manager and its preferences."
   note "Dry run complete; no validation requiring installed or linked files was run."
 else
   /bin/zsh -n "${REPO_DIR}/zsh/.zshrc" || die "Zsh config validation failed"
   /bin/bash -n "${REPO_DIR}/borders/.config/borders/bordersrc" || die "JankyBorders config validation failed"
-  [ -d "/Applications/Hidden Bar.app" ] || die "Hidden Bar application was not found"
-  defaults read com.dwarvesv.minimalbar >/dev/null 2>&1 || die "Hidden Bar preferences were not found"
+  case "${MENU_BAR_MANAGER}" in
+    hiddenbar)
+      [ -d "/Applications/Hidden Bar.app" ] || die "Hidden Bar application was not found"
+      defaults read com.dwarvesv.minimalbar >/dev/null 2>&1 || die "Hidden Bar preferences were not found"
+      ;;
+    ice)
+      [ -d "/Applications/Ice.app" ] || die "Ice application was not found"
+      defaults read com.jordanbaird.Ice >/dev/null 2>&1 || die "Ice preferences were not found"
+      ;;
+    none)
+      note "No menu-bar manager selected; application validation skipped."
+      ;;
+  esac
 
   if [ -x /Applications/Ghostty.app/Contents/MacOS/ghostty ]; then
     /Applications/Ghostty.app/Contents/MacOS/ghostty +validate-config --config-file="${REPO_DIR}/ghostty/.config/ghostty/config.ghostty" || die "Ghostty config validation failed"
@@ -623,4 +947,4 @@ fi
 heading "Complete"
 note "Repository: ${REPO_DIR}"
 note "Package mode: $([ "${UPGRADE}" -eq 1 ] && printf upgrade || printf install-missing-only)"
-note "No unlisted Homebrew packages were removed."
+note "No unrelated Homebrew packages were removed."

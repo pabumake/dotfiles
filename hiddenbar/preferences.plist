@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSStatusItem Preferred Position hiddenbar_expandcollapse</key>
+	<real>210</real>
+	<key>NSStatusItem Preferred Position hiddenbar_separate</key>
+	<real>242</real>
+	<key>alwaysHiddenSectionEnabled</key>
+	<false/>
+	<key>areSeparatorsHidden</key>
+	<false/>
+	<key>isAutoHide</key>
+	<true/>
+	<key>isAutoStart</key>
+	<true/>
+	<key>isShowPreferences</key>
+	<false/>
+	<key>numberOfSecondForAutoHide</key>
+	<real>10</real>
+	<key>useFullStatusBarOnExpandEnabled</key>
+	<true/>
+</dict>
+</plist>

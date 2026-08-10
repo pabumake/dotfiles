@@ -21,7 +21,7 @@ ownership, and recovery for the dotfiles in this repository.
 | --- | --- |
 | macOS windows and workspaces | AeroSpace |
 | Focused-window outline | JankyBorders, started by AeroSpace |
-| Native menu-bar icon visibility | Hidden Bar |
+| Native menu-bar icon visibility | Selected Hidden Bar or Ice provider |
 | Terminal workspaces, tabs, panes, navigation, zoom, and resize | Herdr |
 | Clipboard, search, font size, terminal windows, and fullscreen | Ghostty |
 

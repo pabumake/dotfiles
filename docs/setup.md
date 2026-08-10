@@ -40,6 +40,8 @@ Remove the temporary file afterward when it is no longer needed.
 | `--no-repo-update` | Use the current checkout without fetching or pulling |
 | `--backup-conflicts` | Permit conflict backups when using `--yes` |
 | `--with-hushlogin` | Explicitly create `~/.hushlogin` |
+| `--menu-bar-manager M` | Select and remember `hiddenbar`, `ice`, or `none` |
+| `--switch-bar-manager` | Reopen the interactive provider selector |
 | `--repo-dir PATH` | Override `~/Documents/dotfiles` |
 | `--help` | Print usage and safety rules |
 
@@ -50,6 +52,7 @@ cd ~/Documents/dotfiles
 ./setup/bootstrap.sh --dry-run
 ./setup/bootstrap.sh --upgrade
 ./setup/bootstrap.sh --yes --backup-conflicts
+./setup/bootstrap.sh --switch-bar-manager
 ```
 
 `--yes` does not silently replace existing configs. When conflicts exist it
@@ -75,12 +78,18 @@ git stow starship eza herdr borders neovim ripgrep fd fzf lazygit tree-sitter no
 ### Casks
 
 ```text
-ghostty aerospace hiddenbar font-jetbrains-mono-nerd-font
+ghostty aerospace font-jetbrains-mono-nerd-font
 ```
 
+Hidden Bar or Ice is installed separately after the remembered provider choice
+is resolved. Ice uses its Tahoe beta cask on macOS 26+, its stable cask on macOS
+14–15, and is unavailable on older systems. Ice is the default first-run choice;
+the selector or `--menu-bar-manager` can choose Hidden Bar or None instead.
+
 Normal runs use Homebrew Bundle's install-only mode. Existing packages are not
-upgraded unless `--upgrade` is supplied, unlisted packages are never removed,
-and `brew bundle cleanup` is never used.
+upgraded unless `--upgrade` is supplied, unrelated packages are never removed,
+and `brew bundle cleanup` is never used. Only the menu-bar providers participate
+in the separately confirmed removal workflow.
 
 JankyBorders comes from a third-party tap. On Homebrew versions that enforce
 tap trust, the bootstrap explicitly trusts only
@@ -182,10 +191,9 @@ rm "$HOME/.hushlogin"
 
 ## Validation and post-install steps
 
-The bootstrap validates Zsh, JankyBorders, Hidden Bar, and, when available, the
-Ghostty, Herdr, and AeroSpace configs. It refreshes an existing JankyBorders
-process or starts one when AeroSpace is already running. Otherwise, AeroSpace
-starts it at the next launch.
+The bootstrap validates Zsh, JankyBorders, the selected menu-bar manager, and,
+when available, the Ghostty, Herdr, and AeroSpace configs. It refreshes an
+existing JankyBorders process or starts one when AeroSpace is already running.
 
 After the first installation:
 
@@ -194,9 +202,14 @@ After the first installation:
 3. Start Herdr and verify `Control + B`, then `?` opens help.
 4. Start AeroSpace and grant **System Settings → Privacy & Security → Accessibility** permission.
 5. Move focus between windows and verify the focused window receives a subtle blue border.
-6. Arrange menu-bar icons around Hidden Bar's separator with `Command (⌘) + drag`.
-7. Verify Hidden Bar under **System Settings → General → Login Items**.
+6. Arrange menu-bar icons around the selected provider with `Command (⌘) + drag`.
+7. For Ice, grant Accessibility and enable **Launch at login** in its settings.
 8. Start Neovim once so LazyVim can install its pinned plugins.
+
+On a fresh setup, bootstrap imports the selected provider's tracked baseline
+only when no preferences exist. Later runs preserve live settings. Switching,
+manual exports, imports, and recovery remain separate from Stow; see
+[Menu-bar icon management](menubar.md#manual-exports-and-imports).
 
 ## Troubleshooting
 
@@ -205,7 +218,7 @@ After the first installation:
 - **Packages:** rerun `brew bundle check --verbose --file=~/Documents/dotfiles/Brewfile`.
 - **Stow:** inspect the printed targets and the timestamped conflict manifest.
 - **JankyBorders:** run `~/.config/borders/bordersrc` to refresh a running process, or restart AeroSpace.
-- **Hidden Bar:** use `Command (⌘) + drag` to return a newly hidden icon to the visible side of its separator.
+- **Menu-bar manager:** use `--switch-bar-manager` to change providers; backups are recorded before removal.
 - **Application validation:** run the commands in the [AeroSpace](aerospace.md) or [terminal](terminal.md) guides.
 
 ## Enable GitHub Pages
