@@ -1,154 +1,38 @@
 # Pabu's dotfiles
 
-This is a work in progress.
+Personal macOS and terminal configuration managed with [GNU Stow](https://www.gnu.org/software/stow/).
 
-## Understanding the Stow layout
+## Packages
 
-```bash
-dotfile location -------------------> GNU Stow package
+| Package | Purpose |
+| --- | --- |
+| `aerospace` | Omachy-inspired macOS tiling and workspace management |
+| `ghostty` | Terminal appearance and host-level shortcuts |
+| `herdr` | Terminal workspaces, tabs, panes, and navigation |
+| `nvim` | Neovim configuration |
+| `starship` | Shell prompt |
+| `zsh` | Shell configuration and aliases |
+| `gh-manager` | GitHub Manager configuration |
 
-Each package repeats the path that should be created below the target directory.
-
-~/.config/nvim     -----------------> nvim/.config/nvim
-~/.config/ghostty  -----------------> ghostty/.config/ghostty
-~/.aerospace.toml  -----------------> aerospace/.aerospace.toml
-```
-
-## Moving an existing config into a package
-
-```bash
-mv ~/.config/nvim ~/Documents/dotfiles/nvim/.config/nvim
-```
-
-## Enable Stow linking
-
-Run Stow from the repository root and explicitly target the home directory:
+## Quick start
 
 ```bash
 cd ~/Documents/dotfiles
-stow --target="$HOME" nvim
-stow --target="$HOME" aerospace
+stow --target="$HOME" aerospace ghostty herdr starship zsh
 ```
 
-Restart or reload the relevant application after linking its configuration.
-
-## Remove Stow links
+Preview changes before linking a package:
 
 ```bash
-cd ~/Documents/dotfiles
-stow --delete --target="$HOME" aerospace
+stow --simulate --verbose --target="$HOME" herdr
 ```
 
-The package files remain in the repository; only the generated links are removed.
+## Documentation
 
-## Restoring on a new device
+- [Setup and Stow usage](docs/setup.md)
+- [AeroSpace workflow and keybindings](docs/aerospace.md)
+- [Ghostty and Herdr keybindings](docs/terminal.md)
+- [GitHub Pages documentation site](https://pabumake.github.io/dotfiles/)
 
-```bash
-cd ~/Documents/dotfiles
-stow --target="$HOME" starship
-stow --target="$HOME" aerospace
-```
-
-## AeroSpace workflow and keybinding cheat sheet
-
-The AeroSpace config uses numbered workspaces, Vim-style navigation, and fixed
-8px gaps. It does not start SketchyBar, borders, dynamic gap scripts, or tmux.
-
-The `alt` modifier in the AeroSpace config is the macOS **Option (⌥)** key.
-Every modifier is written explicitly below; there is no implied `Mod` key.
-
-### Main mode: focus and window movement
-
-| Shortcut | Action |
-| --- | --- |
-| `Option (⌥) + H` | Focus the window to the left |
-| `Option (⌥) + J` | Focus the window below |
-| `Option (⌥) + K` | Focus the window above |
-| `Option (⌥) + L` | Focus the window to the right |
-| `Option (⌥) + Shift (⇧) + H` | Move the focused window left |
-| `Option (⌥) + Shift (⇧) + J` | Move the focused window down |
-| `Option (⌥) + Shift (⇧) + K` | Move the focused window up |
-| `Option (⌥) + Shift (⇧) + L` | Move the focused window right |
-| `Option (⌥) + -` | Shrink the focused window by 50 pixels |
-| `Option (⌥) + =` | Grow the focused window by 50 pixels |
-
-### Main mode: layouts and windows
-
-| Shortcut | Action |
-| --- | --- |
-| `Option (⌥) + /` | Cycle tiled layout orientation |
-| `Option (⌥) + ,` | Cycle accordion layout orientation |
-| `Option (⌥) + Shift (⇧) + Space` | Toggle floating/tiling |
-| `Option (⌥) + F` | Toggle native macOS fullscreen |
-| `Option (⌥) + Q` | Close the focused window |
-| `Option (⌥) + Enter (↩)` | Open Ghostty and start or attach Herdr |
-| `Command (⌘) + H` | Disabled to prevent accidental application hiding |
-| `Command (⌘) + Option (⌥) + H` | Disabled to prevent hiding other applications |
-
-### Main mode: workspaces and monitors
-
-| Shortcut | Action |
-| --- | --- |
-| `Option (⌥) + 1–9` | Switch to workspace 1–9 |
-| `Option (⌥) + Shift (⇧) + 1–9` | Move the focused window to workspace 1–9 |
-| `Option (⌥) + Tab (⇥)` | Switch to the previous workspace |
-| `Option (⌥) + Shift (⇧) + Tab (⇥)` | Move the current workspace to the next monitor |
-
-### Resize mode
-
-Enter resize mode with `Option (⌥) + R`. Keys within this mode do not use a
-modifier unless one is shown.
-
-| Shortcut | Action |
-| --- | --- |
-| `H` | Reduce width by 50 pixels |
-| `J` | Increase height by 50 pixels |
-| `K` | Reduce height by 50 pixels |
-| `L` | Increase width by 50 pixels |
-| `-` | Smart resize down by 50 pixels |
-| `=` | Smart resize up by 50 pixels |
-| `Enter (↩)` or `Escape (Esc)` | Return to main mode |
-
-### Service mode
-
-Enter service mode with `Option (⌥) + Shift (⇧) + Semicolon (;)`. Every listed
-action automatically returns to main mode.
-
-| Shortcut | Action |
-| --- | --- |
-| `Escape (Esc)` | Reload the AeroSpace config and return to main mode |
-| `R` | Flatten/reset the current workspace tree |
-| `F` | Toggle floating/tiling |
-| `Backspace (⌫)` | Close every window in the workspace except the focused one |
-| `Option (⌥) + Shift (⇧) + H` | Join with the container to the left |
-| `Option (⌥) + Shift (⇧) + J` | Join with the container below |
-| `Option (⌥) + Shift (⇧) + K` | Join with the container above |
-| `Option (⌥) + Shift (⇧) + L` | Join with the container to the right |
-
-### Validate and reload
-
-```bash
-aerospace reload-config --dry-run --warnings-as-errors
-aerospace reload-config
-```
-
-### Restore the pre-Omachy configuration
-
-The exact known-good configuration is stored in
-`backups/aerospace/pre-omachy-20260810.toml` and the full repository checkpoint
-is tagged `aerospace-pre-omachy-20260810`.
-
-```bash
-cd ~/Documents/dotfiles
-cp backups/aerospace/pre-omachy-20260810.toml aerospace/.aerospace.toml
-aerospace reload-config --dry-run --warnings-as-errors
-aerospace reload-config
-```
-
-To recover the current committed config after rehearsing a restore:
-
-```bash
-git restore aerospace/.aerospace.toml
-aerospace reload-config --dry-run --warnings-as-errors
-aerospace reload-config
-```
+The longer guides live in `/docs` so this README stays useful as a quick entry
+point. The site is prepared for publishing from `main` and `/docs`.

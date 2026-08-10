@@ -1,0 +1,7 @@
+title: Pabu's dotfiles
+description: Setup, keybindings, and recovery guides for Pabu's macOS dotfiles.
+theme: jekyll-theme-minimal
+repository: pabumake/dotfiles
+url: https://pabumake.github.io
+baseurl: /dotfiles
+show_downloads: false
