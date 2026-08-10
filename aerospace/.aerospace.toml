@@ -9,7 +9,6 @@ config-version = 2
 # You can use it to add commands that run after AeroSpace startup.
 # Available commands : https://nikitabobko.github.io/AeroSpace/commands
 after-startup-command = [
-    'exec-and-forget borders',
     'exec-and-forget "${HOME}/.config/aerospace/start-swipeaerospace.sh"',
 ]
 

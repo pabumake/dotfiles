@@ -7,7 +7,7 @@ Personal macOS and terminal configuration managed with [GNU Stow](https://www.gn
 | Package | Purpose |
 | --- | --- |
 | `aerospace` | Omachy-inspired macOS tiling and workspace management |
-| `borders` | Catppuccin Mocha focused-window highlighting |
+| `borders` | Supervised Catppuccin Mocha focused-window highlighting |
 | `ghostty` | Terminal appearance and host-level shortcuts |
 | `herdr` | Terminal workspaces, tabs, panes, and navigation |
 | `nvim` | Neovim configuration |
@@ -39,6 +39,8 @@ The bootstrap always prints its plan. By default it installs only missing
 packages, fast-forwards only clean Git checkouts, and asks before backing up any
 existing config that conflicts with Stow. Package upgrades require `--upgrade`.
 It is the repository's only supported installation and update entry point.
+JankyBorders is registered as a per-user Homebrew service so it starts at login
+and automatically recovers if its process exits.
 
 Fresh installations use the portable `default` profile. Run bootstrap with
 `--profile-personal` to enable the personal AeroSpace app assignments; later
