@@ -7,8 +7,8 @@ title: AeroSpace
 
 
 The AeroSpace config uses numbered workspaces, Vim-style navigation, and fixed
-8px gaps. AeroSpace starts JankyBorders for focused-window highlighting. It
-does not start SketchyBar, dynamic gap scripts, or tmux.
+8px gaps. A supervised JankyBorders service provides focused-window
+highlighting. AeroSpace does not start SketchyBar, dynamic gap scripts, or tmux.
 
 The `alt` modifier in the AeroSpace config is the macOS **Option (⌥)** key.
 Every modifier is written explicitly below; there is no implied `Mod` key.
@@ -168,16 +168,26 @@ action automatically returns to main mode.
 uses 80% opacity (`0xcc89b4fa`); inactive borders are transparent. Retina
 rendering remains enabled, and no glow effect is used.
 
-AeroSpace starts `borders` at login. Its appearance is managed from
-`~/.config/borders/bordersrc`. To apply appearance changes without restarting
-AeroSpace:
+Homebrew runs `borders` as a per-user login service with launchd `KeepAlive`.
+It starts independently of AeroSpace and is automatically relaunched after an
+unexpected exit. Its appearance is managed from `~/.config/borders/bordersrc`.
+To apply appearance changes without restarting the service:
 
 ```bash
 ~/.config/borders/bordersrc
 ```
 
-JankyBorders is not a Homebrew service and does not require Accessibility
-permission. If it is not running, restart AeroSpace or run `borders`.
+JankyBorders does not require Accessibility permission. Manage and inspect the
+service from the repository:
+
+```bash
+cd ~/Documents/dotfiles
+./scripts/borders-service.sh status
+./scripts/borders-service.sh restart
+```
+
+Homebrew records service output in `$(brew --prefix)/var/log/borders/`. If
+status fails, inspect `borders.out.log` and `borders.err.log` there.
 
 ### Validate and reload
 
@@ -193,8 +203,8 @@ before JankyBorders was added. To stop highlighting without changing the
 repository:
 
 ```bash
-pkill borders
 cd ~/Documents/dotfiles
+./scripts/borders-service.sh disable
 stow --delete --target="$HOME" borders
 ```
 
@@ -207,7 +217,8 @@ cd ~/Documents/dotfiles
 git restore --source=aerospace-pre-jankyborders-20260810 -- \
   Brewfile README.md aerospace/.aerospace.toml setup/bootstrap.sh \
   docs/aerospace.md docs/index.md docs/setup.md
-git rm -r borders
+git rm -r borders scripts/borders-service.sh
+brew services stop borders
 brew uninstall borders
 ```
 

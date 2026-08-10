@@ -957,6 +957,13 @@ else
   note "Login message unchanged; use --with-hushlogin to create ~/.hushlogin."
 fi
 
+heading "JankyBorders service"
+note "JankyBorders will run as a persistent per-user login service with automatic restart."
+borders_service_args=(enable)
+[ "${DRY_RUN}" -eq 0 ] || borders_service_args+=(--dry-run)
+"${REPO_DIR}/scripts/borders-service.sh" "${borders_service_args[@]}" || \
+  die "JankyBorders service setup did not complete"
+
 heading "Trackpad gestures"
 gesture_args=(enable)
 [ "${DRY_RUN}" -eq 0 ] || gesture_args+=(--dry-run)
@@ -966,12 +973,13 @@ gesture_args=(enable)
 
 heading "Validation"
 if [ "${DRY_RUN}" -eq 1 ]; then
-  note "Dry run: would validate bordersrc, AeroSpace helpers, and start or refresh JankyBorders when AeroSpace is running."
+  note "Dry run: would validate bordersrc, service state, and AeroSpace helpers."
   note "Dry run: would verify the selected menu-bar manager and its preferences."
   note "Dry run complete; no validation requiring installed or linked files was run."
 else
   /bin/zsh -n "${REPO_DIR}/zsh/.zshrc" || die "Zsh config validation failed"
   /bin/bash -n "${REPO_DIR}/borders/.config/borders/bordersrc" || die "JankyBorders config validation failed"
+  /bin/bash -n "${REPO_DIR}/scripts/borders-service.sh" || die "JankyBorders service helper validation failed"
   /bin/bash -n "${REPO_DIR}/aerospace/.config/aerospace/personal-window-router.sh" || die "AeroSpace profile router validation failed"
   /bin/bash -n "${REPO_DIR}/aerospace/.config/aerospace/start-swipeaerospace.sh" || die "SwipeAeroSpace startup helper validation failed"
   /bin/bash -n "${REPO_DIR}/scripts/trackpad-gestures.sh" || die "Trackpad gesture helper validation failed"
@@ -1006,20 +1014,7 @@ else
     note "AeroSpace is not running; live config validation was skipped."
   fi
 
-  if command -v borders >/dev/null 2>&1; then
-    if pgrep -x borders >/dev/null 2>&1; then
-      /bin/bash "${REPO_DIR}/borders/.config/borders/bordersrc" || die "Could not refresh JankyBorders"
-      note "JankyBorders appearance refreshed."
-    elif pgrep -x AeroSpace >/dev/null 2>&1; then
-      borders_bin="$(command -v borders)"
-      /usr/bin/nohup "${borders_bin}" >/dev/null 2>&1 &
-      /bin/sleep 1
-      pgrep -x borders >/dev/null 2>&1 || die "JankyBorders did not start"
-      note "JankyBorders started for the running AeroSpace session."
-    else
-      note "AeroSpace is not running; JankyBorders will start with AeroSpace."
-    fi
-  fi
+  "${REPO_DIR}/scripts/borders-service.sh" status || die "JankyBorders service validation failed"
 
   note "Open a new shell, reload Ghostty, and grant AeroSpace and SwipeAeroSpace Accessibility permission if prompted."
   note "Start Neovim once to let LazyVim install its pinned plugins."

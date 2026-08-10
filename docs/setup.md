@@ -104,6 +104,9 @@ in the separately confirmed removal workflow.
 JankyBorders comes from a third-party tap. On Homebrew versions that enforce
 tap trust, the bootstrap explicitly trusts only
 `felixkratz/formulae/borders`; it does not trust every formula in the tap.
+After Stow links its configuration, bootstrap enables the formula's per-user
+Homebrew service. The service starts at login and uses launchd `KeepAlive` to
+recover from an unexpected process exit.
 
 SwipeAeroSpace comes from its project's `mediosz/tap` Homebrew tap. Bootstrap
 installs the cask, configures its three-finger workspace gesture through the
@@ -208,8 +211,23 @@ rm "$HOME/.hushlogin"
 ## Validation and post-install steps
 
 The bootstrap validates Zsh, JankyBorders, the selected menu-bar manager, and,
-when available, the Ghostty, Herdr, and AeroSpace configs. It refreshes an
-existing JankyBorders process or starts one when AeroSpace is already running.
+when available, the Ghostty, Herdr, and AeroSpace configs. JankyBorders setup is
+idempotent: an existing healthy service is retained and refreshed, while an old
+unmanaged process is stopped gracefully and replaced by the login service.
+
+Service controls are kept separate from bootstrap for recovery and diagnostics:
+
+```bash
+cd ~/Documents/dotfiles
+./scripts/borders-service.sh status
+./scripts/borders-service.sh restart
+./scripts/borders-service.sh disable
+./scripts/borders-service.sh enable
+```
+
+Disabling the service unregisters it from login but retains the Stow-managed
+configuration. Service logs are stored at
+`$(brew --prefix)/var/log/borders/`.
 
 After the first installation:
 
@@ -266,7 +284,7 @@ will reinstall SwipeAeroSpace because gestures are part of every managed setup.
 - **Repository:** resolve local changes or divergence manually, then rerun; never reset merely for the bootstrap.
 - **Packages:** rerun `brew bundle check --verbose --file=~/Documents/dotfiles/Brewfile`.
 - **Stow:** inspect the printed targets and the timestamped conflict manifest.
-- **JankyBorders:** run `~/.config/borders/bordersrc` to refresh a running process, or restart AeroSpace.
+- **JankyBorders:** run `./scripts/borders-service.sh status`, then `restart`; inspect `$(brew --prefix)/var/log/borders/borders.err.log` if validation still fails.
 - **Trackpad gestures:** run `./scripts/trackpad-gestures.sh status`; confirm SwipeAeroSpace has Accessibility permission.
 - **Menu-bar manager:** use `--switch-bar-manager` to change providers; backups are recorded before removal.
 - **Application validation:** run the commands in the [AeroSpace](aerospace.md) or [terminal](terminal.md) guides.
