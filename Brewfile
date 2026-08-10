@@ -1,5 +1,6 @@
 tap "nikitabobko/tap"
 tap "FelixKratz/formulae"
+tap "mediosz/tap"
 
 # Core dotfile and shell tooling
 brew "git"
@@ -21,4 +22,5 @@ brew "node"
 # macOS applications and font used by the managed configs
 cask "ghostty"
 cask "aerospace"
+cask "swipeaerospace"
 cask "font-jetbrains-mono-nerd-font"

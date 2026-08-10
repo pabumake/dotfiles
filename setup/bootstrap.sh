@@ -7,7 +7,7 @@ HOMEBREW_INSTALL_URL="https://raw.githubusercontent.com/Homebrew/install/HEAD/in
 DEFAULT_REPO_DIR="${HOME}/Documents/dotfiles"
 
 FORMULAE=(git stow starship eza herdr borders neovim ripgrep fd fzf lazygit tree-sitter node)
-CASKS=(ghostty aerospace font-jetbrains-mono-nerd-font)
+CASKS=(ghostty aerospace swipeaerospace font-jetbrains-mono-nerd-font)
 STOW_PACKAGES=(aerospace borders ghostty herdr nvim starship zsh gh-manager)
 
 DRY_RUN=0
@@ -164,7 +164,7 @@ load_brew_environment() {
 
 print_declared_packages() {
   local item
-  note "Taps: nikitabobko/tap FelixKratz/formulae"
+  note "Taps: nikitabobko/tap FelixKratz/formulae mediosz/tap"
   printf '    Formulae:'
   for item in "${FORMULAE[@]}"; do printf ' %s' "${item}"; done
   printf '\n    Casks:'
@@ -377,6 +377,15 @@ prepare_borders_formula() {
   fi
 }
 
+prepare_swipeaerospace_cask() {
+  note "Third-party cask: mediosz/tap/swipeaerospace"
+  run brew tap mediosz/tap || return 1
+  if brew help trust >/dev/null 2>&1; then
+    note "Trust scope: this cask only (not the complete tap)."
+    run brew trust --cask mediosz/tap/swipeaerospace || return 1
+  fi
+}
+
 heading "Homebrew package plan"
 note "Brewfile: ${REPO_DIR}/Brewfile"
 print_package_status
@@ -391,6 +400,7 @@ note "gh-manager remains config-only."
 if ! brew bundle check --file="${REPO_DIR}/Brewfile" >/dev/null 2>&1 || [ "${UPGRADE}" -eq 1 ]; then
   if [ "${DRY_RUN}" -eq 1 ]; then
     prepare_borders_formula
+    prepare_swipeaerospace_cask
     run brew bundle install --no-upgrade --file="${REPO_DIR}/Brewfile"
     if [ "${UPGRADE}" -eq 1 ]; then
       run brew bundle upgrade --file="${REPO_DIR}/Brewfile"
@@ -400,6 +410,7 @@ if ! brew bundle check --file="${REPO_DIR}/Brewfile" >/dev/null 2>&1 || [ "${UPG
       die "Package phase declined."
     fi
     prepare_borders_formula || die "Could not prepare the JankyBorders formula"
+    prepare_swipeaerospace_cask || die "Could not prepare the SwipeAeroSpace cask"
     run brew bundle install --no-upgrade --file="${REPO_DIR}/Brewfile" || die "Homebrew bundle installation failed"
     if [ "${UPGRADE}" -eq 1 ]; then
       run brew bundle upgrade --file="${REPO_DIR}/Brewfile" || die "Homebrew bundle upgrade failed"
@@ -946,15 +957,24 @@ else
   note "Login message unchanged; use --with-hushlogin to create ~/.hushlogin."
 fi
 
+heading "Trackpad gestures"
+gesture_args=(enable)
+[ "${DRY_RUN}" -eq 0 ] || gesture_args+=(--dry-run)
+[ "${ASSUME_YES}" -eq 0 ] || gesture_args+=(--yes)
+"${REPO_DIR}/scripts/trackpad-gestures.sh" "${gesture_args[@]}" || \
+  die "Trackpad gesture setup did not complete"
+
 heading "Validation"
 if [ "${DRY_RUN}" -eq 1 ]; then
-  note "Dry run: would validate bordersrc, the AeroSpace profile router, and start or refresh JankyBorders when AeroSpace is running."
+  note "Dry run: would validate bordersrc, AeroSpace helpers, and start or refresh JankyBorders when AeroSpace is running."
   note "Dry run: would verify the selected menu-bar manager and its preferences."
   note "Dry run complete; no validation requiring installed or linked files was run."
 else
   /bin/zsh -n "${REPO_DIR}/zsh/.zshrc" || die "Zsh config validation failed"
   /bin/bash -n "${REPO_DIR}/borders/.config/borders/bordersrc" || die "JankyBorders config validation failed"
   /bin/bash -n "${REPO_DIR}/aerospace/.config/aerospace/personal-window-router.sh" || die "AeroSpace profile router validation failed"
+  /bin/bash -n "${REPO_DIR}/aerospace/.config/aerospace/start-swipeaerospace.sh" || die "SwipeAeroSpace startup helper validation failed"
+  /bin/bash -n "${REPO_DIR}/scripts/trackpad-gestures.sh" || die "Trackpad gesture helper validation failed"
   case "${MENU_BAR_MANAGER}" in
     hiddenbar)
       [ -d "/Applications/Hidden Bar.app" ] || die "Hidden Bar application was not found"
@@ -972,6 +992,9 @@ else
   if [ -x /Applications/Ghostty.app/Contents/MacOS/ghostty ]; then
     /Applications/Ghostty.app/Contents/MacOS/ghostty +validate-config --config-file="${REPO_DIR}/ghostty/.config/ghostty/config.ghostty" || die "Ghostty config validation failed"
   fi
+
+  [ -d /Applications/SwipeAeroSpace.app ] || die "SwipeAeroSpace application was not found"
+  "${REPO_DIR}/scripts/trackpad-gestures.sh" status || die "Trackpad gesture validation failed"
 
   if command -v herdr >/dev/null 2>&1; then
     HERDR_CONFIG_PATH="${REPO_DIR}/herdr/.config/herdr/config.toml" herdr config check || die "Herdr config validation failed"
@@ -998,7 +1021,7 @@ else
     fi
   fi
 
-  note "Open a new shell, reload Ghostty, and grant AeroSpace Accessibility permission if prompted."
+  note "Open a new shell, reload Ghostty, and grant AeroSpace and SwipeAeroSpace Accessibility permission if prompted."
   note "Start Neovim once to let LazyVim install its pinned plugins."
 fi
 

@@ -22,6 +22,11 @@ the default on supported macOS versions unless another choice is selected.
 Provider preferences have tracked first-run baselines and guarded backup helpers;
 other applications' icon positions remain device-specific macOS state.
 
+[SwipeAeroSpace](https://github.com/MediosZ/SwipeAeroSpace) provides universal
+three-finger horizontal workspace navigation. The native three-finger-up
+Mission Control gesture and SwipeAeroSpace's workspace overview are disabled,
+so vertical swipes do not display an overlay.
+
 ## Quick start
 
 Bootstrap a new Mac or update an existing checkout with the same command:
@@ -69,6 +74,7 @@ inspiration here:
   [JankyBorders](https://github.com/FelixKratz/JankyBorders),
   [Ghostty](https://github.com/ghostty-org/ghostty),
   [Herdr](https://github.com/herdrdev/herdr),
+  [SwipeAeroSpace](https://github.com/MediosZ/SwipeAeroSpace),
   [Ice](https://github.com/jordanbaird/Ice), and
   [Hidden Bar](https://github.com/dwarvesf/hidden)
 - **Shell and editor:** [Zsh](https://github.com/zsh-users/zsh),

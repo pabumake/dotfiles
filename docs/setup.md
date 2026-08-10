@@ -76,6 +76,7 @@ The committed `Brewfile` is the source of truth.
 ```text
 nikitabobko/tap
 FelixKratz/formulae
+mediosz/tap
 ```
 
 ### Formulae
@@ -87,7 +88,7 @@ git stow starship eza herdr borders neovim ripgrep fd fzf lazygit tree-sitter no
 ### Casks
 
 ```text
-ghostty aerospace font-jetbrains-mono-nerd-font
+ghostty aerospace swipeaerospace font-jetbrains-mono-nerd-font
 ```
 
 Hidden Bar or Ice is installed separately after the remembered provider choice
@@ -103,6 +104,12 @@ in the separately confirmed removal workflow.
 JankyBorders comes from a third-party tap. On Homebrew versions that enforce
 tap trust, the bootstrap explicitly trusts only
 `felixkratz/formulae/borders`; it does not trust every formula in the tap.
+
+SwipeAeroSpace comes from its project's `mediosz/tap` Homebrew tap. Bootstrap
+installs the cask, configures its three-finger workspace gesture through the
+separate `scripts/trackpad-gestures.sh` helper, and starts it with AeroSpace.
+On Homebrew versions that enforce tap trust, bootstrap trusts only
+`mediosz/tap/swipeaerospace`, not every cask in the tap.
 
 `gh-manager` remains config-only. Its Stow package is linked, but the bootstrap
 does not install its binary or GitHub CLI.
@@ -210,15 +217,48 @@ After the first installation:
 2. Reload or restart Ghostty.
 3. Start Herdr and verify `Control + B`, then `?` opens help.
 4. Start AeroSpace and grant **System Settings → Privacy & Security → Accessibility** permission.
-5. Move focus between windows and verify the focused window receives a subtle blue border.
-6. Arrange menu-bar icons around the selected provider with `Command (⌘) + drag`.
-7. For Ice, grant Accessibility and enable **Launch at login** in its settings.
-8. Start Neovim once so LazyVim can install its pinned plugins.
+5. Grant SwipeAeroSpace Accessibility permission in the same settings panel.
+6. Swipe horizontally with three fingers and verify it moves between occupied AeroSpace workspaces.
+7. Swipe upward with three fingers and verify neither a SwipeAeroSpace workspace
+   overview nor the macOS Mission Control overlay appears.
+8. Move focus between windows and verify the focused window receives a subtle blue border.
+9. Arrange menu-bar icons around the selected provider with `Command (⌘) + drag`.
+10. For Ice, grant Accessibility and enable **Launch at login** in its settings.
+11. Start Neovim once so LazyVim can install its pinned plugins.
 
 On a fresh setup, bootstrap imports the selected provider's tracked baseline
 only when no preferences exist. Later runs preserve live settings. Switching,
 manual exports, imports, and recovery remain separate from Stow; see
 [Menu-bar icon management](menubar.md#manual-exports-and-imports).
+
+### Trackpad gesture recovery
+
+Gesture preferences are deliberately managed by a separate helper rather than
+Stow. Its interface is:
+
+```bash
+cd ~/Documents/dotfiles
+./scripts/trackpad-gestures.sh status
+./scripts/trackpad-gestures.sh enable --dry-run
+./scripts/trackpad-gestures.sh restore --dry-run
+```
+
+The first real `enable` records the original values of only the affected
+trackpad, Mission Control, and SwipeAeroSpace keys at
+`~/.local/state/pabu-dotfiles/backups/trackpad-gestures/original.tsv`. Later
+enables never replace that baseline. A real `restore` restores those values,
+marks the integration disabled, restarts Dock, and quits SwipeAeroSpace. The
+backup is retained so the operation remains auditable and repeatable.
+
+To remove the application after restoring the native preferences:
+
+```bash
+brew uninstall --cask swipeaerospace
+brew untap mediosz/tap
+```
+
+Only untap `mediosz/tap` when no other installed cask uses it. A later bootstrap
+will reinstall SwipeAeroSpace because gestures are part of every managed setup.
 
 ## Troubleshooting
 
@@ -227,6 +267,7 @@ manual exports, imports, and recovery remain separate from Stow; see
 - **Packages:** rerun `brew bundle check --verbose --file=~/Documents/dotfiles/Brewfile`.
 - **Stow:** inspect the printed targets and the timestamped conflict manifest.
 - **JankyBorders:** run `~/.config/borders/bordersrc` to refresh a running process, or restart AeroSpace.
+- **Trackpad gestures:** run `./scripts/trackpad-gestures.sh status`; confirm SwipeAeroSpace has Accessibility permission.
 - **Menu-bar manager:** use `--switch-bar-manager` to change providers; backups are recorded before removal.
 - **Application validation:** run the commands in the [AeroSpace](aerospace.md) or [terminal](terminal.md) guides.
 

@@ -50,6 +50,34 @@ reopening their windows; any window they restore is routed to its home workspace
 when AeroSpace detects it. Arbitrary manual workspace assignments are not saved
 across a reboot.
 
+### Trackpad gestures and Mission Control
+
+[SwipeAeroSpace](https://github.com/MediosZ/SwipeAeroSpace) maps three-finger
+horizontal swipes to AeroSpace workspace navigation on every managed setup. It
+uses natural macOS direction, skips empty workspaces, and stops at the first or
+last occupied workspace instead of wrapping around. AeroSpace starts the app
+only while the gesture integration is enabled.
+
+Native horizontal Space switching is disabled so macOS and SwipeAeroSpace do
+not both react to the same gesture. The native three-finger vertical gesture is
+also disabled, so swiping up does not open macOS Mission Control's unrelated
+Spaces overview. SwipeAeroSpace's own swipe-up workspace overview is disabled
+as well. Mission Control remains available through its keyboard key; the
+managed setup enables **Group windows by application** as AeroSpace's documented
+workaround when it is opened that way.
+
+SwipeAeroSpace requires **System Settings → Privacy & Security → Accessibility**
+permission. Inspect or recover the integration with:
+
+```bash
+cd ~/Documents/dotfiles
+./scripts/trackpad-gestures.sh status
+./scripts/trackpad-gestures.sh restore --dry-run
+```
+
+See the [setup guide](setup.md#trackpad-gesture-recovery) before running a real
+restore.
+
 ### Main mode: focus and window movement
 
 | Shortcut | Action |
