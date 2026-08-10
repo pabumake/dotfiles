@@ -48,3 +48,49 @@ cd ~/Documents/dotfiles
 stow --target="$HOME" starship
 stow --target="$HOME" aerospace
 ```
+
+## AeroSpace workflow
+
+The AeroSpace config uses numbered workspaces, Vim-style navigation, and fixed
+8px gaps. It does not start SketchyBar, borders, dynamic gap scripts, or tmux.
+
+| Shortcut | Action |
+| --- | --- |
+| `Alt+H/J/K/L` | Focus left/down/up/right |
+| `Alt+Shift+H/J/K/L` | Move the focused window |
+| `Alt+1–9` | Switch workspace |
+| `Alt+Shift+1–9` | Move the focused window to a workspace |
+| `Alt+Shift+Space` | Toggle floating/tiling |
+| `Alt+F` | Toggle native fullscreen |
+| `Alt+Q` | Close the focused window |
+| `Alt+Enter` | Open Ghostty and start or attach Herdr |
+| `Alt+R` | Enter resize mode; exit with `Enter` or `Esc` |
+| `Alt+Shift+;` | Enter service mode |
+
+### Validate and reload
+
+```bash
+aerospace reload-config --dry-run --warnings-as-errors
+aerospace reload-config
+```
+
+### Restore the pre-Omachy configuration
+
+The exact known-good configuration is stored in
+`backups/aerospace/pre-omachy-20260810.toml` and the full repository checkpoint
+is tagged `aerospace-pre-omachy-20260810`.
+
+```bash
+cd ~/Documents/dotfiles
+cp backups/aerospace/pre-omachy-20260810.toml aerospace/.aerospace.toml
+aerospace reload-config --dry-run --warnings-as-errors
+aerospace reload-config
+```
+
+To recover the current committed config after rehearsing a restore:
+
+```bash
+git restore aerospace/.aerospace.toml
+aerospace reload-config --dry-run --warnings-as-errors
+aerospace reload-config
+```
