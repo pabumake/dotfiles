@@ -565,6 +565,10 @@ configure_hidden_bar() {
     if [ "${DRY_RUN}" -eq 0 ]; then
       /bin/sleep 2
     fi
+    if [ "${has_preferences}" -eq 0 ]; then
+      run defaults write "${domain}" isShowPreferences -bool false || die "Could not complete Hidden Bar onboarding"
+      note "The preferences window will not reopen automatically at future logins."
+    fi
   else
     note "Existing Hidden Bar installation will not be relaunched."
   fi

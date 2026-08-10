@@ -15,6 +15,7 @@ The bootstrap installs Hidden Bar and applies these defaults only when the app
 has no existing preferences:
 
 - start at login;
+- open preferences for initial onboarding only;
 - reveal hidden icons by clicking the arrow;
 - collapse automatically after 10 seconds;
 - keep the regular hidden section only;
