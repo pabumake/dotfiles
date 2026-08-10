@@ -7,7 +7,7 @@
 #[[ -f ~/.zsh/wsl2fix.zsh ]] && source ~/.zsh/wsl2fix.zsh:
 
 # Only available in Work environments
-[[ -f ~/.zsh/starship.zsh ]] && source ~/.zsh/work-aliases.zsh
+[[ -r "${HOME}/.zsh/work-aliases.zsh" ]] && source "${HOME}/.zsh/work-aliases.zsh"
 
 ##############################
 # Homebrew and Starship configuration
