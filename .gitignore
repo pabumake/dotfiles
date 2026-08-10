@@ -1,0 +1,34 @@
+# macOS metadata
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Local backups and merge leftovers
+/backups/
+*.bak
+*.backup
+*.orig
+*.rej
+*~
+
+# Editor scratch files
+*.swp
+*.swo
+*.swn
+*.tmp
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# Runtime state and repository-local caches
+*.log
+*.pid
+*.sock
+/.cache/
+/.tmp/
+/tmp/

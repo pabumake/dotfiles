@@ -89,13 +89,12 @@ aerospace reload-config
 
 ### Restore the pre-Omachy configuration
 
-The exact known-good configuration is stored in
-`backups/aerospace/pre-omachy-20260810.toml` and the full repository checkpoint
-is tagged `aerospace-pre-omachy-20260810`.
+The repository checkpoint `aerospace-pre-omachy-20260810` contains the exact
+known-good configuration from before the Omachy-inspired workflow was added.
 
 ```bash
 cd ~/Documents/dotfiles
-cp backups/aerospace/pre-omachy-20260810.toml aerospace/.aerospace.toml
+git restore --source=aerospace-pre-omachy-20260810 -- aerospace/.aerospace.toml
 aerospace reload-config --dry-run --warnings-as-errors
 aerospace reload-config
 ```

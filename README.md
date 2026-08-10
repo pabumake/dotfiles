@@ -25,6 +25,7 @@ Bootstrap a new Mac or update an existing checkout with the same command:
 The bootstrap always prints its plan. By default it installs only missing
 packages, fast-forwards only clean Git checkouts, and asks before backing up any
 existing config that conflicts with Stow. Package upgrades require `--upgrade`.
+It is the repository's only supported installation and update entry point.
 
 To inspect the script before running it:
 

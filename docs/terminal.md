@@ -21,11 +21,12 @@ herdr/
 This maps to `~/.config/herdr/config.toml` while leaving Herdr's logs, sockets,
 and session state untouched.
 
+Install or update the managed link through the repository's single setup entry
+point, then reload Herdr:
+
 ```bash
 cd ~/Documents/dotfiles
-stow --simulate --verbose --target="$HOME" herdr
-stow --target="$HOME" herdr
-herdr config check
+./setup/bootstrap.sh --no-repo-update
 herdr server reload-config
 ```
 
@@ -126,7 +127,7 @@ Restore Ghostty's earlier configuration:
 
 ```bash
 cd ~/Documents/dotfiles
-cp backups/ghostty/pre-herdr-keymap-20260810.ghostty \
+git restore --source=terminal-pre-herdr-keymap-20260810 -- \
   ghostty/.config/ghostty/config.ghostty
 /Applications/Ghostty.app/Contents/MacOS/ghostty +validate-config \
   --config-file=ghostty/.config/ghostty/config.ghostty
@@ -140,5 +141,5 @@ stow --delete --target="$HOME" herdr
 herdr server reload-config
 ```
 
-Herdr 0.8.0's generated default configuration is preserved at
-`backups/herdr/default-herdr-0.8.0.toml`.
+The built-in defaults are provided by Herdr itself and are not duplicated in
+this repository.
