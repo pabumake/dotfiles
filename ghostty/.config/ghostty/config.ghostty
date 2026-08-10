@@ -3,12 +3,12 @@ font-family = "JetBrainsMono Nerd Font"
 font-size = 13.5
 
 # --- Appearance ---
-background-opacity = 0.92
+background-opacity = 0.70
 window-padding-x = 14
 window-padding-y = 14
 
 # optional (platform dependent)
-background-blur-radius = 20
+background-blur-radius = 30
 
 # --- Cursor ---
 cursor-style = block
