@@ -15,6 +15,10 @@ Personal macOS and terminal configuration managed with [GNU Stow](https://www.gn
 | `zsh` | Shell configuration and aliases |
 | `gh-manager` | GitHub Manager configuration |
 
+Supporting applications installed by the bootstrap include
+[Hidden Bar](https://github.com/dwarvesf/hidden) for native menu-bar icon
+visibility. Its icon positions remain device-specific macOS state.
+
 ## Quick start
 
 Bootstrap a new Mac or update an existing checkout with the same command:
@@ -43,6 +47,7 @@ less "$bootstrap_file"
 - [Bootstrap, updates, and Stow usage](https://pabumake.github.io/dotfiles/setup.html)
 - [AeroSpace workflow and keybindings](https://pabumake.github.io/dotfiles/aerospace.html)
 - [Ghostty and Herdr keybindings](https://pabumake.github.io/dotfiles/terminal.html)
+- [Menu-bar icon management](https://pabumake.github.io/dotfiles/menubar.html)
 
 The longer guides live in `/docs` so this README stays useful as a quick entry
 point. GitHub Pages publishes the site from `main` and `/docs`.

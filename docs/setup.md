@@ -75,7 +75,7 @@ git stow starship eza herdr borders neovim ripgrep fd fzf lazygit tree-sitter no
 ### Casks
 
 ```text
-ghostty aerospace font-jetbrains-mono-nerd-font
+ghostty aerospace hiddenbar font-jetbrains-mono-nerd-font
 ```
 
 Normal runs use Homebrew Bundle's install-only mode. Existing packages are not
@@ -182,10 +182,10 @@ rm "$HOME/.hushlogin"
 
 ## Validation and post-install steps
 
-The bootstrap validates Zsh, JankyBorders, and, when available, the Ghostty,
-Herdr, and AeroSpace configs. It refreshes an existing JankyBorders process or
-starts one when AeroSpace is already running. Otherwise, AeroSpace starts it at
-the next launch.
+The bootstrap validates Zsh, JankyBorders, Hidden Bar, and, when available, the
+Ghostty, Herdr, and AeroSpace configs. It refreshes an existing JankyBorders
+process or starts one when AeroSpace is already running. Otherwise, AeroSpace
+starts it at the next launch.
 
 After the first installation:
 
@@ -194,7 +194,9 @@ After the first installation:
 3. Start Herdr and verify `Control + B`, then `?` opens help.
 4. Start AeroSpace and grant **System Settings → Privacy & Security → Accessibility** permission.
 5. Move focus between windows and verify the focused window receives a subtle blue border.
-6. Start Neovim once so LazyVim can install its pinned plugins.
+6. Arrange menu-bar icons around Hidden Bar's separator with `Command (⌘) + drag`.
+7. Verify Hidden Bar under **System Settings → General → Login Items**.
+8. Start Neovim once so LazyVim can install its pinned plugins.
 
 ## Troubleshooting
 
@@ -203,6 +205,7 @@ After the first installation:
 - **Packages:** rerun `brew bundle check --verbose --file=~/Documents/dotfiles/Brewfile`.
 - **Stow:** inspect the printed targets and the timestamped conflict manifest.
 - **JankyBorders:** run `~/.config/borders/bordersrc` to refresh a running process, or restart AeroSpace.
+- **Hidden Bar:** use `Command (⌘) + drag` to return a newly hidden icon to the visible side of its separator.
 - **Application validation:** run the commands in the [AeroSpace](aerospace.md) or [terminal](terminal.md) guides.
 
 ## Enable GitHub Pages
