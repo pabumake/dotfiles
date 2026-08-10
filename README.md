@@ -16,20 +16,28 @@ Personal macOS and terminal configuration managed with [GNU Stow](https://www.gn
 
 ## Quick start
 
+Bootstrap a new Mac or update an existing checkout with the same command:
+
 ```bash
-cd ~/Documents/dotfiles
-stow --target="$HOME" aerospace ghostty herdr starship zsh
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/pabumake/dotfiles/main/setup/bootstrap.sh)"
 ```
 
-Preview changes before linking a package:
+The bootstrap always prints its plan. By default it installs only missing
+packages, fast-forwards only clean Git checkouts, and asks before backing up any
+existing config that conflicts with Stow. Package upgrades require `--upgrade`.
+
+To inspect the script before running it:
 
 ```bash
-stow --simulate --verbose --target="$HOME" herdr
+bootstrap_file="$(mktemp /tmp/pabu-dotfiles-bootstrap.XXXXXX)"
+curl -fsSL https://raw.githubusercontent.com/pabumake/dotfiles/main/setup/bootstrap.sh -o "$bootstrap_file"
+less "$bootstrap_file"
+/bin/bash "$bootstrap_file"
 ```
 
 ## Documentation
 
-- [Setup and Stow usage](docs/setup.md)
+- [Bootstrap, updates, and Stow usage](docs/setup.md)
 - [AeroSpace workflow and keybindings](docs/aerospace.md)
 - [Ghostty and Herdr keybindings](docs/terminal.md)
 - [GitHub Pages documentation site](https://pabumake.github.io/dotfiles/)
