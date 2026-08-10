@@ -38,10 +38,10 @@ less "$bootstrap_file"
 
 ## Documentation
 
-- [Bootstrap, updates, and Stow usage](docs/setup.md)
-- [AeroSpace workflow and keybindings](docs/aerospace.md)
-- [Ghostty and Herdr keybindings](docs/terminal.md)
-- [GitHub Pages documentation site](https://pabumake.github.io/dotfiles/)
+- [Documentation home](https://pabumake.github.io/dotfiles/)
+- [Bootstrap, updates, and Stow usage](https://pabumake.github.io/dotfiles/setup.html)
+- [AeroSpace workflow and keybindings](https://pabumake.github.io/dotfiles/aerospace.html)
+- [Ghostty and Herdr keybindings](https://pabumake.github.io/dotfiles/terminal.html)
 
 The longer guides live in `/docs` so this README stays useful as a quick entry
-point. The site is prepared for publishing from `main` and `/docs`.
+point. GitHub Pages publishes the site from `main` and `/docs`.
