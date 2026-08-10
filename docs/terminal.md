@@ -36,6 +36,13 @@ Press `Control (⌃) + B`, release both keys, and then press the command key sho
 below. A shortcut written as `Control (⌃) + B`, then `Shift (⇧) + N` is a
 sequence, not one simultaneous chord.
 
+The portrait card translates the prefix on every row instead of using an
+abstract `PREFIX` key: `[⌃] [B] → [command key]`.
+
+[Open the full-size Herdr terminal shortcut card](assets/herdr-terminal-shortcuts.png).
+
+<a href="assets/herdr-terminal-shortcuts.png"><img src="assets/herdr-terminal-shortcuts.png" alt="Herdr terminal shortcut card" width="520"></a>
+
 ### General and workspace commands
 
 | Prefix sequence | Action |

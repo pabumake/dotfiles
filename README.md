@@ -59,6 +59,9 @@ less "$bootstrap_file"
 - [Bootstrap, updates, and Stow usage](https://pabumake.github.io/dotfiles/setup.html)
 - [AeroSpace workflow and keybindings](https://pabumake.github.io/dotfiles/aerospace.html)
 - [Ghostty and Herdr keybindings](https://pabumake.github.io/dotfiles/terminal.html)
+- Visual shortcut cards: [AeroSpace windows](https://pabumake.github.io/dotfiles/assets/aerospace-windows-shortcuts.png),
+  [AeroSpace workspaces](https://pabumake.github.io/dotfiles/assets/aerospace-workspaces-shortcuts.png), and
+  [Herdr terminal](https://pabumake.github.io/dotfiles/assets/herdr-terminal-shortcuts.png)
 - [Menu-bar icon management](https://pabumake.github.io/dotfiles/menubar.html)
 
 The longer guides live in `/docs` so this README stays useful as a quick entry

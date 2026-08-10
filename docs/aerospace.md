@@ -90,6 +90,7 @@ restore.
 | `Option (⌥) + Shift (⇧) + J` | Move the focused window down |
 | `Option (⌥) + Shift (⇧) + K` | Move the focused window up |
 | `Option (⌥) + Shift (⇧) + L` | Move the focused window right |
+| `Option (⌥) + Shift (⇧) + M` | Move the focused window to the next monitor and follow it |
 | `Option (⌥) + -` | Shrink the focused window by 50 pixels |
 | `Option (⌥) + =` | Grow the focused window by 50 pixels |
 
@@ -106,6 +107,16 @@ restore.
 | `Command (⌘) + H` | Disabled to prevent accidental application hiding |
 | `Command (⌘) + Option (⌥) + H` | Disabled to prevent hiding other applications |
 
+[Open the full-size AeroSpace window shortcut card](assets/aerospace-windows-shortcuts.png).
+
+<a href="assets/aerospace-windows-shortcuts.png"><img src="assets/aerospace-windows-shortcuts.png" alt="AeroSpace window shortcut card" width="520"></a>
+
+`Option (⌥) + Shift (⇧) + M` targets physical monitors, not workspace
+numbers. It cycles through every connected display with wrap-around and moves
+focus with the window. This works when the visible workspaces on secondary
+displays are named `10` and `11`; those names do not need dedicated number-key
+bindings.
+
 ### Main mode: workspaces and monitors
 
 | Shortcut | Action |
@@ -114,6 +125,10 @@ restore.
 | `Option (⌥) + Shift (⇧) + 1–9` | Move the focused window to workspace 1–9 |
 | `Option (⌥) + Tab (⇥)` | Switch to the previous workspace |
 | `Option (⌥) + Shift (⇧) + Tab (⇥)` | Move the current workspace to the next monitor |
+
+[Open the full-size AeroSpace workspace shortcut card](assets/aerospace-workspaces-shortcuts.png).
+
+<a href="assets/aerospace-workspaces-shortcuts.png"><img src="assets/aerospace-workspaces-shortcuts.png" alt="AeroSpace workspace shortcut card" width="520"></a>
 
 ### Resize mode
 
