@@ -1,32 +1,50 @@
-# Pabus dotfiles
-This is work in progress
+# Pabu's dotfiles
 
-# Understanding Stow location
+This is a work in progress.
+
+## Understanding the Stow layout
 
 ```bash
-dotfile exists in ------------------> gnu stow storage
+dotfile location -------------------> GNU Stow package
 
-Always has the package name in front followed by the folder location
+Each package repeats the path that should be created below the target directory.
 
-~/.config/nvim    ------------------> nvim/.config/nvim
-~/.config/ghostty ------------------> ghostty/.config/ghostty
-
+~/.config/nvim     -----------------> nvim/.config/nvim
+~/.config/ghostty  -----------------> ghostty/.config/ghostty
+~/.aerospace.toml  -----------------> aerospace/.aerospace.toml
 ```
-# Moving exiting config
 
-`mv ~/.config/nvim/ /nvim/.config/nvim/`
+## Moving an existing config into a package
 
-# Enable Stow linking
+```bash
+mv ~/.config/nvim ~/Documents/dotfiles/nvim/.config/nvim
+```
 
-`cd ~/dotfiles/` then
+## Enable Stow linking
 
-`stow nvim`
-
-this is then enabled, probably the tool needs a restart to see effect
-
-# Restoring on new Device
+Run Stow from the repository root and explicitly target the home directory:
 
 ```bash
 cd ~/Documents/dotfiles
-stow -t ~ starship
+stow --target="$HOME" nvim
+stow --target="$HOME" aerospace
+```
+
+Restart or reload the relevant application after linking its configuration.
+
+## Remove Stow links
+
+```bash
+cd ~/Documents/dotfiles
+stow --delete --target="$HOME" aerospace
+```
+
+The package files remain in the repository; only the generated links are removed.
+
+## Restoring on a new device
+
+```bash
+cd ~/Documents/dotfiles
+stow --target="$HOME" starship
+stow --target="$HOME" aerospace
 ```
