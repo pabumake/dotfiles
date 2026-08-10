@@ -1,6 +1,8 @@
 ######################
 # Aliases
 ######################
+# Quick update brew packages
+alias brup="brew update && brew upgrade"
 
 ######################
 # Applications
