@@ -7,6 +7,7 @@ Personal macOS and terminal configuration managed with [GNU Stow](https://www.gn
 | Package | Purpose |
 | --- | --- |
 | `aerospace` | Omachy-inspired macOS tiling and workspace management |
+| `borders` | Catppuccin Mocha focused-window highlighting |
 | `ghostty` | Terminal appearance and host-level shortcuts |
 | `herdr` | Terminal workspaces, tabs, panes, and navigation |
 | `nvim` | Neovim configuration |

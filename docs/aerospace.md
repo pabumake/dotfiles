@@ -7,7 +7,8 @@ title: AeroSpace
 
 
 The AeroSpace config uses numbered workspaces, Vim-style navigation, and fixed
-8px gaps. It does not start SketchyBar, borders, dynamic gap scripts, or tmux.
+8px gaps. AeroSpace starts JankyBorders for focused-window highlighting. It
+does not start SketchyBar, dynamic gap scripts, or tmux.
 
 The `alt` modifier in the AeroSpace config is the macOS **Option (⌥)** key.
 Every modifier is written explicitly below; there is no implied `Mod` key.
@@ -80,12 +81,58 @@ action automatically returns to main mode.
 | `Option (⌥) + Shift (⇧) + K` | Join with the container above |
 | `Option (⌥) + Shift (⇧) + L` | Join with the container to the right |
 
+### Focused-window highlighting
+
+[JankyBorders](https://github.com/FelixKratz/JankyBorders) draws a rounded,
+4-point Catppuccin Mocha Blue border around only the focused window. The blue
+uses 80% opacity (`0xcc89b4fa`); inactive borders are transparent. Retina
+rendering remains enabled, and no glow effect is used.
+
+AeroSpace starts `borders` at login. Its appearance is managed from
+`~/.config/borders/bordersrc`. To apply appearance changes without restarting
+AeroSpace:
+
+```bash
+~/.config/borders/bordersrc
+```
+
+JankyBorders is not a Homebrew service and does not require Accessibility
+permission. If it is not running, restart AeroSpace or run `borders`.
+
 ### Validate and reload
 
 ```bash
 aerospace reload-config --dry-run --warnings-as-errors
 aerospace reload-config
 ```
+
+### Remove focused-window highlighting
+
+The checkpoint tag `aerospace-pre-jankyborders-20260810` marks the repository
+before JankyBorders was added. To stop highlighting without changing the
+repository:
+
+```bash
+pkill borders
+cd ~/Documents/dotfiles
+stow --delete --target="$HOME" borders
+```
+
+To prepare a complete repository rollback, restore the changed managed files
+from the checkpoint, remove the new Stow package, and optionally uninstall the
+formula:
+
+```bash
+cd ~/Documents/dotfiles
+git restore --source=aerospace-pre-jankyborders-20260810 -- \
+  Brewfile README.md aerospace/.aerospace.toml setup/bootstrap.sh \
+  docs/aerospace.md docs/index.md docs/setup.md
+git rm -r borders
+brew uninstall borders
+```
+
+Only run `brew untap FelixKratz/formulae` if no other installed formula uses
+that tap.
 
 ### Restore the pre-Omachy configuration
 

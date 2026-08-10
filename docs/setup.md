@@ -59,16 +59,17 @@ also requires `--backup-conflicts`; otherwise the run stops safely.
 
 The committed `Brewfile` is the source of truth.
 
-### Tap
+### Taps
 
 ```text
 nikitabobko/tap
+FelixKratz/formulae
 ```
 
 ### Formulae
 
 ```text
-git stow starship eza herdr neovim ripgrep fd fzf lazygit tree-sitter node
+git stow starship eza herdr borders neovim ripgrep fd fzf lazygit tree-sitter node
 ```
 
 ### Casks
@@ -80,6 +81,10 @@ ghostty aerospace font-jetbrains-mono-nerd-font
 Normal runs use Homebrew Bundle's install-only mode. Existing packages are not
 upgraded unless `--upgrade` is supplied, unlisted packages are never removed,
 and `brew bundle cleanup` is never used.
+
+JankyBorders comes from a third-party tap. On Homebrew versions that enforce
+tap trust, the bootstrap explicitly trusts only
+`felixkratz/formulae/borders`; it does not trust every formula in the tap.
 
 `gh-manager` remains config-only. Its Stow package is linked, but the bootstrap
 does not install its binary or GitHub CLI.
@@ -117,13 +122,14 @@ Automated runs stop on dirty, divergent, or non-`main` checkouts unless
 ## Stow packages
 
 ```text
-aerospace ghostty herdr nvim starship zsh gh-manager
+aerospace borders ghostty herdr nvim starship zsh gh-manager
 ```
 
 Each package repeats the path it creates below the home directory:
 
 ```text
 ~/.aerospace.toml             → aerospace/.aerospace.toml
+~/.config/borders/bordersrc   → borders/.config/borders/bordersrc
 ~/.config/ghostty/            → ghostty/.config/ghostty/
 ~/.config/herdr/config.toml   → herdr/.config/herdr/config.toml
 ~/.config/nvim/               → nvim/.config/nvim/
@@ -176,9 +182,10 @@ rm "$HOME/.hushlogin"
 
 ## Validation and post-install steps
 
-The bootstrap validates Zsh and, when available, the Ghostty, Herdr, and
-AeroSpace configs. Live validation is skipped when an application server is not
-running.
+The bootstrap validates Zsh, JankyBorders, and, when available, the Ghostty,
+Herdr, and AeroSpace configs. It refreshes an existing JankyBorders process or
+starts one when AeroSpace is already running. Otherwise, AeroSpace starts it at
+the next launch.
 
 After the first installation:
 
@@ -186,7 +193,8 @@ After the first installation:
 2. Reload or restart Ghostty.
 3. Start Herdr and verify `Control + B`, then `?` opens help.
 4. Start AeroSpace and grant **System Settings → Privacy & Security → Accessibility** permission.
-5. Start Neovim once so LazyVim can install its pinned plugins.
+5. Move focus between windows and verify the focused window receives a subtle blue border.
+6. Start Neovim once so LazyVim can install its pinned plugins.
 
 ## Troubleshooting
 
@@ -194,6 +202,7 @@ After the first installation:
 - **Repository:** resolve local changes or divergence manually, then rerun; never reset merely for the bootstrap.
 - **Packages:** rerun `brew bundle check --verbose --file=~/Documents/dotfiles/Brewfile`.
 - **Stow:** inspect the printed targets and the timestamped conflict manifest.
+- **JankyBorders:** run `~/.config/borders/bordersrc` to refresh a running process, or restart AeroSpace.
 - **Application validation:** run the commands in the [AeroSpace](aerospace.md) or [terminal](terminal.md) guides.
 
 ## Enable GitHub Pages

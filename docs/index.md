@@ -19,6 +19,7 @@ ownership, and recovery for the dotfiles in this repository.
 | Layer | Owner |
 | --- | --- |
 | macOS windows and workspaces | AeroSpace |
+| Focused-window outline | JankyBorders, started by AeroSpace |
 | Terminal workspaces, tabs, panes, navigation, zoom, and resize | Herdr |
 | Clipboard, search, font size, terminal windows, and fullscreen | Ghostty |
 
