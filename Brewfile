@@ -1,4 +1,5 @@
 tap "nikitabobko/tap"
+tap "FelixKratz/formulae"
 
 # Core dotfile and shell tooling
 brew "git"
@@ -6,6 +7,7 @@ brew "stow"
 brew "starship"
 brew "eza"
 brew "herdr"
+brew "borders"
 
 # Neovim and LazyVim companion tools
 brew "neovim"

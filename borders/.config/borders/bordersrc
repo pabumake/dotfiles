@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Catppuccin Mocha focus highlight: Blue at 80% opacity, no inactive border.
+options=(
+  style=round
+  width=4.0
+  hidpi=on
+  active_color=0xcc89b4fa
+  inactive_color=0x00000000
+)
+
+borders "${options[@]}"

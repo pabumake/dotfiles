@@ -6,9 +6,9 @@ REPOSITORY_URL="https://github.com/pabumake/dotfiles.git"
 HOMEBREW_INSTALL_URL="https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
 DEFAULT_REPO_DIR="${HOME}/Documents/dotfiles"
 
-FORMULAE=(git stow starship eza herdr neovim ripgrep fd fzf lazygit tree-sitter node)
+FORMULAE=(git stow starship eza herdr borders neovim ripgrep fd fzf lazygit tree-sitter node)
 CASKS=(ghostty aerospace font-jetbrains-mono-nerd-font)
-STOW_PACKAGES=(aerospace ghostty herdr nvim starship zsh gh-manager)
+STOW_PACKAGES=(aerospace borders ghostty herdr nvim starship zsh gh-manager)
 
 DRY_RUN=0
 ASSUME_YES=0
@@ -136,7 +136,7 @@ load_brew_environment() {
 
 print_declared_packages() {
   local item
-  note "Tap: nikitabobko/tap"
+  note "Taps: nikitabobko/tap FelixKratz/formulae"
   printf '    Formulae:'
   for item in "${FORMULAE[@]}"; do printf ' %s' "${item}"; done
   printf '\n    Casks:'
@@ -339,6 +339,15 @@ print_package_status() {
   printf '\n'
 }
 
+prepare_borders_formula() {
+  note "Third-party formula: FelixKratz/formulae/borders"
+  run brew tap FelixKratz/formulae || return 1
+  if brew help trust >/dev/null 2>&1; then
+    note "Trust scope: this formula only (not the complete tap)."
+    run brew trust --formula felixkratz/formulae/borders || return 1
+  fi
+}
+
 heading "Homebrew package plan"
 note "Brewfile: ${REPO_DIR}/Brewfile"
 print_package_status
@@ -351,6 +360,7 @@ note "No unlisted package will be removed. gh-manager remains config-only."
 
 if ! brew bundle check --file="${REPO_DIR}/Brewfile" >/dev/null 2>&1 || [ "${UPGRADE}" -eq 1 ]; then
   if [ "${DRY_RUN}" -eq 1 ]; then
+    prepare_borders_formula
     run brew bundle install --no-upgrade --file="${REPO_DIR}/Brewfile"
     if [ "${UPGRADE}" -eq 1 ]; then
       run brew bundle upgrade --file="${REPO_DIR}/Brewfile"
@@ -359,6 +369,7 @@ if ! brew bundle check --file="${REPO_DIR}/Brewfile" >/dev/null 2>&1 || [ "${UPG
     if ! confirm "Apply the Homebrew package plan?"; then
       die "Package phase declined."
     fi
+    prepare_borders_formula || die "Could not prepare the JankyBorders formula"
     run brew bundle install --no-upgrade --file="${REPO_DIR}/Brewfile" || die "Homebrew bundle installation failed"
     if [ "${UPGRADE}" -eq 1 ]; then
       run brew bundle upgrade --file="${REPO_DIR}/Brewfile" || die "Homebrew bundle upgrade failed"
@@ -525,9 +536,11 @@ fi
 
 heading "Validation"
 if [ "${DRY_RUN}" -eq 1 ]; then
+  note "Dry run: would validate bordersrc and start or refresh JankyBorders when AeroSpace is running."
   note "Dry run complete; no validation requiring installed or linked files was run."
 else
   /bin/zsh -n "${REPO_DIR}/zsh/.zshrc" || die "Zsh config validation failed"
+  /bin/bash -n "${REPO_DIR}/borders/.config/borders/bordersrc" || die "JankyBorders config validation failed"
 
   if [ -x /Applications/Ghostty.app/Contents/MacOS/ghostty ]; then
     /Applications/Ghostty.app/Contents/MacOS/ghostty +validate-config --config-file="${REPO_DIR}/ghostty/.config/ghostty/config.ghostty" || die "Ghostty config validation failed"
@@ -541,6 +554,21 @@ else
     aerospace reload-config --dry-run --warnings-as-errors || die "AeroSpace config validation failed"
   else
     note "AeroSpace is not running; live config validation was skipped."
+  fi
+
+  if command -v borders >/dev/null 2>&1; then
+    if pgrep -x borders >/dev/null 2>&1; then
+      /bin/bash "${REPO_DIR}/borders/.config/borders/bordersrc" || die "Could not refresh JankyBorders"
+      note "JankyBorders appearance refreshed."
+    elif pgrep -x AeroSpace >/dev/null 2>&1; then
+      borders_bin="$(command -v borders)"
+      /usr/bin/nohup "${borders_bin}" >/dev/null 2>&1 &
+      /bin/sleep 1
+      pgrep -x borders >/dev/null 2>&1 || die "JankyBorders did not start"
+      note "JankyBorders started for the running AeroSpace session."
+    else
+      note "AeroSpace is not running; JankyBorders will start with AeroSpace."
+    fi
   fi
 
   note "Open a new shell, reload Ghostty, and grant AeroSpace Accessibility permission if prompted."
