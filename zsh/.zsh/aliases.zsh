@@ -4,6 +4,9 @@
 # Quick update brew packages
 alias brup="brew update && brew upgrade"
 
+# Cls alias
+alias cls="clear"
+
 ######################
 # Applications
 ######################
