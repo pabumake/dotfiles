@@ -77,12 +77,18 @@ gaps.outer.right =      8
 
 # Keep utility windows out of the tiling tree
 [[on-window-detected]]
-if.app-id = 'com.apple.systempreferences'
+if = 'test %{app-bundle-id} = com.apple.systempreferences'
 run = 'layout floating'
 
 [[on-window-detected]]
-if.app-id = 'com.apple.calculator'
+if = 'test %{app-bundle-id} = com.apple.calculator'
 run = 'layout floating'
+
+# Optional profile behavior is delegated to a managed router. The default
+# profile exits without changing the detected window.
+[[on-window-detected]]
+if = 'true'
+run = 'exec-and-forget "${HOME}/.config/aerospace/personal-window-router.sh"'
 
 # 'main' binding mode declaration
 # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes

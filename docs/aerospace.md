@@ -13,6 +13,43 @@ does not start SketchyBar, dynamic gap scripts, or tmux.
 The `alt` modifier in the AeroSpace config is the macOS **Option (⌥)** key.
 Every modifier is written explicitly below; there is no implied `Mod` key.
 
+### Automatic application workspaces
+
+These assignments are part of the optional `personal` profile. Enable and
+remember it with:
+
+```bash
+cd ~/Documents/dotfiles
+./setup/bootstrap.sh --profile-personal
+```
+
+Fresh installations use the portable `default` profile, which does not assign
+applications to workspaces. Return to it with `--profile-default`. Once selected,
+the profile is preserved by ordinary bootstrap update runs.
+
+With the personal profile active, every newly detected window from these
+applications starts on a predictable home workspace:
+
+| Application | Home workspace | Initial layout |
+| --- | --- | --- |
+| Ghostty | 1 | AeroSpace fullscreen |
+| VSCodium | 2 | Tiled |
+| Zen Browser | 3 | Tiled |
+
+Additional windows use the same home workspace. AeroSpace applies these rules
+only when it first detects a window, so moving a live window with
+`Option (⌥) + Shift (⇧) + 1–9` is respected until that window closes.
+
+Ghostty uses AeroSpace's fullscreen layout, which fills its virtual workspace
+without creating another macOS Space. This is separate from
+`Option (⌥) + F`, which toggles native macOS fullscreen.
+
+AeroSpace routes windows but does not launch applications or save their session
+contents. After login, macOS and each application remain responsible for
+reopening their windows; any window they restore is routed to its home workspace
+when AeroSpace detects it. Arbitrary manual workspace assignments are not saved
+across a reboot.
+
 ### Main mode: focus and window movement
 
 | Shortcut | Action |

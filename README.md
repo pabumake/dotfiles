@@ -35,6 +35,10 @@ packages, fast-forwards only clean Git checkouts, and asks before backing up any
 existing config that conflicts with Stow. Package upgrades require `--upgrade`.
 It is the repository's only supported installation and update entry point.
 
+Fresh installations use the portable `default` profile. Run bootstrap with
+`--profile-personal` to enable the personal AeroSpace app assignments; later
+updates remember that choice. Use `--profile-default` to disable them again.
+
 To inspect the script before running it:
 
 ```bash

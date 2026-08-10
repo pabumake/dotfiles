@@ -42,6 +42,8 @@ Remove the temporary file afterward when it is no longer needed.
 | `--with-hushlogin` | Explicitly create `~/.hushlogin` |
 | `--menu-bar-manager M` | Select and remember `hiddenbar`, `ice`, or `none` |
 | `--switch-bar-manager` | Reopen the interactive provider selector |
+| `--profile-personal` | Enable and remember personal AeroSpace app assignments |
+| `--profile-default` | Disable personal AeroSpace app assignments |
 | `--repo-dir PATH` | Override `~/Documents/dotfiles` |
 | `--help` | Print usage and safety rules |
 
@@ -53,7 +55,14 @@ cd ~/Documents/dotfiles
 ./setup/bootstrap.sh --upgrade
 ./setup/bootstrap.sh --yes --backup-conflicts
 ./setup/bootstrap.sh --switch-bar-manager
+./setup/bootstrap.sh --profile-personal
 ```
+
+New installations use the portable `default` profile. A profile selected with
+`--profile-personal` or `--profile-default` is stored outside the repository and
+preserved by later update runs. The personal profile currently assigns Ghostty,
+VSCodium, and Zen Browser to fixed AeroSpace workspaces; see the
+[AeroSpace guide](aerospace.md#automatic-application-workspaces).
 
 `--yes` does not silently replace existing configs. When conflicts exist it
 also requires `--backup-conflicts`; otherwise the run stops safely.
