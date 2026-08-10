@@ -7,7 +7,7 @@ HOMEBREW_INSTALL_URL="https://raw.githubusercontent.com/Homebrew/install/HEAD/in
 DEFAULT_REPO_DIR="${HOME}/Documents/dotfiles"
 
 FORMULAE=(git stow starship eza herdr borders neovim ripgrep fd fzf lazygit tree-sitter node)
-CASKS=(ghostty aerospace font-jetbrains-mono-nerd-font)
+CASKS=(ghostty aerospace hiddenbar font-jetbrains-mono-nerd-font)
 STOW_PACKAGES=(aerospace borders ghostty herdr nvim starship zsh gh-manager)
 
 DRY_RUN=0
@@ -182,6 +182,11 @@ if [ -z "${BREW_BIN}" ]; then
   [ -n "${BREW_BIN}" ] || die "Homebrew installer completed but brew was not found"
 fi
 load_brew_environment "${BREW_BIN}"
+
+HIDDEN_BAR_WAS_INSTALLED=0
+if brew list --cask hiddenbar >/dev/null 2>&1; then
+  HIDDEN_BAR_WAS_INSTALLED=1
+fi
 
 ensure_git() {
   if command -v git >/dev/null 2>&1; then
@@ -534,13 +539,49 @@ else
   note "Login message unchanged; use --with-hushlogin to create ~/.hushlogin."
 fi
 
+configure_hidden_bar() {
+  local domain="com.dwarvesv.minimalbar"
+  local has_preferences=0
+
+  heading "Hidden Bar"
+  if defaults read "${domain}" >/dev/null 2>&1; then
+    has_preferences=1
+    note "Existing Hidden Bar preferences found; bootstrap will preserve them."
+  else
+    note "First-run defaults: start at login, click to reveal, auto-collapse after 10 seconds."
+    note "No global hotkey or always-hidden section will be configured."
+    run defaults write "${domain}" isAutoStart -bool true || die "Could not configure Hidden Bar login behavior"
+    run defaults write "${domain}" isAutoHide -bool true || die "Could not configure Hidden Bar auto-collapse"
+    run defaults write "${domain}" numberOfSecondForAutoHide -float 10 || die "Could not configure Hidden Bar collapse delay"
+    run defaults write "${domain}" isShowPreferences -bool true || die "Could not configure Hidden Bar onboarding"
+    run defaults write "${domain}" areSeparatorsHidden -bool false || die "Could not configure Hidden Bar separators"
+    run defaults write "${domain}" alwaysHiddenSectionEnabled -bool false || die "Could not configure Hidden Bar sections"
+    run defaults write "${domain}" useFullStatusBarOnExpandEnabled -bool false || die "Could not configure Hidden Bar expansion"
+  fi
+
+  if [ "${HIDDEN_BAR_WAS_INSTALLED}" -eq 0 ] || [ "${has_preferences}" -eq 0 ]; then
+    note "Hidden Bar will open once for onboarding and login-item registration."
+    run open -a "Hidden Bar" || die "Could not launch Hidden Bar"
+    if [ "${DRY_RUN}" -eq 0 ]; then
+      /bin/sleep 2
+    fi
+  else
+    note "Existing Hidden Bar installation will not be relaunched."
+  fi
+}
+
+configure_hidden_bar
+
 heading "Validation"
 if [ "${DRY_RUN}" -eq 1 ]; then
   note "Dry run: would validate bordersrc and start or refresh JankyBorders when AeroSpace is running."
+  note "Dry run: would verify Hidden Bar and its preserved or first-run preferences."
   note "Dry run complete; no validation requiring installed or linked files was run."
 else
   /bin/zsh -n "${REPO_DIR}/zsh/.zshrc" || die "Zsh config validation failed"
   /bin/bash -n "${REPO_DIR}/borders/.config/borders/bordersrc" || die "JankyBorders config validation failed"
+  [ -d "/Applications/Hidden Bar.app" ] || die "Hidden Bar application was not found"
+  defaults read com.dwarvesv.minimalbar >/dev/null 2>&1 || die "Hidden Bar preferences were not found"
 
   if [ -x /Applications/Ghostty.app/Contents/MacOS/ghostty ]; then
     /Applications/Ghostty.app/Contents/MacOS/ghostty +validate-config --config-file="${REPO_DIR}/ghostty/.config/ghostty/config.ghostty" || die "Ghostty config validation failed"
