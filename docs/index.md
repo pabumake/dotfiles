@@ -31,6 +31,12 @@ unexplained `Mod` key.
 
 ## Visual shortcut cards
 
+[Open the complete dotfiles shortcut overview](assets/dotfiles-shortcuts-overview.png).
+
+<a href="assets/dotfiles-shortcuts-overview.png"><img src="assets/dotfiles-shortcuts-overview.png" alt="Complete dotfiles shortcut overview" width="1040"></a>
+
+The individual cards remain available beside the relevant written guides:
+
 - [AeroSpace window shortcuts](assets/aerospace-windows-shortcuts.png)
 - [AeroSpace workspace shortcuts](assets/aerospace-workspaces-shortcuts.png)
 - [Herdr terminal shortcuts](assets/herdr-terminal-shortcuts.png)

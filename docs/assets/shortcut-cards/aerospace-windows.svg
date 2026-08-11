@@ -1,0 +1,152 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1536" viewBox="0 0 1024 1536">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0c101d"/>
+      <stop offset="0.52" stop-color="#111625"/>
+      <stop offset="1" stop-color="#171526"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="80%" cy="14%" r="72%">
+      <stop offset="0" stop-color="#89b4fa" stop-opacity="0.15"/>
+      <stop offset="0.52" stop-color="#b4befe" stop-opacity="0.045"/>
+      <stop offset="1" stop-color="#11111b" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="title" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#cdd6f4"/>
+      <stop offset="0.5" stop-color="#89b4fa"/>
+      <stop offset="1" stop-color="#b4befe"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%">
+      <feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#050713" flood-opacity="0.8"/>
+    </filter>
+    <style>
+      .title { font-family: "Helvetica Neue", sans-serif; font-size: 108px; font-weight: 300; letter-spacing: 9px; fill: url(#title); text-anchor: middle; }
+      .subtitle { font-family: "JetBrainsMono Nerd Font Mono", monospace; font-size: 46px; font-weight: 600; letter-spacing: 10px; fill: #cdd6f4; text-anchor: middle; }
+      .section { font-family: "JetBrainsMono Nerd Font Mono", monospace; font-size: 25px; font-weight: 700; letter-spacing: 5px; fill: #89b4fa; }
+      .action { font-family: "JetBrainsMono Nerd Font Mono", monospace; font-size: 24px; font-weight: 400; fill: #cdd6f4; }
+      .action-small { font-family: "JetBrainsMono Nerd Font Mono", monospace; font-size: 21px; font-weight: 400; fill: #cdd6f4; }
+      .muted { font-family: "JetBrainsMono Nerd Font Mono", monospace; font-size: 22px; font-weight: 400; fill: #7f849c; }
+      .keytext { font-family: "JetBrainsMono Nerd Font Mono", monospace; font-size: 27px; font-weight: 500; fill: #e5e9ff; text-anchor: middle; dominant-baseline: middle; }
+      .keytext-small { font-family: "JetBrainsMono Nerd Font Mono", monospace; font-size: 22px; font-weight: 500; fill: #e5e9ff; text-anchor: middle; dominant-baseline: middle; }
+      .key { fill: #25283a; fill-opacity: 0.9; stroke: #89b4fa; stroke-width: 2.5; }
+      .divider { stroke: #45475a; stroke-width: 2; }
+    </style>
+  </defs>
+
+  <rect width="1024" height="1536" fill="url(#bg)"/>
+  <rect width="1024" height="1536" fill="url(#glow)"/>
+  <rect x="25" y="25" width="974" height="1486" rx="42" fill="none" stroke="#89b4fa" stroke-width="3"/>
+
+  <text x="512" y="187" class="title">AEROSPACE</text>
+  <text x="512" y="266" class="subtitle">WINDOWS</text>
+
+  <text x="72" y="350" class="section">WINDOW CONTROL</text>
+  <line x1="72" y1="370" x2="952" y2="370" class="divider"/>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="395" width="62" height="62" rx="10" class="key"/>
+    <text x="103" y="427" class="keytext">⌥</text>
+    <rect x="144" y="395" width="62" height="62" rx="10" class="key"/>
+    <text x="175" y="427" class="keytext">H</text>
+    <rect x="216" y="395" width="62" height="62" rx="10" class="key"/>
+    <text x="247" y="427" class="keytext">J</text>
+    <rect x="288" y="395" width="62" height="62" rx="10" class="key"/>
+    <text x="319" y="427" class="keytext">K</text>
+    <rect x="360" y="395" width="62" height="62" rx="10" class="key"/>
+    <text x="391" y="427" class="keytext">L</text>
+  </g>
+  <text x="510" y="437" class="action-small">Focus left / down / up / right</text>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="480" width="62" height="62" rx="10" class="key"/>
+    <text x="103" y="512" class="keytext">⌥</text>
+    <rect x="144" y="480" width="62" height="62" rx="10" class="key"/>
+    <text x="175" y="512" class="keytext">⇧</text>
+    <rect x="216" y="480" width="62" height="62" rx="10" class="key"/>
+    <text x="247" y="512" class="keytext">H</text>
+    <rect x="288" y="480" width="62" height="62" rx="10" class="key"/>
+    <text x="319" y="512" class="keytext">J</text>
+    <rect x="360" y="480" width="62" height="62" rx="10" class="key"/>
+    <text x="391" y="512" class="keytext">K</text>
+    <rect x="432" y="480" width="62" height="62" rx="10" class="key"/>
+    <text x="463" y="512" class="keytext">L</text>
+  </g>
+  <text x="570" y="522" class="action-small">Move left / down / up / right</text>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="565" width="62" height="62" rx="10" class="key"/>
+    <text x="103" y="597" class="keytext">⌥</text>
+    <rect x="144" y="565" width="62" height="62" rx="10" class="key"/>
+    <text x="175" y="597" class="keytext">⇧</text>
+    <rect x="216" y="565" width="62" height="62" rx="10" class="key"/>
+    <text x="247" y="597" class="keytext">M</text>
+  </g>
+  <text x="440" y="607" class="action">Move window to next monitor</text>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="650" width="62" height="62" rx="10" class="key"/>
+    <text x="103" y="682" class="keytext">⌥</text>
+    <rect x="144" y="650" width="62" height="62" rx="10" class="key"/>
+    <text x="175" y="682" class="keytext">-</text>
+  </g>
+  <text x="440" y="692" class="action">Shrink window 50 px</text>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="735" width="62" height="62" rx="10" class="key"/>
+    <text x="103" y="767" class="keytext">⌥</text>
+    <rect x="144" y="735" width="62" height="62" rx="10" class="key"/>
+    <text x="175" y="767" class="keytext">=</text>
+  </g>
+  <text x="440" y="777" class="action">Grow window 50 px</text>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="820" width="62" height="62" rx="10" class="key"/>
+    <text x="103" y="852" class="keytext">⌥</text>
+    <rect x="144" y="820" width="62" height="62" rx="10" class="key"/>
+    <text x="175" y="852" class="keytext">R</text>
+    <text x="223" y="860" class="action">→</text>
+    <rect x="270" y="820" width="62" height="62" rx="10" class="key"/>
+    <text x="301" y="852" class="keytext">H</text>
+    <rect x="342" y="820" width="62" height="62" rx="10" class="key"/>
+    <text x="373" y="852" class="keytext">J</text>
+    <rect x="414" y="820" width="62" height="62" rx="10" class="key"/>
+    <text x="445" y="852" class="keytext">K</text>
+    <rect x="486" y="820" width="62" height="62" rx="10" class="key"/>
+    <text x="517" y="852" class="keytext">L</text>
+  </g>
+  <text x="580" y="862" class="action-small">Resize width / height</text>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="905" width="62" height="62" rx="10" class="key"/>
+    <text x="103" y="937" class="keytext">⌥</text>
+    <rect x="144" y="905" width="62" height="62" rx="10" class="key"/>
+    <text x="175" y="937" class="keytext">⇧</text>
+    <rect x="216" y="905" width="146" height="62" rx="10" class="key"/>
+    <text x="289" y="937" class="keytext-small">SPACE</text>
+  </g>
+  <text x="440" y="947" class="action">Toggle floating / tiling</text>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="990" width="62" height="62" rx="10" class="key"/>
+    <text x="103" y="1022" class="keytext">⌥</text>
+    <text x="151" y="1030" class="action">/</text>
+  </g>
+  <text x="440" y="1032" class="action">Cycle tiled orientation</text>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="1075" width="62" height="62" rx="10" class="key"/>
+    <text x="103" y="1107" class="keytext">⌥</text>
+    <rect x="144" y="1075" width="62" height="62" rx="10" class="key"/>
+    <text x="175" y="1107" class="keytext">Q</text>
+  </g>
+  <text x="440" y="1117" class="action">Close focused window</text>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="1160" width="62" height="62" rx="10" class="key"/>
+    <text x="103" y="1192" class="keytext">⌥</text>
+    <rect x="144" y="1160" width="138" height="62" rx="10" class="key"/>
+    <text x="213" y="1192" class="keytext-small">ENTER</text>
+  </g>
+  <text x="440" y="1202" class="action">Open Ghostty + Herdr</text>
+
+  <text x="72" y="1435" class="muted">⌥  Option     ⇧  Shift</text>
+</svg>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2144" height="3316" viewBox="0 0 2144 3316">
+  <rect width="2144" height="3316" fill="#11111b"/>
+  <text x="1072" y="92" text-anchor="middle" font-family="Helvetica Neue, sans-serif" font-size="62" font-weight="300" letter-spacing="10" fill="#cdd6f4">DOTFILES SHORTCUT OVERVIEW</text>
+  <line x1="32" y1="140" x2="2112" y2="140" stroke="#45475a" stroke-width="2"/>
+  <image href="../aerospace-windows-shortcuts.png" x="32" y="172" width="1024" height="1536"/>
+  <image href="../aerospace-workspaces-shortcuts.png" x="1088" y="172" width="1024" height="1536"/>
+  <image href="../herdr-terminal-shortcuts.png" x="32" y="1748" width="1024" height="1536"/>
+  <image href="../yazi-shortcuts.png" x="1088" y="1748" width="1024" height="1536"/>
+</svg>

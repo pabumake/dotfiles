@@ -1,0 +1,163 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1536" viewBox="0 0 1024 1536">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0c101d"/>
+      <stop offset="0.52" stop-color="#111625"/>
+      <stop offset="1" stop-color="#171526"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="80%" cy="14%" r="72%">
+      <stop offset="0" stop-color="#b4befe" stop-opacity="0.15"/>
+      <stop offset="0.52" stop-color="#cba6f7" stop-opacity="0.045"/>
+      <stop offset="1" stop-color="#11111b" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="title" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#cdd6f4"/>
+      <stop offset="0.5" stop-color="#b4befe"/>
+      <stop offset="1" stop-color="#cba6f7"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%">
+      <feDropShadow dx="0" dy="8" stdDeviation="9" flood-color="#050713" flood-opacity="0.8"/>
+    </filter>
+    <style>
+      .title { font-family: "Helvetica Neue", sans-serif; font-size: 132px; font-weight: 300; letter-spacing: 16px; fill: url(#title); text-anchor: middle; }
+      .subtitle { font-family: "JetBrainsMono Nerd Font Mono", monospace; font-size: 46px; font-weight: 600; letter-spacing: 10px; fill: #cdd6f4; text-anchor: middle; }
+      .section { font-family: "JetBrainsMono Nerd Font Mono", monospace; font-size: 25px; font-weight: 700; letter-spacing: 5px; fill: #b4befe; }
+      .action { font-family: "JetBrainsMono Nerd Font Mono", monospace; font-size: 24px; font-weight: 400; fill: #cdd6f4; }
+      .action-small { font-family: "JetBrainsMono Nerd Font Mono", monospace; font-size: 21px; font-weight: 400; fill: #cdd6f4; }
+      .muted { font-family: "JetBrainsMono Nerd Font Mono", monospace; font-size: 22px; font-weight: 400; fill: #7f849c; }
+      .keytext { font-family: "JetBrainsMono Nerd Font Mono", monospace; font-size: 27px; font-weight: 500; fill: #e5e9ff; text-anchor: middle; dominant-baseline: middle; }
+      .keytext-small { font-family: "JetBrainsMono Nerd Font Mono", monospace; font-size: 22px; font-weight: 500; fill: #e5e9ff; text-anchor: middle; dominant-baseline: middle; }
+      .key { fill: #25283a; fill-opacity: 0.9; stroke: #b4befe; stroke-width: 2.5; }
+      .divider { stroke: #45475a; stroke-width: 2; }
+    </style>
+  </defs>
+
+  <rect width="1024" height="1536" fill="url(#bg)"/>
+  <rect width="1024" height="1536" fill="url(#glow)"/>
+  <rect x="25" y="25" width="974" height="1486" rx="42" fill="none" stroke="#b4befe" stroke-width="3"/>
+
+  <text x="512" y="187" class="title">YAZI</text>
+  <text x="512" y="266" class="subtitle">FILE MANAGER</text>
+
+  <text x="72" y="350" class="section">NAVIGATION</text>
+  <line x1="72" y1="370" x2="952" y2="370" class="divider"/>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="395" width="62" height="62" rx="10" class="key"/>
+    <text x="103" y="427" class="keytext">H</text>
+    <rect x="144" y="395" width="62" height="62" rx="10" class="key"/>
+    <text x="175" y="427" class="keytext">J</text>
+    <rect x="216" y="395" width="62" height="62" rx="10" class="key"/>
+    <text x="247" y="427" class="keytext">K</text>
+    <rect x="288" y="395" width="62" height="62" rx="10" class="key"/>
+    <text x="319" y="427" class="keytext">L</text>
+  </g>
+  <text x="424" y="437" class="action">Move left / down / up / right</text>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="480" width="138" height="62" rx="10" class="key"/>
+    <text x="141" y="512" class="keytext-small">ENTER</text>
+    <text x="227" y="520" class="action">/</text>
+    <rect x="262" y="480" width="62" height="62" rx="10" class="key"/>
+    <text x="293" y="512" class="keytext">L</text>
+  </g>
+  <text x="424" y="522" class="action">Open file or directory</text>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="565" width="98" height="62" rx="10" class="key"/>
+    <text x="121" y="597" class="keytext">1–9</text>
+    <text x="187" y="605" class="action">/</text>
+    <rect x="222" y="565" width="62" height="62" rx="10" class="key"/>
+    <text x="253" y="597" class="keytext">T</text>
+    <rect x="294" y="565" width="62" height="62" rx="10" class="key"/>
+    <text x="325" y="597" class="keytext">T</text>
+  </g>
+  <text x="424" y="607" class="action">Switch tab / new tab</text>
+
+  <text x="72" y="690" class="section">FILE OPERATIONS</text>
+  <line x1="72" y1="710" x2="952" y2="710" class="divider"/>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="735" width="146" height="62" rx="10" class="key"/>
+    <text x="145" y="767" class="keytext-small">SPACE</text>
+  </g>
+  <text x="424" y="777" class="action">Toggle selection</text>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="820" width="62" height="62" rx="10" class="key"/>
+    <text x="103" y="852" class="keytext">Y</text>
+    <text x="151" y="860" class="action">/</text>
+    <rect x="186" y="820" width="62" height="62" rx="10" class="key"/>
+    <text x="217" y="852" class="keytext">X</text>
+  </g>
+  <text x="424" y="862" class="action">Copy / cut</text>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="905" width="62" height="62" rx="10" class="key"/>
+    <text x="103" y="937" class="keytext">P</text>
+    <text x="151" y="945" class="action">/</text>
+    <rect x="186" y="905" width="62" height="62" rx="10" class="key"/>
+    <text x="217" y="937" class="keytext">⇧</text>
+    <rect x="258" y="905" width="62" height="62" rx="10" class="key"/>
+    <text x="289" y="937" class="keytext">P</text>
+  </g>
+  <text x="424" y="947" class="action">Paste / overwrite</text>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="990" width="62" height="62" rx="10" class="key"/>
+    <text x="103" y="1022" class="keytext">A</text>
+    <text x="151" y="1030" class="action">/</text>
+    <rect x="186" y="990" width="62" height="62" rx="10" class="key"/>
+    <text x="217" y="1022" class="keytext">R</text>
+  </g>
+  <text x="424" y="1032" class="action">Create / rename</text>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="1075" width="62" height="62" rx="10" class="key"/>
+    <text x="103" y="1107" class="keytext">D</text>
+    <text x="151" y="1115" class="action">/</text>
+    <rect x="186" y="1075" width="62" height="62" rx="10" class="key"/>
+    <text x="217" y="1107" class="keytext">⇧</text>
+    <rect x="258" y="1075" width="62" height="62" rx="10" class="key"/>
+    <text x="289" y="1107" class="keytext">D</text>
+  </g>
+  <text x="424" y="1117" class="action">Trash / delete permanently</text>
+
+  <text x="72" y="1185" class="section">SEARCH &amp; SESSION</text>
+  <line x1="72" y1="1205" x2="952" y2="1205" class="divider"/>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="1225" width="62" height="62" rx="10" class="key"/>
+    <text x="103" y="1257" class="keytext">S</text>
+    <text x="151" y="1265" class="action">/</text>
+    <rect x="186" y="1225" width="62" height="62" rx="10" class="key"/>
+    <text x="217" y="1257" class="keytext">⇧</text>
+    <rect x="258" y="1225" width="62" height="62" rx="10" class="key"/>
+    <text x="289" y="1257" class="keytext">S</text>
+  </g>
+  <text x="424" y="1267" class="action">Search names / contents</text>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="1305" width="62" height="62" rx="10" class="key"/>
+    <text x="103" y="1337" class="keytext">Z</text>
+    <text x="151" y="1345" class="action">/</text>
+    <rect x="186" y="1305" width="62" height="62" rx="10" class="key"/>
+    <text x="217" y="1337" class="keytext">⇧</text>
+    <rect x="258" y="1305" width="62" height="62" rx="10" class="key"/>
+    <text x="289" y="1337" class="keytext">Z</text>
+  </g>
+  <text x="424" y="1347" class="action">Jump with fzf / zoxide</text>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="1385" width="62" height="62" rx="10" class="key"/>
+    <text x="103" y="1417" class="keytext">Q</text>
+    <text x="151" y="1425" class="action">/</text>
+    <rect x="186" y="1385" width="62" height="62" rx="10" class="key"/>
+    <text x="217" y="1417" class="keytext">⇧</text>
+    <rect x="258" y="1385" width="62" height="62" rx="10" class="key"/>
+    <text x="289" y="1417" class="keytext">Q</text>
+  </g>
+  <text x="424" y="1427" class="action">Quit + follow / quit + stay</text>
+
+  <text x="72" y="1482" class="muted">F1 or ~ opens the complete built-in help</text>
+</svg>
