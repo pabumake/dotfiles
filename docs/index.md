@@ -34,3 +34,4 @@ unexplained `Mod` key.
 - [AeroSpace window shortcuts](assets/aerospace-windows-shortcuts.png)
 - [AeroSpace workspace shortcuts](assets/aerospace-workspaces-shortcuts.png)
 - [Herdr terminal shortcuts](assets/herdr-terminal-shortcuts.png)
+- [Yazi file-manager shortcuts](assets/yazi-shortcuts.png)

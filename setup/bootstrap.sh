@@ -6,9 +6,9 @@ REPOSITORY_URL="https://github.com/pabumake/dotfiles.git"
 HOMEBREW_INSTALL_URL="https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
 DEFAULT_REPO_DIR="${HOME}/Documents/dotfiles"
 
-FORMULAE=(git stow starship eza herdr borders neovim ripgrep fd fzf lazygit tree-sitter node)
-CASKS=(ghostty aerospace swipeaerospace font-jetbrains-mono-nerd-font)
-STOW_PACKAGES=(aerospace borders ghostty herdr nvim starship zsh gh-manager)
+FORMULAE=(git stow starship eza herdr borders yazi ffmpeg-full sevenzip jq poppler zoxide resvg imagemagick-full neovim ripgrep fd fzf lazygit tree-sitter node)
+CASKS=(ghostty aerospace swipeaerospace font-jetbrains-mono-nerd-font font-symbols-only-nerd-font)
+STOW_PACKAGES=(aerospace borders ghostty herdr nvim starship yazi zsh gh-manager)
 TRUSTED_FORMULAE=(felixkratz/formulae/borders)
 TRUSTED_CASKS=(mediosz/tap/swipeaerospace nikitabobko/tap/aerospace)
 
@@ -1039,7 +1039,7 @@ gesture_args=(enable)
 
 heading "Validation"
 if [ "${DRY_RUN}" -eq 1 ]; then
-  note "Dry run: would validate bordersrc, service state, and AeroSpace helpers."
+  note "Dry run: would validate Yazi, bordersrc, service state, and AeroSpace helpers."
   note "Dry run: would verify the selected menu-bar manager and its preferences."
   note "Dry run complete; no validation requiring installed or linked files was run."
 else
@@ -1049,6 +1049,10 @@ else
   /bin/bash -n "${REPO_DIR}/aerospace/.config/aerospace/personal-window-router.sh" || die "AeroSpace profile router validation failed"
   /bin/bash -n "${REPO_DIR}/aerospace/.config/aerospace/start-swipeaerospace.sh" || die "SwipeAeroSpace startup helper validation failed"
   /bin/bash -n "${REPO_DIR}/scripts/trackpad-gestures.sh" || die "Trackpad gesture helper validation failed"
+
+  command -v yazi >/dev/null 2>&1 || die "Yazi executable was not found"
+  command -v ya >/dev/null 2>&1 || die "Yazi CLI executable was not found"
+  YAZI_CONFIG_HOME="${REPO_DIR}/yazi/.config/yazi" yazi --debug >/dev/null || die "Yazi config validation failed"
   case "${MENU_BAR_MANAGER}" in
     hiddenbar)
       [ -d "/Applications/Hidden Bar.app" ] || die "Hidden Bar application was not found"
@@ -1082,7 +1086,7 @@ else
 
   "${REPO_DIR}/scripts/borders-service.sh" status || die "JankyBorders service validation failed"
 
-  note "Open a new shell, reload Ghostty, and grant AeroSpace and SwipeAeroSpace Accessibility permission if prompted."
+  note "Open a new shell, use y to start Yazi, reload Ghostty, and grant AeroSpace and SwipeAeroSpace Accessibility permission if prompted."
   note "Start Neovim once to let LazyVim install its pinned plugins."
 fi
 

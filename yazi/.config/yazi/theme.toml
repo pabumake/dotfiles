@@ -1,0 +1,107 @@
+#:schema https://yazi-rs.github.io/schemas/theme.json
+
+# Catppuccin Mocha, matched to the managed Starship prompt.
+
+[app]
+overall = { bg = "#1e1e2e" }
+
+[mgr]
+cwd             = { fg = "#b4befe", bold = true }
+find_keyword    = { fg = "#f9e2af", bold = true, italic = true, underline = true }
+find_position   = { fg = "#cba6f7", bg = "#313244", bold = true }
+symlink_target  = { fg = "#94e2d5", italic = true }
+marker_copied   = { fg = "#a6e3a1", bg = "#a6e3a1" }
+marker_cut      = { fg = "#f38ba8", bg = "#f38ba8" }
+marker_marked   = { fg = "#b4befe", bg = "#b4befe" }
+marker_selected = { fg = "#f9e2af", bg = "#f9e2af" }
+count_copied    = { fg = "#11111b", bg = "#a6e3a1", bold = true }
+count_cut       = { fg = "#11111b", bg = "#f38ba8", bold = true }
+count_selected  = { fg = "#11111b", bg = "#f9e2af", bold = true }
+border_style    = { fg = "#45475a" }
+
+[indicator]
+parent  = { fg = "#11111b", bg = "#89b4fa", bold = true }
+current = { fg = "#11111b", bg = "#b4befe", bold = true }
+preview = { fg = "#b4befe", underline = true }
+padding = { open = "", close = "" }
+
+[tabs]
+active   = { fg = "#11111b", bg = "#b4befe", bold = true }
+inactive = { fg = "#cdd6f4", bg = "#45475a" }
+sep_inner = { open = "", close = "" }
+sep_outer = { open = "", close = "" }
+
+[mode]
+normal_main = { fg = "#11111b", bg = "#b4befe", bold = true }
+normal_alt  = { fg = "#cdd6f4", bg = "#45475a" }
+select_main = { fg = "#11111b", bg = "#f9e2af", bold = true }
+select_alt  = { fg = "#f9e2af", bg = "#313244" }
+unset_main  = { fg = "#11111b", bg = "#f38ba8", bold = true }
+unset_alt   = { fg = "#f38ba8", bg = "#313244" }
+
+[status]
+overall   = { fg = "#cdd6f4", bg = "#1e1e2e" }
+sep_left  = { open = "", close = "" }
+sep_right = { open = "", close = "" }
+perm_sep   = { fg = "#6c7086" }
+perm_type  = { fg = "#a6e3a1" }
+perm_read  = { fg = "#f9e2af" }
+perm_write = { fg = "#f38ba8" }
+perm_exec  = { fg = "#89dceb" }
+progress_label  = { fg = "#cdd6f4", bold = true }
+progress_normal = { fg = "#a6e3a1", bg = "#313244" }
+progress_error  = { fg = "#f9e2af", bg = "#f38ba8" }
+
+[which]
+mask            = { bg = "#181825" }
+cand            = { fg = "#b4befe", bold = true }
+rest            = { fg = "#7f849c" }
+desc            = { fg = "#cba6f7" }
+separator_style = { fg = "#6c7086" }
+
+[confirm]
+border  = { fg = "#b4befe" }
+title   = { fg = "#b4befe", bold = true }
+body    = { fg = "#cdd6f4" }
+list    = { fg = "#bac2de" }
+btn_yes = { fg = "#11111b", bg = "#a6e3a1", bold = true }
+btn_no  = { fg = "#cdd6f4", bg = "#45475a" }
+
+[spot]
+border   = { fg = "#b4befe" }
+title    = { fg = "#b4befe", bold = true }
+tbl_col  = { fg = "#89b4fa" }
+tbl_cell = { fg = "#11111b", bg = "#f9e2af", bold = true }
+
+[notify]
+title_info  = { fg = "#a6e3a1" }
+title_warn  = { fg = "#f9e2af" }
+title_error = { fg = "#f38ba8" }
+
+[pick]
+border   = { fg = "#b4befe" }
+active   = { fg = "#11111b", bg = "#b4befe", bold = true }
+inactive = { fg = "#cdd6f4" }
+
+[input]
+border   = { fg = "#b4befe" }
+title    = { fg = "#b4befe", bold = true }
+value    = { fg = "#cdd6f4" }
+selected = { fg = "#11111b", bg = "#b4befe" }
+
+[cmp]
+border   = { fg = "#b4befe" }
+active   = { fg = "#11111b", bg = "#b4befe", bold = true }
+inactive = { fg = "#cdd6f4" }
+
+[tasks]
+border  = { fg = "#b4befe" }
+title   = { fg = "#b4befe", bold = true }
+hovered = { fg = "#11111b", bg = "#b4befe", bold = true }
+
+[help]
+on      = { fg = "#89dceb" }
+run     = { fg = "#cba6f7" }
+desc    = { fg = "#cdd6f4" }
+hovered = { fg = "#11111b", bg = "#b4befe", bold = true }
+footer  = { fg = "#11111b", bg = "#b4befe" }

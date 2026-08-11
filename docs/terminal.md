@@ -1,13 +1,60 @@
 ---
 layout: default
-title: Ghostty and Herdr
+title: Ghostty, Herdr, and Yazi
 ---
 
-# Ghostty and Herdr
+# Ghostty, Herdr, and Yazi
 
 Herdr is the primary terminal workspace layer. It owns workspaces, tabs, panes,
 navigation, splits, zoom, resize mode, and its sidebar. Ghostty owns only
 terminal-host functions that Herdr cannot provide.
+
+## Yazi file manager
+
+Yazi is installed with its media, archive, document, search, and navigation
+helpers. Its managed configuration shows hidden files and adds a coordinated
+theme while inheriting the remaining upstream defaults:
+
+```text
+yazi/
+└── .config/
+    └── yazi/
+        ├── theme.toml
+        └── yazi.toml
+```
+
+This maps to `~/.config/yazi/`. The theme uses the same Catppuccin Mocha palette
+and lavender-to-surface status pills as Starship while retaining Yazi's built-in
+file-type icon colors. Start Yazi with `y`; after navigating, quit with `q` to
+adopt Yazi's final directory in the parent shell. Quit with `Q` when the shell
+should remain in its original directory. The `yazi` command remains available
+for direct use without directory adoption.
+
+[Open the full-size Yazi shortcut card](assets/yazi-shortcuts.png).
+
+<a href="assets/yazi-shortcuts.png"><img src="assets/yazi-shortcuts.png" alt="Yazi file manager shortcut card" width="520"></a>
+
+### Essential Yazi keys
+
+| Key | Action |
+| --- | --- |
+| `H/J/K/L` or arrow keys | Move left/down/up/right |
+| `Enter` or `L` | Open the selected file or directory |
+| `1–9` | Switch to tab 1–9 |
+| `T`, then `T` | Create a new tab |
+| `Space` | Toggle selection |
+| `Y` / `X` | Copy / cut selected files |
+| `P` / `Shift (⇧) + P` | Paste / paste and overwrite |
+| `A` / `R` | Create / rename |
+| `D` / `Shift (⇧) + D` | Move to Trash / delete permanently |
+| `S` / `Shift (⇧) + S` | Search names with `fd` / contents with `ripgrep` |
+| `Z` / `Shift (⇧) + Z` | Jump with `fzf` / `zoxide` |
+| `Q` / `Shift (⇧) + Q` | Quit and adopt Yazi's directory / quit without changing directory |
+| `F1` or `~` | Open the complete built-in help |
+
+`ffmpeg-full` and `imagemagick-full` are keg-only Homebrew formulae. The managed
+Zsh setup adds their `bin` directories to `PATH` when installed instead of
+force-linking them over regular Homebrew variants.
 
 ## Herdr Stow package
 

@@ -12,6 +12,7 @@ Personal macOS and terminal configuration managed with [GNU Stow](https://www.gn
 | `herdr` | Terminal workspaces, tabs, panes, and navigation |
 | `nvim` | Neovim configuration |
 | `starship` | Shell prompt |
+| `yazi` | Terminal file management with rich previews |
 | `zsh` | Shell configuration and aliases |
 | `gh-manager` | GitHub Manager configuration |
 
@@ -62,8 +63,9 @@ less "$bootstrap_file"
 - [AeroSpace workflow and keybindings](https://pabumake.github.io/dotfiles/aerospace.html)
 - [Ghostty and Herdr keybindings](https://pabumake.github.io/dotfiles/terminal.html)
 - Visual shortcut cards: [AeroSpace windows](https://pabumake.github.io/dotfiles/assets/aerospace-windows-shortcuts.png),
-  [AeroSpace workspaces](https://pabumake.github.io/dotfiles/assets/aerospace-workspaces-shortcuts.png), and
-  [Herdr terminal](https://pabumake.github.io/dotfiles/assets/herdr-terminal-shortcuts.png)
+  [AeroSpace workspaces](https://pabumake.github.io/dotfiles/assets/aerospace-workspaces-shortcuts.png),
+  [Herdr terminal](https://pabumake.github.io/dotfiles/assets/herdr-terminal-shortcuts.png), and
+  [Yazi file manager](https://pabumake.github.io/dotfiles/assets/yazi-shortcuts.png)
 - [Menu-bar icon management](https://pabumake.github.io/dotfiles/menubar.html)
 
 The longer guides live in `/docs` so this README stays useful as a quick entry
@@ -84,6 +86,7 @@ inspiration here:
   [Hidden Bar](https://github.com/dwarvesf/hidden)
 - **Shell and editor:** [Zsh](https://github.com/zsh-users/zsh),
   [Starship](https://github.com/starship/starship),
+  [Yazi](https://github.com/sxyazi/yazi),
   [Neovim](https://github.com/neovim/neovim),
   [LazyVim](https://github.com/LazyVim/LazyVim),
   [lazy.nvim](https://github.com/folke/lazy.nvim), and

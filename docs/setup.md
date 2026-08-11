@@ -86,13 +86,13 @@ mediosz/tap
 ### Formulae
 
 ```text
-git stow starship eza herdr borders neovim ripgrep fd fzf lazygit tree-sitter node
+git stow starship eza herdr borders yazi ffmpeg-full sevenzip jq poppler zoxide resvg imagemagick-full neovim ripgrep fd fzf lazygit tree-sitter node
 ```
 
 ### Casks
 
 ```text
-ghostty aerospace swipeaerospace font-jetbrains-mono-nerd-font
+ghostty aerospace swipeaerospace font-jetbrains-mono-nerd-font font-symbols-only-nerd-font
 ```
 
 Hidden Bar or Ice is installed separately after the remembered provider choice
@@ -163,7 +163,7 @@ Automated runs stop on dirty, divergent, or non-`main` checkouts unless
 ## Stow packages
 
 ```text
-aerospace borders ghostty herdr nvim starship zsh gh-manager
+aerospace borders ghostty herdr nvim starship yazi zsh gh-manager
 ```
 
 Each package repeats the path it creates below the home directory:
@@ -175,6 +175,8 @@ Each package repeats the path it creates below the home directory:
 ~/.config/herdr/config.toml   → herdr/.config/herdr/config.toml
 ~/.config/nvim/               → nvim/.config/nvim/
 ~/.config/starship.toml       → starship/.config/starship.toml
+~/.config/yazi/yazi.toml      → yazi/.config/yazi/yazi.toml
+~/.config/yazi/theme.toml     → yazi/.config/yazi/theme.toml
 ```
 
 Herdr runtime logs, sockets, and session state remain ordinary files in
@@ -245,17 +247,18 @@ configuration. Service logs are stored at
 After the first installation:
 
 1. Open a new shell.
-2. Reload or restart Ghostty.
-3. Start Herdr and verify `Control + B`, then `?` opens help.
-4. Start AeroSpace and grant **System Settings → Privacy & Security → Accessibility** permission.
-5. Grant SwipeAeroSpace Accessibility permission in the same settings panel.
-6. Swipe horizontally with three fingers and verify it moves between occupied AeroSpace workspaces.
-7. Swipe upward with three fingers and verify neither a SwipeAeroSpace workspace
+2. Run `y`, navigate to another directory, and quit with `q` to adopt that directory in the shell.
+3. Reload or restart Ghostty.
+4. Start Herdr and verify `Control + B`, then `?` opens help.
+5. Start AeroSpace and grant **System Settings → Privacy & Security → Accessibility** permission.
+6. Grant SwipeAeroSpace Accessibility permission in the same settings panel.
+7. Swipe horizontally with three fingers and verify it moves between occupied AeroSpace workspaces.
+8. Swipe upward with three fingers and verify neither a SwipeAeroSpace workspace
    overview nor the macOS Mission Control overlay appears.
-8. Move focus between windows and verify the focused window receives a subtle blue border.
-9. Arrange menu-bar icons around the selected provider with `Command (⌘) + drag`.
-10. For Ice, grant Accessibility and enable **Launch at login** in its settings.
-11. Start Neovim once so LazyVim can install its pinned plugins.
+9. Move focus between windows and verify the focused window receives a subtle blue border.
+10. Arrange menu-bar icons around the selected provider with `Command (⌘) + drag`.
+11. For Ice, grant Accessibility and enable **Launch at login** in its settings.
+12. Start Neovim once so LazyVim can install its pinned plugins.
 
 On a fresh setup, bootstrap imports the selected provider's tracked baseline
 only when no preferences exist. Later runs preserve live settings. Switching,
