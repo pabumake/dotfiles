@@ -39,6 +39,7 @@ Remove the temporary file afterward when it is no longer needed.
 | `--upgrade` | Upgrade declared packages after installing missing ones |
 | `--no-repo-update` | Use the current checkout without fetching or pulling |
 | `--backup-conflicts` | Permit conflict backups when using `--yes` |
+| `--trust-third-party` | Approve the required item-level Homebrew trust entries |
 | `--with-hushlogin` | Explicitly create `~/.hushlogin` |
 | `--menu-bar-manager M` | Select and remember `hiddenbar`, `ice`, or `none` |
 | `--switch-bar-manager` | Reopen the interactive provider selector |
@@ -53,7 +54,7 @@ Local examples:
 cd ~/Documents/dotfiles
 ./setup/bootstrap.sh --dry-run
 ./setup/bootstrap.sh --upgrade
-./setup/bootstrap.sh --yes --backup-conflicts
+./setup/bootstrap.sh --yes --trust-third-party --backup-conflicts
 ./setup/bootstrap.sh --switch-bar-manager
 ./setup/bootstrap.sh --profile-personal
 ```
@@ -66,6 +67,9 @@ VSCodium, and Zen Browser to fixed AeroSpace workspaces; see the
 
 `--yes` does not silently replace existing configs. When conflicts exist it
 also requires `--backup-conflicts`; otherwise the run stops safely.
+Likewise, adding third-party Homebrew trust requires `--trust-third-party` when
+`--yes` is used. Interactive runs show the missing entries and ask once before
+changing Homebrew's trust configuration.
 
 ## What gets installed
 
@@ -101,6 +105,12 @@ upgraded unless `--upgrade` is supplied, unrelated packages are never removed,
 and `brew bundle cleanup` is never used. Only the menu-bar providers participate
 in the separately confirmed removal workflow.
 
+On Homebrew versions that enforce tap trust, bootstrap checks the current trust
+configuration and asks before adding any missing entries. Trust is limited to
+the three required definitions: `felixkratz/formulae/borders`,
+`mediosz/tap/swipeaerospace`, and `nikitabobko/tap/aerospace`. It never trusts a
+complete third-party tap.
+
 JankyBorders comes from a third-party tap. On Homebrew versions that enforce
 tap trust, the bootstrap explicitly trusts only
 `felixkratz/formulae/borders`; it does not trust every formula in the tap.
@@ -113,6 +123,9 @@ installs the cask, configures its three-finger workspace gesture through the
 separate `scripts/trackpad-gestures.sh` helper, and starts it with AeroSpace.
 On Homebrew versions that enforce tap trust, bootstrap trusts only
 `mediosz/tap/swipeaerospace`, not every cask in the tap.
+
+AeroSpace receives the same item-level treatment: bootstrap trusts only the
+`nikitabobko/tap/aerospace` cask.
 
 `gh-manager` remains config-only. Its Stow package is linked, but the bootstrap
 does not install its binary or GitHub CLI.

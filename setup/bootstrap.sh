@@ -9,12 +9,15 @@ DEFAULT_REPO_DIR="${HOME}/Documents/dotfiles"
 FORMULAE=(git stow starship eza herdr borders neovim ripgrep fd fzf lazygit tree-sitter node)
 CASKS=(ghostty aerospace swipeaerospace font-jetbrains-mono-nerd-font)
 STOW_PACKAGES=(aerospace borders ghostty herdr nvim starship zsh gh-manager)
+TRUSTED_FORMULAE=(felixkratz/formulae/borders)
+TRUSTED_CASKS=(mediosz/tap/swipeaerospace nikitabobko/tap/aerospace)
 
 DRY_RUN=0
 ASSUME_YES=0
 UPGRADE=0
 NO_REPO_UPDATE=0
 BACKUP_CONFLICTS=0
+TRUST_THIRD_PARTY=0
 WITH_HUSHLOGIN=0
 LOCAL_PASS=0
 MENU_BAR_MANAGER=""
@@ -35,6 +38,7 @@ Options:
   --upgrade             Upgrade declared packages after installing missing ones
   --no-repo-update      Use the current checkout without fetching or pulling
   --backup-conflicts    Approve conflict backups when combined with --yes
+  --trust-third-party   Approve required third-party Homebrew trust
   --with-hushlogin      Create ~/.hushlogin after setup
   --menu-bar-manager M  Select hiddenbar, ice, or none and remember the choice
   --switch-bar-manager  Show the menu-bar manager selector again
@@ -47,6 +51,7 @@ Safety rules:
   * Local Git changes are never reset, stashed, or overwritten.
   * Repository updates are fast-forward only.
   * Existing configs are listed and require backup approval before replacement.
+  * Third-party Homebrew trust is item-scoped and requires separate approval.
   * Installed Homebrew packages are not upgraded unless --upgrade is supplied.
   * Unrelated Homebrew packages are never removed.
 USAGE
@@ -102,6 +107,7 @@ while [ "$#" -gt 0 ]; do
     --upgrade) UPGRADE=1 ;;
     --no-repo-update) NO_REPO_UPDATE=1 ;;
     --backup-conflicts) BACKUP_CONFLICTS=1 ;;
+    --trust-third-party) TRUST_THIRD_PARTY=1 ;;
     --with-hushlogin) WITH_HUSHLOGIN=1 ;;
     --menu-bar-manager)
       shift
@@ -368,21 +374,84 @@ print_package_status() {
   printf '\n'
 }
 
-prepare_borders_formula() {
-  note "Third-party formula: FelixKratz/formulae/borders"
-  run brew tap FelixKratz/formulae || return 1
-  if brew help trust >/dev/null 2>&1; then
-    note "Trust scope: this formula only (not the complete tap)."
-    run brew trust --formula felixkratz/formulae/borders || return 1
-  fi
+trust_entry_present() {
+  local trust_json="$1"
+  local entry_type="$2"
+  local entry="$3"
+
+  printf '%s\n' "${trust_json}" | \
+    /usr/bin/plutil -extract "${entry_type}" xml1 -o - -- - 2>/dev/null | \
+    /usr/bin/grep -Fq "<string>${entry}</string>"
 }
 
-prepare_swipeaerospace_cask() {
-  note "Third-party cask: mediosz/tap/swipeaerospace"
-  run brew tap mediosz/tap || return 1
-  if brew help trust >/dev/null 2>&1; then
-    note "Trust scope: this cask only (not the complete tap)."
-    run brew trust --cask mediosz/tap/swipeaerospace || return 1
+prepare_third_party_trust() {
+  local trust_json
+  local item
+  local missing_formulae=()
+  local missing_casks=()
+
+  if ! brew help trust >/dev/null 2>&1; then
+    note "This Homebrew version does not require explicit third-party trust."
+    return 0
+  fi
+
+  trust_json="$(brew trust --json=v1 2>/dev/null)" || \
+    die "Could not inspect Homebrew's trusted entries."
+
+  for item in "${TRUSTED_FORMULAE[@]}"; do
+    if ! trust_entry_present "${trust_json}" formulae "${item}" && \
+       ! trust_entry_present "${trust_json}" taps "${item%/*}"; then
+      missing_formulae+=("${item}")
+    fi
+  done
+  for item in "${TRUSTED_CASKS[@]}"; do
+    if ! trust_entry_present "${trust_json}" casks "${item}" && \
+       ! trust_entry_present "${trust_json}" taps "${item%/*}"; then
+      missing_casks+=("${item}")
+    fi
+  done
+
+  if [ "${#missing_formulae[@]}" -eq 0 ] && [ "${#missing_casks[@]}" -eq 0 ]; then
+    note "Required third-party Homebrew entries are already trusted."
+    return 0
+  fi
+
+  heading "Third-party Homebrew trust"
+  note "Homebrew formulae and casks are Ruby code that can run with your user privileges."
+  note "The bootstrap will trust only these required items, not their complete taps:"
+  if [ "${#missing_formulae[@]}" -gt 0 ]; then
+    for item in "${missing_formulae[@]}"; do note "Formula: ${item}"; done
+  fi
+  if [ "${#missing_casks[@]}" -gt 0 ]; then
+    for item in "${missing_casks[@]}"; do note "Cask: ${item}"; done
+  fi
+
+  if [ "${DRY_RUN}" -eq 1 ]; then
+    note "Dry run: trust approval would be required before these entries were added."
+  elif [ "${TRUST_THIRD_PARTY}" -eq 1 ]; then
+    note "Third-party trust approved by --trust-third-party."
+  elif [ "${ASSUME_YES}" -eq 1 ]; then
+    die "Third-party Homebrew trust requires --trust-third-party when --yes is used."
+  elif ! confirm "Trust these third-party Homebrew items?"; then
+    die "Third-party Homebrew trust declined."
+  fi
+
+  if [ "${#missing_formulae[@]}" -gt 0 ]; then
+    for item in "${missing_formulae[@]}"; do
+      case "${item}" in
+        felixkratz/formulae/*) run brew tap FelixKratz/formulae || return 1 ;;
+      esac
+      run brew trust --formula "${item}" || return 1
+    done
+  fi
+  if [ "${#missing_casks[@]}" -gt 0 ]; then
+    for item in "${missing_casks[@]}"; do
+      case "${item}" in
+        mediosz/tap/*) run brew tap mediosz/tap || return 1 ;;
+        nikitabobko/tap/*) run brew tap nikitabobko/tap || return 1 ;;
+      esac
+      run brew trust --cask "${item}" || return 1
+    done
   fi
 }
 
@@ -396,11 +465,10 @@ else
 fi
 note "The fixed package phase removes nothing. Menu-bar switching is handled next."
 note "gh-manager remains config-only."
+prepare_third_party_trust || die "Could not prepare third-party Homebrew trust"
 
 if ! brew bundle check --file="${REPO_DIR}/Brewfile" >/dev/null 2>&1 || [ "${UPGRADE}" -eq 1 ]; then
   if [ "${DRY_RUN}" -eq 1 ]; then
-    prepare_borders_formula
-    prepare_swipeaerospace_cask
     run brew bundle install --no-upgrade --file="${REPO_DIR}/Brewfile"
     if [ "${UPGRADE}" -eq 1 ]; then
       run brew bundle upgrade --file="${REPO_DIR}/Brewfile"
@@ -409,8 +477,6 @@ if ! brew bundle check --file="${REPO_DIR}/Brewfile" >/dev/null 2>&1 || [ "${UPG
     if ! confirm "Apply the Homebrew package plan?"; then
       die "Package phase declined."
     fi
-    prepare_borders_formula || die "Could not prepare the JankyBorders formula"
-    prepare_swipeaerospace_cask || die "Could not prepare the SwipeAeroSpace cask"
     run brew bundle install --no-upgrade --file="${REPO_DIR}/Brewfile" || die "Homebrew bundle installation failed"
     if [ "${UPGRADE}" -eq 1 ]; then
       run brew bundle upgrade --file="${REPO_DIR}/Brewfile" || die "Homebrew bundle upgrade failed"
