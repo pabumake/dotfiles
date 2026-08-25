@@ -10,19 +10,20 @@ Bootstrap manages one native menu-bar provider at a time:
 | Choice | Package | Notes |
 | --- | --- | --- |
 | Hidden Bar | `hiddenbar` | Simple divider-based hiding; no special permissions |
-| Ice | `jordanbaird-ice@beta` on macOS 26+, stable on macOS 14–15 | Richer layout controls; Accessibility required |
+| Ice | `jordanbaird-ice@beta` on macOS 26+, stable on macOS 15 | Richer layout controls; Accessibility required |
 | None | — | Backs up and removes both managed providers |
 
 [Hidden Bar](https://github.com/dwarvesf/hidden) is MIT licensed. [Ice](https://github.com/jordanbaird/Ice)
-is GPL-3.0 licensed and requires macOS 14 or newer. The Tahoe beta is used on
-macOS 26 because it contains the project's Tahoe compatibility work.
+is GPL-3.0 licensed. The dotfiles bootstrap requires macOS 15.6 or newer. It
+uses the Tahoe beta on macOS 26 because that release contains the project's
+Tahoe compatibility work.
 
 ## Choose or switch provider
 
 The first bootstrap uses `fzf` for an Up/Down + Enter selector, with Ice
 preselected and a numbered fallback where pressing Enter also chooses Ice. On a
-noninteractive first run, Ice is selected automatically. Systems below macOS 14
-fall back to Hidden Bar because Ice is unavailable. The successful choice is stored outside the repository at
+noninteractive first run, Ice is selected automatically. The successful choice
+is stored outside the repository at
 `~/.local/state/pabu-dotfiles/menu-bar-manager/selection` and reused by updates.
 
 Choose explicitly, including for unattended setup:

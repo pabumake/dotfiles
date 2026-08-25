@@ -6,10 +6,10 @@ REPOSITORY_URL="https://github.com/pabumake/dotfiles.git"
 HOMEBREW_INSTALL_URL="https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
 DEFAULT_REPO_DIR="${HOME}/Documents/dotfiles"
 
-FORMULAE=(git stow starship eza herdr borders yazi ffmpeg-full sevenzip jq poppler zoxide resvg imagemagick-full neovim ripgrep fd fzf lazygit tree-sitter node)
-CASKS=(ghostty aerospace swipeaerospace font-jetbrains-mono-nerd-font font-symbols-only-nerd-font)
+FORMULAE=(git stow starship eza herdr borders yazi bjarneo/cliamp/cliamp mole ffmpeg-full sevenzip jq poppler zoxide resvg imagemagick-full neovim ripgrep fd fzf lazygit tree-sitter node)
+CASKS=(ghostty caskhub aerospace swipeaerospace font-jetbrains-mono-nerd-font font-symbols-only-nerd-font)
 STOW_PACKAGES=(aerospace borders ghostty herdr nvim starship yazi zsh gh-manager)
-TRUSTED_FORMULAE=(felixkratz/formulae/borders)
+TRUSTED_FORMULAE=(felixkratz/formulae/borders bjarneo/cliamp/cliamp)
 TRUSTED_CASKS=(mediosz/tap/swipeaerospace nikitabobko/tap/aerospace)
 
 DRY_RUN=0
@@ -31,6 +31,8 @@ usage() {
 Usage: bootstrap.sh [options]
 
 Install or update Pabu's macOS dotfiles.
+
+Requires macOS 15.6 or newer.
 
 Options:
   --dry-run             Show planned actions without changing anything
@@ -146,6 +148,15 @@ if [ "$(uname -s)" != "Darwin" ]; then
   die "This bootstrap currently supports macOS only."
 fi
 
+MACOS_VERSION="$(sw_vers -productVersion)"
+MACOS_MAJOR="${MACOS_VERSION%%.*}"
+MACOS_VERSION_REMAINDER="${MACOS_VERSION#*.}"
+MACOS_MINOR="${MACOS_VERSION_REMAINDER%%.*}"
+if [ "${MACOS_MAJOR}" -lt 15 ] || \
+   { [ "${MACOS_MAJOR}" -eq 15 ] && [ "${MACOS_MINOR}" -lt 6 ]; }; then
+  die "This bootstrap requires macOS 15.6 or newer. Detected macOS ${MACOS_VERSION}."
+fi
+
 case "${REPO_DIR}" in
   /*) ;;
   *) die "--repo-dir must be an absolute path" ;;
@@ -170,7 +181,7 @@ load_brew_environment() {
 
 print_declared_packages() {
   local item
-  note "Taps: nikitabobko/tap FelixKratz/formulae mediosz/tap"
+  note "Taps: nikitabobko/tap FelixKratz/formulae mediosz/tap bjarneo/cliamp"
   printf '    Formulae:'
   for item in "${FORMULAE[@]}"; do printf ' %s' "${item}"; done
   printf '\n    Casks:'
@@ -440,6 +451,7 @@ prepare_third_party_trust() {
     for item in "${missing_formulae[@]}"; do
       case "${item}" in
         felixkratz/formulae/*) run brew tap FelixKratz/formulae || return 1 ;;
+        bjarneo/cliamp/*) run brew tap bjarneo/cliamp || return 1 ;;
       esac
       run brew trust --formula "${item}" || return 1
     done
@@ -490,8 +502,6 @@ MENU_BAR_STATE_ROOT="${XDG_STATE_HOME:-${HOME}/.local/state}/pabu-dotfiles"
 MENU_BAR_STATE_DIR="${MENU_BAR_STATE_ROOT}/menu-bar-manager"
 MENU_BAR_SELECTION_FILE="${MENU_BAR_STATE_DIR}/selection"
 MENU_BAR_BACKUP_ROOT="${MENU_BAR_STATE_ROOT}/backups"
-MACOS_MAJOR="$(sw_vers -productVersion | cut -d. -f1)"
-
 saved_menu_bar_manager() {
   local saved=""
   if [ -r "${MENU_BAR_SELECTION_FILE}" ]; then

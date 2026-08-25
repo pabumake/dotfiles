@@ -5,8 +5,8 @@ title: Setup, Updates, and Stow
 
 # Setup, updates, and Stow
 
-The bootstrap supports macOS on Apple Silicon and Intel. The same entry point
-can prepare a new Mac or update an existing dotfiles checkout.
+The bootstrap supports macOS 15.6 or newer on Apple Silicon and Intel. The same
+entry point can prepare a new Mac or update an existing dotfiles checkout.
 
 ## One-command setup
 
@@ -81,24 +81,25 @@ The committed `Brewfile` is the source of truth.
 nikitabobko/tap
 FelixKratz/formulae
 mediosz/tap
+bjarneo/cliamp
 ```
 
 ### Formulae
 
 ```text
-git stow starship eza herdr borders yazi ffmpeg-full sevenzip jq poppler zoxide resvg imagemagick-full neovim ripgrep fd fzf lazygit tree-sitter node
+git stow starship eza herdr borders yazi bjarneo/cliamp/cliamp mole ffmpeg-full sevenzip jq poppler zoxide resvg imagemagick-full neovim ripgrep fd fzf lazygit tree-sitter node
 ```
 
 ### Casks
 
 ```text
-ghostty aerospace swipeaerospace font-jetbrains-mono-nerd-font font-symbols-only-nerd-font
+ghostty caskhub aerospace swipeaerospace font-jetbrains-mono-nerd-font font-symbols-only-nerd-font
 ```
 
 Hidden Bar or Ice is installed separately after the remembered provider choice
-is resolved. Ice uses its Tahoe beta cask on macOS 26+, its stable cask on macOS
-14–15, and is unavailable on older systems. Ice is the default first-run choice;
-the selector or `--menu-bar-manager` can choose Hidden Bar or None instead.
+is resolved. Ice uses its Tahoe beta cask on macOS 26+ and its stable cask on
+macOS 15. Ice is the default first-run choice; the selector or
+`--menu-bar-manager` can choose Hidden Bar or None instead.
 
 Normal runs use Homebrew Bundle's install-only mode. Existing packages are not
 upgraded unless `--upgrade` is supplied, unrelated packages are never removed,
@@ -107,9 +108,9 @@ in the separately confirmed removal workflow.
 
 On Homebrew versions that enforce tap trust, bootstrap checks the current trust
 configuration and asks before adding any missing entries. Trust is limited to
-the three required definitions: `felixkratz/formulae/borders`,
-`mediosz/tap/swipeaerospace`, and `nikitabobko/tap/aerospace`. It never trusts a
-complete third-party tap.
+the four required definitions: `felixkratz/formulae/borders`,
+`bjarneo/cliamp/cliamp`, `mediosz/tap/swipeaerospace`, and
+`nikitabobko/tap/aerospace`. It never trusts a complete third-party tap.
 
 JankyBorders comes from a third-party tap. On Homebrew versions that enforce
 tap trust, the bootstrap explicitly trusts only
@@ -126,6 +127,17 @@ On Homebrew versions that enforce tap trust, bootstrap trusts only
 
 AeroSpace receives the same item-level treatment: bootstrap trusts only the
 `nikitabobko/tap/aerospace` cask.
+
+Cliamp comes from the `bjarneo/cliamp` tap. Bootstrap trusts only the
+`bjarneo/cliamp/cliamp` formula. Its default Homebrew installation also installs
+the formula's runtime dependencies.
+
+CaskHub comes from Homebrew's official cask catalog, so it does not need a
+third-party trust entry. It sets the bootstrap's minimum supported version to
+macOS 15.6.
+
+Mole comes from Homebrew's official formula catalog, so it does not need a
+third-party tap or trust entry.
 
 `gh-manager` remains config-only. Its Stow package is linked, but the bootstrap
 does not install its binary or GitHub CLI.

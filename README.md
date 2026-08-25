@@ -39,7 +39,8 @@ Bootstrap a new Mac or update an existing checkout with the same command:
 The bootstrap always prints its plan. By default it installs only missing
 packages, fast-forwards only clean Git checkouts, and asks before backing up any
 existing config that conflicts with Stow. Package upgrades require `--upgrade`.
-It is the repository's only supported installation and update entry point.
+It requires macOS 15.6 or newer and is the repository's only supported
+installation and update entry point.
 JankyBorders is registered as a per-user Homebrew service so it starts at login
 and automatically recovers if its process exits.
 
@@ -83,6 +84,7 @@ inspiration here:
   [JankyBorders](https://github.com/FelixKratz/JankyBorders),
   [Ghostty](https://github.com/ghostty-org/ghostty),
   [Herdr](https://github.com/herdrdev/herdr),
+  [CaskHub](https://github.com/alielsokary/CaskHub),
   [SwipeAeroSpace](https://github.com/MediosZ/SwipeAeroSpace),
   [Ice](https://github.com/jordanbaird/Ice), and
   [Hidden Bar](https://github.com/dwarvesf/hidden)
@@ -98,6 +100,8 @@ inspiration here:
   [ripgrep](https://github.com/BurntSushi/ripgrep),
   [fd](https://github.com/sharkdp/fd), [fzf](https://github.com/junegunn/fzf),
   [lazygit](https://github.com/jesseduffield/lazygit),
+  [cliamp](https://github.com/bjarneo/cliamp),
+  [Mole](https://github.com/tw93/Mole),
   [Tree-sitter](https://github.com/tree-sitter/tree-sitter), and
   [Node.js](https://github.com/nodejs/node)
 - **Foundations and design:** [Homebrew](https://github.com/Homebrew/brew),

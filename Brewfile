@@ -1,6 +1,7 @@
 tap "nikitabobko/tap"
 tap "FelixKratz/formulae"
 tap "mediosz/tap"
+tap "bjarneo/cliamp"
 
 # Core dotfile and shell tooling
 brew "git"
@@ -10,6 +11,8 @@ brew "eza"
 brew "herdr"
 brew "borders"
 brew "yazi"
+brew "bjarneo/cliamp/cliamp"
+brew "mole"
 
 # Yazi preview, archive, and navigation tooling
 brew "ffmpeg-full"
@@ -31,6 +34,7 @@ brew "node"
 
 # macOS applications and font used by the managed configs
 cask "ghostty"
+cask "caskhub"
 cask "aerospace"
 cask "swipeaerospace"
 cask "font-jetbrains-mono-nerd-font"
