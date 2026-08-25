@@ -84,7 +84,7 @@ inspiration here:
   [JankyBorders](https://github.com/FelixKratz/JankyBorders),
   [Ghostty](https://github.com/ghostty-org/ghostty),
   [Herdr](https://github.com/herdrdev/herdr),
-  [CaskHub](https://github.com/alielsokary/CaskHub),
+  [Vorssaint](https://github.com/vorssaintapp/vorssaint-utils),
   [SwipeAeroSpace](https://github.com/MediosZ/SwipeAeroSpace),
   [Ice](https://github.com/jordanbaird/Ice), and
   [Hidden Bar](https://github.com/dwarvesf/hidden)

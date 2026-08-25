@@ -93,8 +93,11 @@ git stow starship eza herdr borders yazi bjarneo/cliamp/cliamp mole ffmpeg-full 
 ### Casks
 
 ```text
-ghostty caskhub aerospace swipeaerospace font-jetbrains-mono-nerd-font font-symbols-only-nerd-font
+ghostty aerospace swipeaerospace font-jetbrains-mono-nerd-font font-symbols-only-nerd-font
 ```
+
+On Apple Silicon, bootstrap also installs `vorssaint`. Vorssaint does not ship
+an Intel build, so Intel systems skip it.
 
 Hidden Bar or Ice is installed separately after the remembered provider choice
 is resolved. Ice uses its Tahoe beta cask on macOS 26+ and its stable cask on
@@ -132,9 +135,9 @@ Cliamp comes from the `bjarneo/cliamp` tap. Bootstrap trusts only the
 `bjarneo/cliamp/cliamp` formula. Its default Homebrew installation also installs
 the formula's runtime dependencies.
 
-CaskHub comes from Homebrew's official cask catalog, so it does not need a
-third-party trust entry. It sets the bootstrap's minimum supported version to
-macOS 15.6.
+Vorssaint comes from Homebrew's official cask catalog, so it does not need a
+third-party trust entry. The cask requires Apple Silicon and is skipped on
+Intel systems.
 
 Mole comes from Homebrew's official formula catalog, so it does not need a
 third-party tap or trust entry.

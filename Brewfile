@@ -34,7 +34,7 @@ brew "node"
 
 # macOS applications and font used by the managed configs
 cask "ghostty"
-cask "caskhub"
+cask "vorssaint" if Hardware::CPU.arm?
 cask "aerospace"
 cask "swipeaerospace"
 cask "font-jetbrains-mono-nerd-font"
