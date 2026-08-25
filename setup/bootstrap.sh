@@ -8,6 +8,8 @@ DEFAULT_REPO_DIR="${HOME}/Documents/dotfiles"
 
 FORMULAE=(git stow starship eza herdr borders yazi bjarneo/cliamp/cliamp mole ffmpeg-full sevenzip jq poppler zoxide resvg imagemagick-full neovim ripgrep fd fzf lazygit tree-sitter node)
 CASKS=(ghostty aerospace swipeaerospace font-jetbrains-mono-nerd-font font-symbols-only-nerd-font)
+REPLACED_CASKS=(caffeine flameshot caskhub)
+VORSSAINT_SETTINGS_RELATIVE="vorssaint/settings.plist"
 if [ "$(uname -m)" = "arm64" ]; then
   CASKS+=(vorssaint)
 fi
@@ -58,7 +60,7 @@ Safety rules:
   * Existing configs are listed and require backup approval before replacement.
   * Third-party Homebrew trust is item-scoped and requires separate approval.
   * Installed Homebrew packages are not upgraded unless --upgrade is supplied.
-  * Unrelated Homebrew packages are never removed.
+  * Only explicitly replaced casks and superseded menu-bar providers are removed.
 USAGE
 }
 
@@ -478,7 +480,7 @@ if [ "${UPGRADE}" -eq 1 ]; then
 else
   note "Install-only mode: existing packages will not be upgraded."
 fi
-note "The fixed package phase removes nothing. Menu-bar switching is handled next."
+note "Declared packages are installed before any replaced casks are removed."
 note "gh-manager remains config-only."
 prepare_third_party_trust || die "Could not prepare third-party Homebrew trust"
 
@@ -500,6 +502,69 @@ if ! brew bundle check --file="${REPO_DIR}/Brewfile" >/dev/null 2>&1 || [ "${UPG
 else
   note "All declared dependencies are already installed."
 fi
+
+cleanup_replaced_casks() {
+  local item
+  local installed=()
+
+  heading "Replaced applications"
+  if [ "$(uname -m)" != "arm64" ]; then
+    note "Skipped because Vorssaint is unavailable on Intel Macs."
+    return
+  fi
+  if ! brew list --cask vorssaint >/dev/null 2>&1; then
+    if [ "${DRY_RUN}" -eq 1 ]; then
+      note "Vorssaint would be installed before this cleanup runs."
+    else
+      die "Vorssaint must be installed before replaced applications are removed."
+    fi
+  fi
+
+  for item in "${REPLACED_CASKS[@]}"; do
+    if brew list --cask "${item}" >/dev/null 2>&1; then
+      installed+=("${item}")
+    fi
+  done
+  if [ "${#installed[@]}" -eq 0 ]; then
+    note "No replaced Homebrew casks are installed."
+    return
+  fi
+
+  note "Vorssaint replaces these installed casks:"
+  for item in "${installed[@]}"; do note "Remove: ${item}"; done
+  if [ "${DRY_RUN}" -eq 0 ] && ! confirm "Uninstall these replaced casks?"; then
+    note "Replaced application cleanup skipped."
+    return
+  fi
+  for item in "${installed[@]}"; do
+    run brew uninstall --cask "${item}" || die "Could not uninstall replaced cask: ${item}"
+  done
+}
+
+cleanup_replaced_casks
+
+report_vorssaint_settings() {
+  local settings="${REPO_DIR}/${VORSSAINT_SETTINGS_RELATIVE}"
+
+  [ "$(uname -m)" = "arm64" ] || return
+  heading "Vorssaint settings"
+  if [ ! -f "${settings}" ]; then
+    note "No tracked export found at ${settings}."
+    note "Create it with Vorssaint Settings > Advanced > Export Settings."
+    return
+  fi
+  /usr/bin/plutil -lint "${settings}" >/dev/null 2>&1 || \
+    die "Tracked Vorssaint settings are not a valid plist: ${settings}"
+  [ "$(/usr/bin/plutil -extract vorssaintBackupVersion raw -o - "${settings}" 2>/dev/null)" = "1" ] || \
+    die "Tracked Vorssaint settings use an unsupported backup format: ${settings}"
+  /usr/bin/plutil -extract settings xml1 -o /dev/null "${settings}" >/dev/null 2>&1 || \
+    die "Tracked Vorssaint settings have no settings dictionary: ${settings}"
+  note "Portable settings: ${settings}"
+  note "Import them with Vorssaint Settings > Advanced > Import Settings."
+  note "Grant macOS permissions separately on this device."
+}
+
+report_vorssaint_settings
 
 MENU_BAR_STATE_ROOT="${XDG_STATE_HOME:-${HOME}/.local/state}/pabu-dotfiles"
 MENU_BAR_STATE_DIR="${MENU_BAR_STATE_ROOT}/menu-bar-manager"
@@ -1107,4 +1172,4 @@ heading "Complete"
 note "Repository: ${REPO_DIR}"
 note "Package mode: $([ "${UPGRADE}" -eq 1 ] && printf upgrade || printf install-missing-only)"
 note "Dotfiles profile: ${DOTFILES_PROFILE}"
-note "No unrelated Homebrew packages were removed."
+note "Only declared replacements and selected menu-bar providers may have been removed."

@@ -105,9 +105,12 @@ macOS 15. Ice is the default first-run choice; the selector or
 `--menu-bar-manager` can choose Hidden Bar or None instead.
 
 Normal runs use Homebrew Bundle's install-only mode. Existing packages are not
-upgraded unless `--upgrade` is supplied, unrelated packages are never removed,
-and `brew bundle cleanup` is never used. Only the menu-bar providers participate
-in the separately confirmed removal workflow.
+upgraded unless `--upgrade` is supplied, and `brew bundle cleanup` is never used.
+After Vorssaint is installed on Apple Silicon, bootstrap offers to remove the
+exact replaced-cask list: Caffeine, Flameshot, and CaskHub. Interactive runs ask
+first; `--yes` accepts this ordinary prompt. Intel systems skip the cleanup
+because Vorssaint is unavailable there. Menu-bar providers retain their separate
+confirmed removal workflow.
 
 On Homebrew versions that enforce tap trust, bootstrap checks the current trust
 configuration and asks before adding any missing entries. Trust is limited to
@@ -138,6 +141,24 @@ the formula's runtime dependencies.
 Vorssaint comes from Homebrew's official cask catalog, so it does not need a
 third-party trust entry. The cask requires Apple Silicon and is skipped on
 Intel systems.
+
+### Vorssaint settings
+
+Vorssaint 3.3.2 can export a portable settings plist from **Settings →
+Advanced → Export Settings** and restore it through **Import Settings** on
+another Mac. Its supported export excludes permissions, clipboard history,
+device-specific state, run history, and file access grants. macOS permissions
+must therefore be granted separately on every device.
+
+Vorssaint does not provide command-line settings export or import. Bootstrap
+must not substitute a raw `defaults import`, which bypasses Vorssaint's key and
+type validation and can overwrite local state. Keep an official export at
+`vorssaint/settings.plist` only after checking it for scratchpad text, snippets,
+saved links, and other personal configuration. Bootstrap validates and reports
+that file, but Vorssaint must import it after the app is installed.
+
+The implementation research and upstream source references are in
+[Vorssaint settings portability](research/vorssaint-settings-portability.md).
 
 Mole comes from Homebrew's official formula catalog, so it does not need a
 third-party tap or trust entry.
