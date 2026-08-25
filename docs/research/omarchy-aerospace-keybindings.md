@@ -21,7 +21,8 @@ monitor. It also uses `Super + T` for floating/tiling. These bindings are in the
 This AeroSpace setup treats macOS Option as Omarchy's Super modifier. Control
 takes the place of Omarchy's additional Alt modifier, so moving a whole
 workspace uses `Option + Control + Shift + Arrow`. Existing Vim-style H/J/K/L
-bindings remain as aliases.
+bindings remain as aliases. The same H/J/K/L direction order is also available
+for whole-workspace movement, service-mode joining, and resize mode.
 
 AeroSpace's [`join-with` command](https://nikitabobko.github.io/AeroSpace/commands#join-with)
 creates a common parent container for the focused window and its directional

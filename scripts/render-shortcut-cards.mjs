@@ -102,7 +102,7 @@ const cards = [
       row(605, ["⌥", "TAB"], "Next workspace", 465),
       row(705, ["⌥", "⇧", "TAB"], "Previous workspace", 465),
       row(805, [{ label: "3-FINGER HORIZONTAL", width: 370 }], "Previous / next occupied", 465, true),
-      row(905, ["⌥", "CTRL", "⇧", { label: "←↓↑→", width: 118 }], "Move workspace by monitor", 485, true),
+      row(905, ["⌥", "CTRL", "⇧", { label: "←↓↑→ / HJKL", width: 210 }], "Move workspace by monitor", 585, true),
       section("PERSONAL PROFILE", 1055),
       text(72, 1125, "1  Ghostty    ·    2  VSCodium    ·    3  Zen", "action"),
       text(72, 1435, "⌥ Option   CTRL Control   ⇧ Shift", "muted"),

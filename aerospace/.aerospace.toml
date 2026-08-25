@@ -180,6 +180,10 @@ run = 'exec-and-forget "${HOME}/.config/aerospace/personal-window-router.sh"'
     alt-ctrl-shift-down = 'move-workspace-to-monitor down'
     alt-ctrl-shift-up = 'move-workspace-to-monitor up'
     alt-ctrl-shift-right = 'move-workspace-to-monitor right'
+    alt-ctrl-shift-h = 'move-workspace-to-monitor left'
+    alt-ctrl-shift-j = 'move-workspace-to-monitor down'
+    alt-ctrl-shift-k = 'move-workspace-to-monitor up'
+    alt-ctrl-shift-l = 'move-workspace-to-monitor right'
 
     # See: https://nikitabobko.github.io/AeroSpace/commands#mode
     alt-shift-semicolon = 'mode service'
@@ -208,6 +212,10 @@ run = 'exec-and-forget "${HOME}/.config/aerospace/personal-window-router.sh"'
     alt-shift-j = ['join-with down', 'mode main']
     alt-shift-k = ['join-with up', 'mode main']
     alt-shift-l = ['join-with right', 'mode main']
+    alt-shift-left = ['join-with left', 'mode main']
+    alt-shift-down = ['join-with down', 'mode main']
+    alt-shift-up = ['join-with up', 'mode main']
+    alt-shift-right = ['join-with right', 'mode main']
 
 # Dedicated resize mode
 [mode.resize.binding]
@@ -215,6 +223,10 @@ run = 'exec-and-forget "${HOME}/.config/aerospace/personal-window-router.sh"'
     j = 'resize height +50'
     k = 'resize height -50'
     l = 'resize width +50'
+    left = 'resize width -50'
+    down = 'resize height +50'
+    up = 'resize height -50'
+    right = 'resize width +50'
     minus = 'resize smart -50'
     equal = 'resize smart +50'
     enter = 'mode main'

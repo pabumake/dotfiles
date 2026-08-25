@@ -124,7 +124,7 @@ bindings.
 | `Option (⌥) + Tab (⇥)` | Switch to the next workspace |
 | `Option (⌥) + Shift (⇧) + Tab (⇥)` | Switch to the previous workspace |
 | `Option (⌥) + Control (⌃) + Tab (⇥)` | Return to the formerly focused workspace |
-| `Option (⌥) + Control (⌃) + Shift (⇧) + Arrow` | Move the current workspace to the monitor in that direction |
+| `Option (⌥) + Control (⌃) + Shift (⇧) + Arrow or H/J/K/L` | Move the current workspace to the monitor in that direction |
 
 [Open the full-size AeroSpace workspace shortcut card](assets/aerospace-workspaces-shortcuts.png).
 
@@ -147,10 +147,10 @@ modifier unless one is shown.
 
 | Shortcut | Action |
 | --- | --- |
-| `H` | Reduce width by 50 pixels |
-| `J` | Increase height by 50 pixels |
-| `K` | Reduce height by 50 pixels |
-| `L` | Increase width by 50 pixels |
+| `H` or `Left Arrow` | Reduce width by 50 pixels |
+| `J` or `Down Arrow` | Increase height by 50 pixels |
+| `K` or `Up Arrow` | Reduce height by 50 pixels |
+| `L` or `Right Arrow` | Increase width by 50 pixels |
 | `-` | Smart resize down by 50 pixels |
 | `=` | Smart resize up by 50 pixels |
 | `Enter (↩)` or `Escape (Esc)` | Return to main mode |
@@ -166,10 +166,15 @@ action automatically returns to main mode.
 | `R` | Flatten/reset the current workspace tree |
 | `F` | Toggle floating/tiling |
 | `Backspace (⌫)` | Close every window in the workspace except the focused one |
-| `Option (⌥) + Shift (⇧) + H` | Join with the container to the left |
-| `Option (⌥) + Shift (⇧) + J` | Join with the container below |
-| `Option (⌥) + Shift (⇧) + K` | Join with the container above |
-| `Option (⌥) + Shift (⇧) + L` | Join with the container to the right |
+| `Option (⌥) + Shift (⇧) + H/Left Arrow` | Join with the container to the left |
+| `Option (⌥) + Shift (⇧) + J/Down Arrow` | Join with the container below |
+| `Option (⌥) + Shift (⇧) + K/Up Arrow` | Join with the container above |
+| `Option (⌥) + Shift (⇧) + L/Right Arrow` | Join with the container to the right |
+
+The plain `Option (⌥) + H/J/K/L` shortcuts override Option-character entry on
+the active US International keyboard layout while AeroSpace runs. The
+Control-and-Shift workspace variants do not overlap an enabled macOS symbolic
+shortcut on this machine.
 
 ### Focused-window highlighting
 
