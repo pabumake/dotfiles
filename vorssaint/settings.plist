@@ -7,7 +7,7 @@
 		<key>appAppearance</key>
 		<string>system</string>
 		<key>appUpdatesCheckFrequency</key>
-		<string>off</string>
+		<string>daily</string>
 		<key>appUpdatesIncludeAppStore</key>
 		<true/>
 		<key>appUpdatesIncludeHomebrewApps</key>
@@ -721,7 +721,7 @@
 		<key>screenshotLastStroke</key>
 		<string>medium</string>
 		<key>screenshotLastTool</key>
-		<string>counter</string>
+		<string>freehand</string>
 		<key>screenshotOpenEditorDirectly</key>
 		<false/>
 		<key>screenshotPreviewPosition</key>
@@ -733,7 +733,7 @@
 		<key>screenshotSharingEnabled</key>
 		<true/>
 		<key>screenshotShortcut</key>
-		<string>control+option+command:21</string>
+		<string>shift+command:20</string>
 		<key>screenshotShortcutEnabled</key>
 		<true/>
 		<key>screenshotShowLastRegion</key>
