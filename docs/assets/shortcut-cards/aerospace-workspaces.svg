@@ -66,7 +66,7 @@
     <rect x="144" y="605" width="104" height="62" rx="10" class="key"/>
     <text x="196" y="637" class="keytext">TAB</text>
   </g>
-  <text x="465" y="647" class="action">Previous workspace</text>
+  <text x="465" y="647" class="action">Next workspace</text>
 
   <g filter="url(#shadow)">
     <rect x="72" y="705" width="62" height="62" rx="10" class="key"/>
@@ -76,7 +76,7 @@
     <rect x="216" y="705" width="104" height="62" rx="10" class="key"/>
     <text x="268" y="737" class="keytext">TAB</text>
   </g>
-  <text x="465" y="747" class="action-small">Move workspace to next monitor</text>
+  <text x="465" y="747" class="action">Previous workspace</text>
 
   <g filter="url(#shadow)">
     <rect x="72" y="805" width="370" height="62" rx="10" class="key"/>
@@ -87,15 +87,19 @@
   <g filter="url(#shadow)">
     <rect x="72" y="905" width="62" height="62" rx="10" class="key"/>
     <text x="103" y="937" class="keytext">⌥</text>
-    <rect x="144" y="905" width="138" height="62" rx="10" class="key"/>
-    <text x="213" y="937" class="keytext-small">ENTER</text>
+    <rect x="144" y="905" width="118" height="62" rx="10" class="key"/>
+    <text x="203" y="937" class="keytext">CTRL</text>
+    <rect x="272" y="905" width="62" height="62" rx="10" class="key"/>
+    <text x="303" y="937" class="keytext">⇧</text>
+    <rect x="344" y="905" width="118" height="62" rx="10" class="key"/>
+    <text x="403" y="937" class="keytext">←↓↑→</text>
   </g>
-  <text x="465" y="947" class="action">Open Ghostty + Herdr</text>
+  <text x="485" y="947" class="action-small">Move workspace by monitor</text>
 
   <text x="72" y="1055" class="section">PERSONAL PROFILE</text>
   <line x1="72" y1="1075" x2="952" y2="1075" class="divider"/>
 
   <text x="72" y="1125" class="action">1  Ghostty    ·    2  VSCodium    ·    3  Zen</text>
 
-  <text x="72" y="1435" class="muted">⌥  Option     ⇧  Shift     TAB  Tab</text>
+  <text x="72" y="1435" class="muted">⌥ Option   CTRL Control   ⇧ Shift</text>
 </svg>

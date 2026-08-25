@@ -6,9 +6,10 @@ title: AeroSpace
 # AeroSpace workflow and keybinding cheat sheet
 
 
-The AeroSpace config uses numbered workspaces, Vim-style navigation, and fixed
-8px gaps. A supervised JankyBorders service provides focused-window
-highlighting. AeroSpace does not start SketchyBar, dynamic gap scripts, or tmux.
+The AeroSpace config uses numbered workspaces, Omarchy-compatible arrow-key
+navigation, optional Vim-style aliases, and fixed 8px gaps. A supervised
+JankyBorders service provides focused-window highlighting. AeroSpace does not
+start SketchyBar, dynamic gap scripts, or tmux.
 
 The `alt` modifier in the AeroSpace config is the macOS **Option (⌥)** key.
 Every modifier is written explicitly below; there is no implied `Mod` key.
@@ -82,14 +83,10 @@ restore.
 
 | Shortcut | Action |
 | --- | --- |
-| `Option (⌥) + H` | Focus the window to the left |
-| `Option (⌥) + J` | Focus the window below |
-| `Option (⌥) + K` | Focus the window above |
-| `Option (⌥) + L` | Focus the window to the right |
-| `Option (⌥) + Shift (⇧) + H` | Move the focused window left |
-| `Option (⌥) + Shift (⇧) + J` | Move the focused window down |
-| `Option (⌥) + Shift (⇧) + K` | Move the focused window up |
-| `Option (⌥) + Shift (⇧) + L` | Move the focused window right |
+| `Option (⌥) + Arrow` | Focus the window in that direction |
+| `Option (⌥) + H/J/K/L` | Focus left/down/up/right (Vim aliases) |
+| `Option (⌥) + Shift (⇧) + Arrow` | Move the focused window in that direction |
+| `Option (⌥) + Shift (⇧) + H/J/K/L` | Move left/down/up/right (Vim aliases) |
 | `Option (⌥) + Shift (⇧) + M` | Move the focused window to the next monitor and follow it |
 | `Option (⌥) + -` | Shrink the focused window by 50 pixels |
 | `Option (⌥) + =` | Grow the focused window by 50 pixels |
@@ -100,6 +97,7 @@ restore.
 | --- | --- |
 | `Option (⌥) + /` | Cycle tiled layout orientation |
 | `Option (⌥) + ,` | Cycle accordion layout orientation |
+| `Option (⌥) + T` | Toggle floating/tiling (Omarchy binding) |
 | `Option (⌥) + Shift (⇧) + Space` | Toggle floating/tiling |
 | `Option (⌥) + F` | Toggle native macOS fullscreen |
 | `Option (⌥) + Q` | Close the focused window |
@@ -123,12 +121,24 @@ bindings.
 | --- | --- |
 | `Option (⌥) + 1–9` | Switch to workspace 1–9 |
 | `Option (⌥) + Shift (⇧) + 1–9` | Move the focused window to workspace 1–9 |
-| `Option (⌥) + Tab (⇥)` | Switch to the previous workspace |
-| `Option (⌥) + Shift (⇧) + Tab (⇥)` | Move the current workspace to the next monitor |
+| `Option (⌥) + Tab (⇥)` | Switch to the next workspace |
+| `Option (⌥) + Shift (⇧) + Tab (⇥)` | Switch to the previous workspace |
+| `Option (⌥) + Control (⌃) + Tab (⇥)` | Return to the formerly focused workspace |
+| `Option (⌥) + Control (⌃) + Shift (⇧) + Arrow` | Move the current workspace to the monitor in that direction |
 
 [Open the full-size AeroSpace workspace shortcut card](assets/aerospace-workspaces-shortcuts.png).
 
 <a href="assets/aerospace-workspaces-shortcuts.png"><img src="assets/aerospace-workspaces-shortcuts.png" alt="AeroSpace workspace shortcut card" width="520"></a>
+
+The directional workspace move carries the entire AeroSpace workspace tree,
+including joined containers, to the other display. AeroSpace can create local
+groups with `join-with` in service mode, but it cannot currently select and move
+an arbitrary parent group by itself. Move the whole workspace when a joined
+group must stay intact across monitors.
+
+Finder, System Settings, and Calculator windows start floating. A Finder window
+can still be tiled with `Option (⌥) + T`, moved normally, or minimized with the
+standard macOS control.
 
 ### Resize mode
 
