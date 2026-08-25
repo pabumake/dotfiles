@@ -136,6 +136,19 @@ abstract `PREFIX` key: `[⌃] [B] → [command key]`.
 Navigate mode uses the arrow keys for workspaces and `H/J/K/L` for panes. In a
 remote Herdr client, `Control (⌃) + V` performs remote image paste.
 
+## Ghostty and the AeroSpace modifier
+
+Ghostty normally reserves Option for rectangular mouse selection on macOS and
+shows a crosshair while it is held. The managed config remaps physical Left
+Option to Control inside Ghostty before that mouse-selection check. AeroSpace
+still receives Left Option as its window-management modifier because the remap
+is local to Ghostty.
+
+Use Left Option for AeroSpace shortcuts. Right Option retains normal Option
+input and rectangular selection inside Ghostty. If AeroSpace does not claim a
+Left Option shortcut, Ghostty sends it to the terminal as a Control shortcut.
+The side-specific `key-remap` setting requires Ghostty 1.3.0 or newer.
+
 ## Ghostty shortcuts retained
 
 Ghostty starts its keybinding section with `keybind = clear`. Any shortcut not

@@ -19,6 +19,12 @@ scrollback-limit = 10000
 # --- Mouse ---
 mouse-hide-while-typing = true
 
+# AeroSpace uses Left Option for window commands. Remap it inside Ghostty
+# before Ghostty's rectangular-selection check so Option+Shift stays available
+# to AeroSpace. Right Option retains normal Option and rectangle selection.
+# Requires Ghostty 1.3.0 or newer.
+key-remap = left_alt=left_ctrl
+
 # --- Shell integration ---
 shell-integration = detect
 
