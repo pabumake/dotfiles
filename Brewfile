@@ -2,6 +2,7 @@ tap "nikitabobko/tap"
 tap "FelixKratz/formulae"
 tap "mediosz/tap"
 tap "bjarneo/cliamp"
+tap "chattymin/tap"
 
 # Core dotfile and shell tooling
 brew "git"
@@ -39,3 +40,4 @@ cask "aerospace"
 cask "swipeaerospace"
 cask "font-jetbrains-mono-nerd-font"
 cask "font-symbols-only-nerd-font"
+cask "poke-token-bar"
