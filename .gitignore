@@ -25,6 +25,10 @@
 .env.*
 !.env.example
 
+# exlcude cliamp user data
+cliamp/.config/cliamp/config.toml
+cliamp/.config/cliamp/resume.json
+
 # Runtime state and repository-local caches
 *.log
 *.pid
