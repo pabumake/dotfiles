@@ -10,7 +10,15 @@ alias cls="clear"
 ######################
 # Applications
 ######################
-# alias code="open -a 'Visual Studio Code - Insiders'"
+# Prefer the first installed VS Code variant for tools that open an external editor.
+for external_editor in codium code code-insiders; do
+  if command -v "$external_editor" >/dev/null 2>&1; then
+    export VISUAL="$external_editor --wait"
+    export EDITOR="$VISUAL"
+    break
+  fi
+done
+unset external_editor
 
 ######################
 # Fast Access Folders
