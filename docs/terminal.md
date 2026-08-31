@@ -172,6 +172,9 @@ listed here is passed to Herdr or the focused pane application.
 | `Command (⌘) + ,` | Open the Ghostty config |
 | `Command (⌘) + Shift (⇧) + ,` | Reload the Ghostty config |
 
+Search shortcuts are conditional. `Escape` closes an active Ghostty search;
+otherwise, Ghostty passes it to Herdr or the application in the focused pane.
+
 Ghostty does not own tabs, splits, surface navigation, split zoom/resize,
 scrolling, prompt navigation, or numbered tab switching.
 

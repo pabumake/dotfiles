@@ -76,12 +76,15 @@ keybind = super+-=decrease_font_size:1
 keybind = super+0=reset_font_size
 
 # Search
-keybind = super+f=start_search
-keybind = super+e=search_selection
-keybind = super+shift+f=end_search
-keybind = escape=end_search
-keybind = super+g=navigate_search:next
-keybind = super+shift+g=navigate_search:previous
+# Match Ghostty's conditional defaults: consume these keys only when the
+# corresponding search action can run. In particular, Escape must otherwise
+# reach Herdr or the application in its focused pane.
+keybind = performable:super+f=start_search
+keybind = performable:super+e=search_selection
+keybind = performable:super+shift+f=end_search
+keybind = performable:escape=end_search
+keybind = performable:super+g=navigate_search:next
+keybind = performable:super+shift+g=navigate_search:previous
 
 # Application and window controls
 keybind = super+n=new_window
