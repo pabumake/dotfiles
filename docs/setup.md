@@ -114,9 +114,10 @@ confirmed removal workflow.
 
 On Homebrew versions that enforce tap trust, bootstrap checks the current trust
 configuration and asks before adding any missing entries. Trust is limited to
-the four required definitions: `felixkratz/formulae/borders`,
-`bjarneo/cliamp/cliamp`, `mediosz/tap/swipeaerospace`, and
-`nikitabobko/tap/aerospace`. It never trusts a complete third-party tap.
+the five required definitions: `felixkratz/formulae/borders`,
+`bjarneo/cliamp/cliamp`, `mediosz/tap/swipeaerospace`,
+`nikitabobko/tap/aerospace`, and `chattymin/tap/poke-token-bar`. It never trusts
+a complete third-party tap.
 
 JankyBorders comes from a third-party tap. On Homebrew versions that enforce
 tap trust, the bootstrap explicitly trusts only
@@ -133,6 +134,9 @@ On Homebrew versions that enforce tap trust, bootstrap trusts only
 
 AeroSpace receives the same item-level treatment: bootstrap trusts only the
 `nikitabobko/tap/aerospace` cask.
+
+PokeTokenBar comes from the `chattymin/tap` Homebrew tap. Bootstrap trusts only
+the `chattymin/tap/poke-token-bar` cask.
 
 Cliamp comes from the `bjarneo/cliamp` tap. Bootstrap trusts only the
 `bjarneo/cliamp/cliamp` formula. Its default Homebrew installation also installs

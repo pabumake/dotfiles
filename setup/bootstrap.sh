@@ -7,7 +7,7 @@ HOMEBREW_INSTALL_URL="https://raw.githubusercontent.com/Homebrew/install/HEAD/in
 DEFAULT_REPO_DIR="${HOME}/Documents/dotfiles"
 
 FORMULAE=(git stow starship eza herdr borders yazi bjarneo/cliamp/cliamp mole ffmpeg-full sevenzip jq poppler zoxide resvg imagemagick-full neovim ripgrep fd fzf lazygit tree-sitter node)
-CASKS=(ghostty aerospace swipeaerospace font-jetbrains-mono-nerd-font font-symbols-only-nerd-font)
+CASKS=(ghostty aerospace swipeaerospace poke-token-bar font-jetbrains-mono-nerd-font font-symbols-only-nerd-font)
 REPLACED_CASKS=(caffeine flameshot caskhub)
 VORSSAINT_SETTINGS_RELATIVE="vorssaint/settings.plist"
 if [ "$(uname -m)" = "arm64" ]; then
@@ -15,7 +15,7 @@ if [ "$(uname -m)" = "arm64" ]; then
 fi
 STOW_PACKAGES=(aerospace borders ghostty herdr nvim starship yazi zsh gh-manager)
 TRUSTED_FORMULAE=(felixkratz/formulae/borders bjarneo/cliamp/cliamp)
-TRUSTED_CASKS=(mediosz/tap/swipeaerospace nikitabobko/tap/aerospace)
+TRUSTED_CASKS=(mediosz/tap/swipeaerospace nikitabobko/tap/aerospace chattymin/tap/poke-token-bar)
 
 DRY_RUN=0
 ASSUME_YES=0
@@ -466,6 +466,7 @@ prepare_third_party_trust() {
       case "${item}" in
         mediosz/tap/*) run brew tap mediosz/tap || return 1 ;;
         nikitabobko/tap/*) run brew tap nikitabobko/tap || return 1 ;;
+        chattymin/tap/*) run brew tap chattymin/tap || return 1 ;;
       esac
       run brew trust --cask "${item}" || return 1
     done
