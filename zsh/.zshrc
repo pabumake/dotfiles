@@ -38,3 +38,7 @@ fi
 # brew updater configuration
 ##############################
 alias forceupdate='brew update && brew upgrade && brew install --cask --force `brew list --cask` && brew cleanup -s && brew cleanup --prune 0 && rm -rf "$(brew --cache)"'
+
+autoload -Uz compinit && compinit
+autoload -U +X bashcompinit && bashcompinit
+complete -o nospace -C /opt/homebrew/bin/vault vault
