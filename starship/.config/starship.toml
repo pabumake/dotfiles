@@ -158,6 +158,7 @@ ignore_base = false
 [custom.date]
 command = "date +'%a %d %b'"
 when = true
+ignore_timeout = true
 style = "fg:text bg:surface1"
 format = '[ 󰃭 $output ]($style)'
 
