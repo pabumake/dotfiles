@@ -43,15 +43,26 @@ class BootstrapTests(unittest.TestCase):
         self.command("omarchy", "echo unexpected-package-install >&2; exit 99")
         self.command("herdr", "exit 0")
         self.command("hyprctl", "exit 0")
-        self.command("git", "echo https://github.com/rosakodu/omarchy-dock.git")
+        self.command("git", 'case "$2" in *ozdil.security-sentinel) echo https://github.com/ozdil/omarchy-security-sentinel.git ;; *air.workspaces) echo https://github.com/airenare/omarchy-workspaces-by-monitor.git ;; *n0d3x.input-language) echo https://github.com/n0d3xt-max/n0d3x.input-language.git ;; *) echo https://github.com/rosakodu/omarchy-dock.git ;; esac')
         (self.omarchy / "config/hypr").mkdir(parents=True)
         for name in ("bindings.lua", "monitors.lua"):
             (self.omarchy / "config/hypr" / name).write_text("-- defaults\n")
         plugin = self.home / ".config/omarchy/plugins/rosakodu.dock"
         plugin.mkdir(parents=True)
         (plugin / "manifest.json").write_text('{"id":"rosakodu.dock"}')
+        plugin = self.home / '.config/omarchy/plugins/n0d3x.input-language'
+        plugin.mkdir()
+        (plugin / 'manifest.json').write_text('{"id":"n0d3x.input-language"}')
+        plugin = self.home / '.config/omarchy/plugins/air.workspaces'
+        plugin.mkdir()
+        (plugin / 'manifest.json').write_text('{"id":"air.workspaces"}')
+        plugin = self.home / '.config/omarchy/plugins/ozdil.security-sentinel'
+        plugin.mkdir()
+        (plugin / 'manifest.json').write_text('{"id":"ozdil.security-sentinel"}')
+        (plugin / 'sentinel-engine').write_text('built engine')
+        (plugin / 'sentinel-engine').chmod(0o755)
         (self.home / ".config/omarchy/shell.json").write_text(json.dumps({
-            "version": 1, "bar": {"layout": {"left": [], "right": [], "center": [
+            "version": 1, "bar": {"layout": {"left": [{"id": "air.workspaces"}], "right": [{"id": "ozdil.security-sentinel"}, {"id": "n0d3x.input-language"}], "center": [
                 {"id": "rosakodu.dock"}, {"id": "omarchy.system-update"}]}}}))
         self.env = {**os.environ, "HOME": str(self.home), "OMARCHY_PATH": str(self.omarchy),
                     "PATH": f"{self.bin}:{os.environ['PATH']}",
@@ -60,7 +71,7 @@ class BootstrapTests(unittest.TestCase):
 
     def command(self, name, body):
         if name == "omarchy":
-            body = 'case "$*" in "plugin validate "*) exit 0 ;; "plugin list --json") echo \'[{"id":"rosakodu.dock","enabled":true}]\'; exit 0 ;; esac\n' + body
+            body = 'case "$*" in "plugin validate "*) exit 0 ;; "plugin list --json") echo \'[{"id":"rosakodu.dock","enabled":true},{"id":"n0d3x.input-language","enabled":true},{"id":"air.workspaces","enabled":true},{"id":"ozdil.security-sentinel","enabled":true}]\'; exit 0 ;; esac\n' + body
         path = self.bin / name
         path.write_text("#!/bin/bash\n" + body + "\n")
         path.chmod(0o755)

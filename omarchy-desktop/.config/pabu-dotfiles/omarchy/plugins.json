@@ -1,6 +1,27 @@
 {
-  "id": "rosakodu.dock",
-  "url": "https://github.com/rosakodu/omarchy-dock.git",
-  "section": "center",
-  "before": "omarchy.system-update"
+  "plugins": [
+    {
+      "id": "rosakodu.dock",
+      "url": "https://github.com/rosakodu/omarchy-dock.git",
+      "section": "center",
+      "before": "omarchy.system-update"
+    },
+    {
+      "id": "n0d3x.input-language",
+      "url": "https://github.com/n0d3xt-max/n0d3x.input-language.git",
+      "section": "right"
+    },
+    {
+      "id": "air.workspaces",
+      "url": "https://github.com/airenare/omarchy-workspaces-by-monitor.git",
+      "section": "left"
+    },
+    {
+      "id": "ozdil.security-sentinel",
+      "url": "https://github.com/ozdil/omarchy-security-sentinel.git",
+      "section": "right",
+      "before": "n0d3x.input-language",
+      "cargo_binary": "sentinel-engine"
+    }
+  ]
 }

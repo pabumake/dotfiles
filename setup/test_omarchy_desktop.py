@@ -3,6 +3,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import subprocess
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -38,26 +39,39 @@ class DesktopTests(unittest.TestCase):
         self.stub.start()
         self.addCleanup(self.stub.stop)
         self.manager = desktop.Desktop(self.repo, self.home)
+        self.plugins = desktop.read_json(self.manager.source / 'plugins.json')['plugins']
 
     def command(self, *args):
         self.calls.append(args)
         if args[:3] == ('omarchy', 'plugin', 'add'):
-            plugin = self.config / 'plugins/rosakodu.dock'
+            metadata = next(p for p in self.plugins if p['url'] == args[3])
+            plugin = self.config / 'plugins' / metadata['id']
             plugin.mkdir(parents=True)
-            (plugin / 'manifest.json').write_text('{"id":"rosakodu.dock"}')
+            (plugin / 'manifest.json').write_text(json.dumps({'id': metadata['id']}))
         elif args[:3] == ('omarchy', 'plugin', 'enable'):
             shell = json.loads(self.shell_path.read_text())
             layout = shell['bar']['layout']
+            plugin_id = args[3]
             for key in layout:
-                layout[key] = [entry for entry in layout[key] if entry['id'] != 'rosakodu.dock']
-            values = layout['center']
-            index = next((i for i, value in enumerate(values) if value['id'] == 'omarchy.system-update'), len(values))
-            values.insert(index, {'id': 'rosakodu.dock'})
+                layout[key] = [entry for entry in layout[key] if entry['id'] != plugin_id]
+            values = layout[args[args.index('--section') + 1]]
+            anchor = args[args.index('--before') + 1] if '--before' in args else None
+            index = next((i for i, value in enumerate(values) if value['id'] == anchor), len(values))
+            if '--index' in args:
+                index = min(int(args[args.index('--index') + 1]), len(values))
+            values.insert(index, {'id': plugin_id})
             self.shell_path.write_text(json.dumps(shell))
+        elif args[0] == 'cargo':
+            target = Path(args[args.index('--target-dir') + 1]) / 'release/sentinel-engine'
+            target.parent.mkdir(parents=True)
+            target.write_text('built engine')
+        elif args[0] == 'install':
+            shutil.copy2(args[-2], args[-1])
+            Path(args[-1]).chmod(0o755)
         elif args[0] == 'git':
-            return 'https://github.com/rosakodu/omarchy-dock.git'
+            return next(p['url'] for p in self.plugins if p['id'] == Path(args[2]).name)
         elif args[:3] == ('omarchy', 'plugin', 'list'):
-            return '[{"id":"rosakodu.dock","enabled":true}]'
+            return json.dumps([{'id': p['id'], 'enabled': True} for p in self.plugins])
         return ''
 
     def snapshot(self):
@@ -70,8 +84,9 @@ class DesktopTests(unittest.TestCase):
         self.assertEqual(self.calls, [])
         self.manager.apply()
         shell = json.loads(self.shell_path.read_text())
+        self.assertEqual(shell['bar']['layout']['right'], [{'id': 'ozdil.security-sentinel'}, {'id': 'n0d3x.input-language'}])
         self.assertEqual(shell['idle']['lock'], 913)
-        self.assertEqual(shell['bar']['layout']['left'], [{'id': 'mine'}])
+        self.assertEqual(shell['bar']['layout']['left'], [{'id': 'mine'}, {'id': 'air.workspaces'}])
         self.assertEqual(shell['bar']['layout']['center'][0]['id'], 'rosakodu.dock')
         self.assertTrue((self.hypr / 'bindings.lua').read_text().startswith('-- unrelated customization\n'))
         before = self.snapshot()
@@ -79,8 +94,47 @@ class DesktopTests(unittest.TestCase):
         self.manager.apply()
         self.assertEqual(before, self.snapshot())
         installs = [call for call in self.calls if call[:3] == ('omarchy', 'plugin', 'add')]
-        self.assertEqual(len(installs), 1)
+        self.assertEqual(len(installs), 4)
         self.assertNotIn('--enable', installs[0])
+        builds = [call for call in self.calls if call[0] == 'cargo']
+        self.assertEqual(len(builds), 1)
+        self.assertIn('--locked', builds[0])
+        self.assertLess(self.calls.index(builds[0]), next(i for i, call in enumerate(self.calls) if call[:4] == ('omarchy', 'plugin', 'enable', 'ozdil.security-sentinel')))
+
+    def test_add_second_plugin_preserves_installed_dock(self):
+        dock = self.plugins[0]
+        self.command('omarchy', 'plugin', 'add', dock['url'], '--yes')
+        self.command('omarchy', 'plugin', 'enable', dock['id'], '--section', 'center',
+                     '--before', 'omarchy.system-update')
+        self.calls.clear()
+        self.manager.preflight(live=False)
+        self.manager.apply()
+        installs = [call[3] for call in self.calls if call[:3] == ('omarchy', 'plugin', 'add')]
+        enables = [call[3] for call in self.calls if call[:3] == ('omarchy', 'plugin', 'enable')]
+        self.assertEqual(installs, [p['url'] for p in self.plugins[1:]])
+        self.assertEqual(enables, ['n0d3x.input-language', 'air.workspaces', 'ozdil.security-sentinel'])
+
+    def test_build_failure_does_not_enable_plugins(self):
+        self.manager.preflight(live=False)
+        original = self.command
+        def fail_build(*args):
+            if args[0] == 'cargo':
+                raise subprocess.CalledProcessError(1, args)
+            return original(*args)
+        with patch.object(desktop, 'command', side_effect=fail_build):
+            with self.assertRaises(subprocess.CalledProcessError):
+                self.manager.apply()
+        self.assertFalse(any(call[:3] == ('omarchy', 'plugin', 'enable') for call in self.calls))
+        self.assertNotIn(desktop.BEGIN, (self.hypr / 'monitors.lua').read_text())
+
+    def test_duplicate_plugin_ids_fail_without_changes(self):
+        source = self.manager.source / 'plugins.json'
+        source.write_text(json.dumps({'plugins': [self.plugins[0], self.plugins[0]]}))
+        before = self.snapshot()
+        with self.assertRaisesRegex(RuntimeError, 'Duplicate plugin ID'):
+            self.manager.preflight(live=False)
+        self.assertEqual(before, self.snapshot())
+        self.assertEqual(self.calls, [])
 
     def test_capture_round_trip_preserves_unknown_fields_and_dry_run(self):
         value = {'visibilityMode': 'hybrid', 'futureOption': {'value': True}}
@@ -156,6 +210,16 @@ hl.monitor({ output = "HDMI-A-1", mode = "preferred" })
         self.assertIn('local omarchy_monitor_scale = "auto"', result)
         self.assertEqual(result, desktop.hook_content(result, 'monitors.lua'))
 
+    def test_workspace_pin_markers_preserve_ui_generated_rules(self):
+        generated = 'hl.workspace_rule({ workspace = "1", monitor = "DP-2" })'
+        old = f'-- monitor config\n{desktop.PINS_BEGIN}\n{generated}\n{desktop.PINS_END}\n'
+        result = desktop.hook_content(old, 'monitors.lua')
+        self.assertIn(generated, result)
+        self.assertEqual(result.count(desktop.PINS_BEGIN), 1)
+        self.assertEqual(result, desktop.hook_content(result, 'monitors.lua'))
+        with self.assertRaisesRegex(RuntimeError, 'pin markers'):
+            desktop.hook_content(desktop.PINS_BEGIN, 'monitors.lua')
+
     def test_malformed_hook_is_rejected(self):
         with self.assertRaises(RuntimeError):
             desktop.hook_content(desktop.BEGIN, 'bindings.lua')
@@ -165,7 +229,7 @@ hl.monitor({ output = "HDMI-A-1", mode = "preferred" })
         shell['bar']['layout']['center'] = [{'id': 'clock'}]
         self.shell_path.write_text(json.dumps(shell))
         self.manager.preflight(live=False)
-        self.assertEqual(self.manager.placement, ['--section', 'center'])
+        self.assertEqual(self.manager.plugin_plans[0]['placement'], ['--section', 'center', '--index', '1'])
         self.manager.apply()
         self.assertEqual(desktop.read_json(self.shell_path)['bar']['layout']['center'][-1]['id'], 'rosakodu.dock')
 

@@ -91,7 +91,7 @@ Edit `omarchy-desktop/.config/pabu-dotfiles/omarchy/` in this checkout:
 | --- | --- |
 | `bindings.lua` | Personal shortcuts; Super+Shift+D replaces Docker with the dock |
 | `monitors.lua` | Shared DP-2/DP-3 layout, 1.25 scale, and GDK_SCALE=1 |
-| `plugins.json` | Dock repository, ID, and placement in the center before system update |
+| `plugins.json` | Plugin list with Git URLs, IDs, bar sections, and optional placement anchors |
 | `dock-settings.json` | Dock preferences; `{}` initially uses plugin defaults |
 | `dock-pinned.json` | Pinned apps and folders; initially empty |
 
@@ -133,13 +133,58 @@ The shell has no include mechanism; setup uses Omarchy's plugin CLI to manage it
 dock entry and preserves unrelated shell settings. If the system-update widget
 is absent, the dock goes at the end of the center section.
 
-The dock is installed only when absent. An existing installation must have the
-expected ID and Git origin. Setup does not update it or vendor its code. A fresh
+Configured plugins are installed only when absent. Existing installations must have
+the expected IDs and Git origins. Setup does not update them or vendor their code. A fresh
 installation uses the upstream version available then; update explicitly with:
 
 ```bash
 omarchy plugin update rosakodu.dock
+omarchy plugin update n0d3x.input-language
+omarchy plugin update air.workspaces
 ```
+
+`plugins.json` contains a `plugins` array. Each entry specifies `id`, `url`,
+`section` (`left`, `center`, or `right`), and optionally `before` (another widget
+ID in that section). A `cargo_binary` field requests a local release build
+using Cargo.lock before enablement. Setup manages `rosakodu.dock` in the center and
+[`n0d3x.input-language`](https://github.com/n0d3xt-max/n0d3x.input-language)
+at the end of the right section, plus
+[`air.workspaces`](https://github.com/airenare/omarchy-workspaces-by-monitor)
+on the left (Omarchy replaces its stock workspace widget automatically), and
+[`ozdil.security-sentinel`](https://github.com/ozdil/omarchy-security-sentinel)
+on the right before the input-language widget.
+Add future bar plugins to this list and rerun
+bootstrap or desktop apply.
+
+Security Sentinel requires a locally built `sentinel-engine`. Bootstrap installs
+Rust when Cargo is unavailable and the engine needs building; it also ensures
+libnotify, NetworkManager, Zenity, and pacman-contrib are installed. Setup builds
+with `cargo build --release --locked` and installs the resulting executable into
+the plugin directory before enabling it. An existing executable is reused on
+later runs. Standalone desktop apply asks you to run bootstrap if Cargo is missing.
+The engine and its build output remain outside dotfiles.
+
+After explicitly updating Security Sentinel, rebuild its engine before restarting
+the shell (ordinary setup does not upgrade plugins or rebuild existing engines):
+
+```bash
+omarchy plugin update ozdil.security-sentinel
+cargo build --release --locked --manifest-path "$HOME/.config/omarchy/plugins/ozdil.security-sentinel/Cargo.toml"
+install -m 755 "$HOME/.config/omarchy/plugins/ozdil.security-sentinel/target/release/sentinel-engine" "$HOME/.config/omarchy/plugins/ozdil.security-sentinel/sentinel-engine"
+omarchy restart shell
+```
+
+The input-language widget lets you choose layouts from its flyout and manage
+available languages with its gear button. Its preferences stay local in
+`~/.local/state/omarchy/plugins/n0d3x.input-language/config.json`; `capture-dock`
+captures only dock files. Existing keyboard widgets and shortcuts are preserved.
+
+The workspace widget's gear menu configures monitor groups, colors, and workspace
+assignments. Setup adds the plugin's `air.workspaces` marker pair to the local
+`~/.config/hypr/monitors.lua`, allowing the plugin to save workspace pins and
+reload Hyprland. Rerunning setup preserves those generated rules. Groups are
+stored in the widget's `shell.json` entry and remain local, as do generated pins;
+`capture-dock` does not capture them. No workspace assignments are imposed by setup.
 
 After an Omarchy config reset, rerun desktop apply to restore hooks. There is no
 post-update hook. Additional Lua customization modules can be loaded with

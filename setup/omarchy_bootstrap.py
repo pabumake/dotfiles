@@ -161,6 +161,10 @@ def main():
     conflicts = conflicts_for(REPO, home)
     bash_text = None if args.skip_bash else bash_content(home, omarchy)
     dependencies = list(DEPENDENCIES)
+    if any(plan['build'] for plan in desktop.plugin_plans) and not shutil.which("cargo"):
+        dependencies.append("rust")
+    if any(plugin['id'] == "ozdil.security-sentinel" for plugin in desktop.plugins):
+        dependencies += ["libnotify", "networkmanager", "zenity", "pacman-contrib"]
     # Omarchy manages development runtimes with mise; keep an available Node.
     if not shutil.which("node"):
         dependencies += ["nodejs", "npm"]

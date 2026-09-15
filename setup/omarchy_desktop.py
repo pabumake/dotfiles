@@ -14,6 +14,8 @@ RELATIVE = Path('.config/pabu-dotfiles/omarchy')
 DOCK_FILES = ('dock-settings.json', 'dock-pinned.json')
 BEGIN = '-- BEGIN pabu-dotfiles omarchy'
 END = '-- END pabu-dotfiles omarchy'
+PINS_BEGIN = '-- air.workspaces: BEGIN auto-generated workspace pins'
+PINS_END = '-- air.workspaces: END auto-generated workspace pins'
 
 
 def command(*args):
@@ -105,6 +107,13 @@ def hook_content(old, name):
             old = re.sub(pattern, '', old)
         old = re.sub(r'(?m)^local omarchy_gdk_scale = 1$', 'local omarchy_gdk_scale = 2', old)
         old = re.sub(r'(?m)^local omarchy_monitor_scale = 1\.25$', 'local omarchy_monitor_scale = "auto"', old)
+    if name == 'monitors.lua':
+        if old.count(PINS_BEGIN) != old.count(PINS_END) or old.count(PINS_BEGIN) > 1:
+            raise RuntimeError('Malformed air.workspaces pin markers in monitors.lua')
+        if PINS_BEGIN not in old:
+            old = old.rstrip('\n') + f'\n\n{PINS_BEGIN}\n{PINS_END}\n'
+        elif old.index(PINS_BEGIN) > old.index(PINS_END):
+            raise RuntimeError('Malformed air.workspaces pin markers in monitors.lua')
     hook = f'dofile(os.getenv("HOME") .. "/{RELATIVE.as_posix()}/{name}")'
     return old.rstrip('\n') + f'\n\n{BEGIN}\n{hook}\n{END}\n'
 
@@ -120,11 +129,28 @@ class Desktop:
     def preflight(self, live=True):
         if os.environ.get('XDG_CONFIG_HOME', str(self.home / '.config')) != str(self.home / '.config'):
             raise RuntimeError('Desktop setup requires XDG_CONFIG_HOME=~/.config.')
-        self.plugin = read_json(self.source / 'plugins.json')
-        if self.plugin.get('id') != 'rosakodu.dock' or self.plugin.get('section') not in ('left', 'center', 'right'):
-            raise RuntimeError('Expected rosakodu.dock metadata with a valid bar section.')
-        if not isinstance(self.plugin.get('url'), str) or not self.plugin['url'].startswith('https://'):
-            raise RuntimeError('Expected an HTTPS plugin repository URL.')
+        metadata = read_json(self.source / 'plugins.json')
+        self.plugins = metadata.get('plugins')
+        if not isinstance(self.plugins, list) or not self.plugins:
+            raise RuntimeError('Expected a nonempty plugins array in plugins.json.')
+        ids = set()
+        for plugin in self.plugins:
+            if not isinstance(plugin, dict):
+                raise RuntimeError('Expected plugin metadata objects.')
+            plugin_id = plugin.get('id')
+            if not isinstance(plugin_id, str) or not re.fullmatch(r'[A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)+', plugin_id):
+                raise RuntimeError('Expected a namespaced plugin ID.')
+            if plugin_id in ids:
+                raise RuntimeError(f'Duplicate plugin ID: {plugin_id}')
+            ids.add(plugin_id)
+            if plugin.get('section') not in ('left', 'center', 'right'):
+                raise RuntimeError(f'Expected a valid bar section for {plugin_id}.')
+            if not isinstance(plugin.get('url'), str) or not plugin['url'].startswith('https://'):
+                raise RuntimeError('Expected an HTTPS plugin repository URL.')
+            if 'cargo_binary' in plugin and (not isinstance(plugin['cargo_binary'], str) or not re.fullmatch(r'[A-Za-z0-9_-]+', plugin['cargo_binary'])):
+                raise RuntimeError(f'Invalid Cargo binary name for {plugin_id}.')
+            if 'before' in plugin and (not isinstance(plugin['before'], str) or plugin['before'] == plugin_id):
+                raise RuntimeError(f'Invalid placement anchor for {plugin_id}.')
         self.edits = []
         for name in ('bindings.lua', 'monitors.lua'):
             target = self.home / '.config/hypr' / name
@@ -148,27 +174,7 @@ class Desktop:
             entries = self.shell['bar']['layout'].get(section)
             if not isinstance(entries, list) or any(not isinstance(entry, dict) for entry in entries):
                 raise RuntimeError(f'Invalid bar layout: {section}')
-        plugin_dir = self.home / '.config/omarchy/plugins' / self.plugin['id']
-        self.install = not (plugin_dir.exists() or plugin_dir.is_symlink())
-        if not self.install:
-            manifest = read_json(plugin_dir / 'manifest.json')
-            if manifest.get('id') != self.plugin['id']:
-                raise RuntimeError(f'Unexpected plugin identity: {plugin_dir}')
-            origin = command('git', '-C', str(plugin_dir), 'remote', 'get-url', 'origin')
-            if origin.removesuffix('.git').rstrip('/') != self.plugin['url'].removesuffix('.git').rstrip('/'):
-                raise RuntimeError(f'Existing dock has a different origin: {origin}')
-            command('omarchy', 'plugin', 'validate', str(plugin_dir))
-        self.placement = ['--section', self.plugin['section']]
-        entries = self.shell['bar']['layout'][self.plugin['section']]
-        anchor = self.plugin.get('before')
-        if any(entry.get('id') == anchor for entry in entries):
-            self.placement += ['--before', anchor]
-        ids = [entry.get('id') for entry in entries]
-        occurrences = sum(entry.get('id') == self.plugin['id'] for values in self.shell['bar']['layout'].values() for entry in values)
-        desired = [entry for entry in ids if entry != self.plugin['id']]
-        index = desired.index(anchor) if anchor in desired else len(desired)
-        desired.insert(index, self.plugin['id'])
-        self.enable = occurrences != 1 or ids != desired
+        self.plugin_plans = [self.plan_plugin(plugin) for plugin in self.plugins]
         if live:
             errors = command('hyprctl', 'configerrors')
             if errors:
@@ -177,43 +183,91 @@ class Desktop:
             catalog = json.loads(command('omarchy', 'plugin', 'list', '--json'))
             if not isinstance(catalog, list):
                 raise RuntimeError('Could not read the live plugin catalog.')
-            if not any(p.get('id') == self.plugin['id'] and p.get('enabled') for p in catalog):
-                self.enable = True
+            for plan in self.plugin_plans:
+                if not any(p.get('id') == plan['plugin']['id'] and p.get('enabled') for p in catalog):
+                    plan['enable'] = True
         for path, _ in self.edits:
             print(f'Desktop: update {path}')
-        if self.install:
-            print(f'Desktop: install {self.plugin["url"]}')
-        if self.enable or self.install:
-            print('Desktop: enable dock ' + ' '.join(self.placement))
+        for plan in self.plugin_plans:
+            plugin = plan['plugin']
+            if plan['install']:
+                print(f'Desktop: install {plugin["url"]}')
+            if plan['build']:
+                print(f'Desktop: build {plugin["cargo_binary"]} with cargo build --release --locked')
+            if plan['enable'] or plan['install']:
+                print(f'Desktop: enable {plugin["id"]} ' + ' '.join(plan['placement']))
+
+    def plan_plugin(self, plugin):
+        plugin_dir = self.home / '.config/omarchy/plugins' / plugin['id']
+        install = not (plugin_dir.exists() or plugin_dir.is_symlink())
+        if not install:
+            manifest = read_json(plugin_dir / 'manifest.json')
+            if manifest.get('id') != plugin['id']:
+                raise RuntimeError(f'Unexpected plugin identity: {plugin_dir}')
+            origin = command('git', '-C', str(plugin_dir), 'remote', 'get-url', 'origin')
+            if origin.removesuffix('.git').rstrip('/') != plugin['url'].removesuffix('.git').rstrip('/'):
+                raise RuntimeError(f'Existing plugin has a different origin: {origin}')
+            command('omarchy', 'plugin', 'validate', str(plugin_dir))
+        placement = ['--section', plugin['section']]
+        entries = self.shell['bar']['layout'][plugin['section']]
+        anchor = plugin.get('before')
+        if any(entry.get('id') == anchor for entry in entries):
+            placement += ['--before', anchor]
+        ids = [entry.get('id') for entry in entries]
+        occurrences = sum(entry.get('id') == plugin['id'] for values in self.shell['bar']['layout'].values() for entry in values)
+        desired = [entry for entry in ids if entry != plugin['id']]
+        index = desired.index(anchor) if anchor in desired else len(desired)
+        if anchor not in desired:
+            placement += ['--index', str(index)]
+        desired.insert(index, plugin['id'])
+        enable = occurrences != 1 or ids != desired
+        binary = plugin.get('cargo_binary')
+        build = bool(binary and not os.access(plugin_dir / binary, os.X_OK))
+        return {'plugin': plugin, 'install': install, 'enable': enable, 'placement': placement, 'build': build}
 
     def apply(self, backup=None):
         backup = backup or Backups(self.home)
-        if self.install:
-            print(command('omarchy', 'plugin', 'add', self.plugin['url'], '--yes'))
-            manifest = read_json(self.home / '.config/omarchy/plugins' / self.plugin['id'] / 'manifest.json')
-            if manifest.get('id') != self.plugin['id']:
-                raise RuntimeError('Installed plugin identity does not match metadata.')
+        for plan in self.plugin_plans:
+            plugin = plan['plugin']
+            if plan['install']:
+                print(command('omarchy', 'plugin', 'add', plugin['url'], '--yes'))
+                manifest = read_json(self.home / '.config/omarchy/plugins' / plugin['id'] / 'manifest.json')
+                if manifest.get('id') != plugin['id']:
+                    raise RuntimeError('Installed plugin identity does not match metadata.')
+        for plan in self.plugin_plans:
+            if plan['build']:
+                plugin = plan['plugin']
+                plugin_dir = self.home / '.config/omarchy/plugins' / plugin['id']
+                target = plugin_dir / 'target'
+                print(f'Building {plugin["id"]}...', flush=True)
+                command('cargo', 'build', '--release', '--locked', '--manifest-path',
+                        str(plugin_dir / 'Cargo.toml'), '--target-dir', str(target))
+                command('install', '-m', '755', str(target / 'release' / plugin['cargo_binary']),
+                        str(plugin_dir / plugin['cargo_binary']))
         for path, text in self.edits:
             if path.exists():
                 backup(path)
             atomic_write(path, text)
-        if self.enable or self.install:
+        pending = [plan for plan in self.plugin_plans if plan['enable'] or plan['install']]
+        if pending:
             if self.shell_path.exists():
                 backup(self.shell_path)
             command('omarchy-shell', 'shell', 'rescanPlugins')
-            print(command('omarchy', 'plugin', 'enable', self.plugin['id'], *self.placement))
+            for plan in pending:
+                print(command('omarchy', 'plugin', 'enable', plan['plugin']['id'], *plan['placement']))
         command('hyprctl', 'reload')
         errors = command('hyprctl', 'configerrors')
         if errors:
             raise RuntimeError(f'Hyprland configuration errors after apply: {errors}. Restore the printed backups.')
         actual = read_json(self.shell_path)
-        entries = actual['bar']['layout'][self.plugin['section']]
-        if not any(entry.get('id') == self.plugin['id'] for entry in entries):
-            raise RuntimeError('Dock enablement verification failed.')
         catalog = json.loads(command('omarchy', 'plugin', 'list', '--json'))
-        if not any(p.get('id') == self.plugin['id'] and p.get('enabled') for p in catalog):
-            raise RuntimeError('The running shell does not report the dock as enabled.')
-        print('Desktop applied; Hyprland reports no configuration errors and the dock is enabled.')
+        for plugin in self.plugins:
+            entries = actual['bar']['layout'][plugin['section']]
+            if not any(entry.get('id') == plugin['id'] for entry in entries):
+                raise RuntimeError(f'Plugin enablement verification failed: {plugin["id"]}')
+            if not any(p.get('id') == plugin['id'] and p.get('enabled') for p in catalog):
+                raise RuntimeError(f'The running shell does not report {plugin["id"]} as enabled.')
+        print('Desktop applied; Hyprland reports no configuration errors and all configured plugins are enabled.')
 
     def capture(self, dry_run=False):
         edits = []
@@ -249,6 +303,8 @@ def main():
             return
         import omarchy_bootstrap as bootstrap
         desktop.preflight(live=not args.dry_run)
+        if not args.dry_run and any(plan['build'] for plan in desktop.plugin_plans) and not shutil.which('cargo'):
+            raise RuntimeError('Cargo is required. Run setup/bootstrap-omarchy.sh to install build dependencies.')
         conflicts = bootstrap.conflicts_for(REPO, desktop.home, packages=('omarchy-desktop',))
         for path in conflicts:
             print(f'Conflict (backup required): {path}')
