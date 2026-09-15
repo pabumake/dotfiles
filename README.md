@@ -1,6 +1,6 @@
 # Pabu's dotfiles
 
-Personal macOS and terminal configuration managed with [GNU Stow](https://www.gnu.org/software/stow/).
+Personal macOS, Omarchy, and terminal configuration managed with [GNU Stow](https://www.gnu.org/software/stow/).
 
 ## Packages
 
@@ -39,8 +39,7 @@ Bootstrap a new Mac or update an existing checkout with the same command:
 The bootstrap always prints its plan. By default it installs only missing
 packages, fast-forwards only clean Git checkouts, and asks before backing up any
 existing config that conflicts with Stow. Package upgrades require `--upgrade`.
-It requires macOS 15.6 or newer and is the repository's only supported
-installation and update entry point.
+It requires macOS 15.6 or newer and is the macOS installation and update entry point.
 JankyBorders is registered as a per-user Homebrew service so it starts at login
 and automatically recovers if its process exits.
 
@@ -58,6 +57,20 @@ less "$bootstrap_file"
 ```
 
 ## Documentation
+
+For an existing Omarchy installation, run from this checkout:
+
+```bash
+./setup/bootstrap-omarchy.sh --dry-run
+./setup/bootstrap-omarchy.sh
+```
+
+Omarchy also manages a desktop overlay for the dock, keybindings, and monitor
+layout. See [desktop editing and apply/capture commands](docs/omarchy.md#desktop-overlay).
+
+The [Omarchy bootstrap guide](docs/omarchy.md) covers shared terminal configs,
+Keeper, Steam, Zen, Ghostty, application defaults, Bash integration, and backups. Omarchy's Ghostty
+shortcuts stay in place; desktop customizations load through small user-config hooks.
 
 - [Documentation home](https://pabumake.github.io/dotfiles/)
 - [Bootstrap, updates, and Stow usage](https://pabumake.github.io/dotfiles/setup.html)

@@ -1,0 +1,6 @@
+{
+  "id": "rosakodu.dock",
+  "url": "https://github.com/rosakodu/omarchy-dock.git",
+  "section": "center",
+  "before": "omarchy.system-update"
+}

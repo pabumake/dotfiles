@@ -40,3 +40,7 @@ cliamp/.config/cliamp/resume.json
 
 # Work Spaces
 *work-*.*
+
+# Python bootstrap/test caches
+__pycache__/
+*.py[cod]

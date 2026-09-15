@@ -5,8 +5,9 @@ title: Setup, Updates, and Stow
 
 # Setup, updates, and Stow
 
-The bootstrap supports macOS 15.6 or newer on Apple Silicon and Intel. The same
+The macOS bootstrap supports macOS 15.6 or newer on Apple Silicon and Intel. The same
 entry point can prepare a new Mac or update an existing dotfiles checkout.
+For Linux, use the separate [Omarchy bootstrap](omarchy.html).
 
 ## One-command setup
 

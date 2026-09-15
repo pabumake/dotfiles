@@ -11,6 +11,7 @@ ownership, and recovery for the dotfiles in this repository.
 ## Guides
 
 - [Bootstrap, updates, and Stow usage](setup.html)
+- [Omarchy bootstrap and Bash integration](omarchy.html)
 - [AeroSpace workflow and keybindings](aerospace.html)
 - [Ghostty and Herdr keybindings](terminal.html)
 - [Menu-bar icon management](menubar.html)
