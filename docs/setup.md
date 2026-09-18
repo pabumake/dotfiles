@@ -100,10 +100,9 @@ ghostty aerospace swipeaerospace font-jetbrains-mono-nerd-font font-symbols-only
 On Apple Silicon, bootstrap also installs `vorssaint`. Vorssaint does not ship
 an Intel build, so Intel systems skip it.
 
-Hidden Bar or Ice is installed separately after the remembered provider choice
-is resolved. Ice uses its Tahoe beta cask on macOS 26+ and its stable cask on
-macOS 15. Ice is the default first-run choice; the selector or
-`--menu-bar-manager` can choose Hidden Bar or None instead.
+Hidden Bar or Thaw is installed separately after the remembered provider choice
+is resolved. Thaw requires macOS 26+. Thaw is the default first-run choice; the
+selector or `--menu-bar-manager` can choose Hidden Bar or None instead.
 
 Normal runs use Homebrew Bundle's install-only mode. Existing packages are not
 upgraded unless `--upgrade` is supplied, and `brew bundle cleanup` is never used.
@@ -298,7 +297,7 @@ After the first installation:
    overview nor the macOS Mission Control overlay appears.
 9. Move focus between windows and verify the focused window receives a subtle blue border.
 10. Arrange menu-bar icons around the selected provider with `Command (⌘) + drag`.
-11. For Ice, grant Accessibility and enable **Launch at login** in its settings.
+11. For Thaw, grant Accessibility and enable **Launch at login** in its settings.
 12. Start Neovim once so LazyVim can install its pinned plugins.
 
 On a fresh setup, bootstrap imports the selected provider's tracked baseline
