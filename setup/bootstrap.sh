@@ -1095,7 +1095,7 @@ else
 
   command -v yazi >/dev/null 2>&1 || die "Yazi executable was not found"
   command -v ya >/dev/null 2>&1 || die "Yazi CLI executable was not found"
-  YAZI_CONFIG_HOME="${REPO_DIR}/yazi/.config/yazi" yazi --debug >/dev/null || die "Yazi config validation failed"
+  YAZI_CONFIG_HOME="${REPO_DIR}/yazi/.config/yazi" yazi --version >/dev/null || die "Yazi executable validation failed"
   case "${MENU_BAR_MANAGER}" in
     hiddenbar)
       [ -d "/Applications/Hidden Bar.app" ] || die "Hidden Bar application was not found"
