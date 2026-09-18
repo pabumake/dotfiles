@@ -17,8 +17,8 @@ Personal macOS, Omarchy, and terminal configuration managed with [GNU Stow](http
 | `gh-manager` | GitHub Manager configuration |
 
 Bootstrap offers [Hidden Bar](https://github.com/dwarvesf/hidden),
-[Ice](https://github.com/jordanbaird/Ice), or no menu-bar manager. The choice is
-remembered locally and can be changed safely with `--switch-bar-manager`. Ice is
+[Thaw](https://github.com/thaw-app/Thaw), or no menu-bar manager. The choice is
+remembered locally and can be changed safely with `--switch-bar-manager`. Thaw is
 the default on supported macOS versions unless another choice is selected.
 Provider preferences have tracked first-run baselines and guarded backup helpers;
 other applications' icon positions remain device-specific macOS state.
@@ -99,7 +99,7 @@ inspiration here:
   [Herdr](https://github.com/herdrdev/herdr),
   [Vorssaint](https://github.com/vorssaintapp/vorssaint-utils),
   [SwipeAeroSpace](https://github.com/MediosZ/SwipeAeroSpace),
-  [Ice](https://github.com/jordanbaird/Ice), and
+  [Thaw](https://github.com/thaw-app/Thaw), and
   [Hidden Bar](https://github.com/dwarvesf/hidden)
 - **Shell and editor:** [Zsh](https://github.com/zsh-users/zsh),
   [Starship](https://github.com/starship/starship),

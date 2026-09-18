@@ -16,6 +16,11 @@ case "${PROVIDER}" in
     APP_NAME="Hidden Bar"
     DEFAULTS_NAME="Hidden Bar"
     ;;
+  thaw)
+    DOMAIN="com.stonerl.Thaw"
+    APP_NAME="Thaw"
+    DEFAULTS_NAME="Thaw"
+    ;;
   ice)
     DOMAIN="com.jordanbaird.Ice"
     APP_NAME="Ice"
@@ -169,9 +174,14 @@ restore_after_failure() {
 }
 
 import_initial() {
-  local source="$1" was_running=0
+  local source="$1" was_running=0 key_count
   if /usr/bin/defaults read "${DOMAIN}" >/dev/null 2>&1; then
     note "Existing ${DEFAULTS_NAME} preferences found; initial import skipped."
+    return
+  fi
+  key_count="$(/usr/bin/plutil -convert json -o - "${source}" 2>/dev/null | /usr/bin/python3 -c "import sys,json; d=json.load(sys.stdin); print(len(d))" 2>/dev/null || echo 0)"
+  if [ "${key_count}" -eq 0 ]; then
+    note "Baseline plist is empty; ${DEFAULTS_NAME} will use its own defaults on first launch."
     return
   fi
   note "Initial preference source: ${source}"

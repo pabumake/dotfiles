@@ -47,7 +47,7 @@ Options:
   --backup-conflicts    Approve conflict backups when combined with --yes
   --trust-third-party   Approve required third-party Homebrew trust
   --with-hushlogin      Create ~/.hushlogin after setup
-  --menu-bar-manager M  Select hiddenbar, ice, or none and remember the choice
+  --menu-bar-manager M  Select hiddenbar, thaw, or none and remember the choice
   --switch-bar-manager  Show the menu-bar manager selector again
   --profile-personal    Enable and remember personal app workspace assignments
   --profile-default     Disable personal app workspace assignments
@@ -118,7 +118,7 @@ while [ "$#" -gt 0 ]; do
     --with-hushlogin) WITH_HUSHLOGIN=1 ;;
     --menu-bar-manager)
       shift
-      [ "$#" -gt 0 ] || die "--menu-bar-manager requires hiddenbar, ice, or none"
+      [ "$#" -gt 0 ] || die "--menu-bar-manager requires hiddenbar, thaw, or none"
       MENU_BAR_MANAGER="$1"
       ;;
     --switch-bar-manager) SWITCH_BAR_MANAGER=1 ;;
@@ -143,8 +143,8 @@ while [ "$#" -gt 0 ]; do
 done
 
 case "${MENU_BAR_MANAGER}" in
-  ""|hiddenbar|ice|none) ;;
-  *) die "--menu-bar-manager must be hiddenbar, ice, or none" ;;
+  ""|hiddenbar|thaw|none) ;;
+  *) die "--menu-bar-manager must be hiddenbar, thaw, or none" ;;
 esac
 [ "${SWITCH_BAR_MANAGER}" -eq 0 ] || [ -z "${MENU_BAR_MANAGER}" ] || \
   die "Use either --switch-bar-manager or --menu-bar-manager, not both."
@@ -576,33 +576,36 @@ saved_menu_bar_manager() {
   if [ -r "${MENU_BAR_SELECTION_FILE}" ]; then
     IFS= read -r saved < "${MENU_BAR_SELECTION_FILE}" || true
   fi
-  case "${saved}" in hiddenbar|ice|none) printf '%s\n' "${saved}" ;; esac
+  case "${saved}" in hiddenbar|thaw|none) printf '%s\n' "${saved}" ;; esac
 }
 
-ice_cask() {
+thaw_cask() {
   if [ "${MACOS_MAJOR}" -ge 26 ]; then
-    printf '%s\n' "jordanbaird-ice@beta"
-  elif [ "${MACOS_MAJOR}" -ge 14 ]; then
-    printf '%s\n' "jordanbaird-ice"
+    printf '%s\n' "thaw"
   else
     return 1
   fi
 }
 
+ice_installed_anywhere() {
+  cask_installed jordanbaird-ice || cask_installed jordanbaird-ice@beta || \
+    [ -d "/Applications/Ice.app" ]
+}
+
 choose_menu_bar_manager() {
   local selected=""
   local answer=""
-  local ice_label="Ice"
-  local ice_available=1
-  if ! ice_cask >/dev/null 2>&1; then
-    ice_label="Ice (unavailable before macOS 14)"
-    ice_available=0
+  local thaw_label="Thaw"
+  local thaw_available=1
+  if ! thaw_cask >/dev/null 2>&1; then
+    thaw_label="Thaw (unavailable before macOS 26)"
+    thaw_available=0
   fi
 
   [ -r /dev/tty ] || die "Menu-bar manager selection requires a terminal or --menu-bar-manager."
   if command -v fzf >/dev/null 2>&1; then
-    if [ "${ice_available}" -eq 1 ]; then
-      selected="$(printf '%s\tice\nHidden Bar\thiddenbar\nNone\tnone\n' "${ice_label}" | \
+    if [ "${thaw_available}" -eq 1 ]; then
+      selected="$(printf '%s\tthaw\nHidden Bar\thiddenbar\nNone\tnone\n' "${thaw_label}" | \
         fzf --height=8 --layout=reverse --border --no-multi --delimiter=$'\t' \
           --with-nth=1 --prompt='Menu-bar manager > ')" || selected=""
     else
@@ -618,16 +621,16 @@ choose_menu_bar_manager() {
   fi
 
   printf '\nChoose a menu-bar manager:\n' > /dev/tty
-  if [ "${ice_available}" -eq 1 ]; then
-    printf '  1) %s (default)\n  2) Hidden Bar\n  3) None\n' "${ice_label}" > /dev/tty
+  if [ "${thaw_available}" -eq 1 ]; then
+    printf '  1) %s (default)\n  2) Hidden Bar\n  3) None\n' "${thaw_label}" > /dev/tty
   else
     printf '  1) Hidden Bar (default)\n  2) None\n' > /dev/tty
   fi
   printf 'Selection [1]: ' > /dev/tty
   IFS= read -r answer < /dev/tty || die "Menu-bar manager selection cancelled."
-  if [ "${ice_available}" -eq 1 ]; then
+  if [ "${thaw_available}" -eq 1 ]; then
     case "${answer}" in
-      ""|1) printf '%s\n' ice ;;
+      ""|1) printf '%s\n' thaw ;;
       2) printf '%s\n' hiddenbar ;;
       3) printf '%s\n' none ;;
       *) die "Invalid menu-bar manager selection: ${answer}" ;;
@@ -650,23 +653,31 @@ resolve_menu_bar_manager() {
     :
   elif [ "${SWITCH_BAR_MANAGER}" -eq 1 ]; then
     selected="$(choose_menu_bar_manager)" || die "Menu-bar manager selection cancelled."
-    case "${selected}" in hiddenbar|ice|none) MENU_BAR_MANAGER="${selected}" ;; *) die "Menu-bar manager selection failed." ;; esac
+    case "${selected}" in hiddenbar|thaw|none) MENU_BAR_MANAGER="${selected}" ;; *) die "Menu-bar manager selection failed." ;; esac
   elif [ -z "${saved}" ]; then
-    if [ -r /dev/tty ]; then
+    if ice_installed_anywhere && [ -r /dev/tty ]; then
+      note "Ice is installed. Thaw is its replacement and will be installed instead."
+      if confirm "Switch from Ice to Thaw now?"; then
+        MENU_BAR_MANAGER=thaw
+      else
+        selected="$(choose_menu_bar_manager)" || die "Menu-bar manager selection cancelled."
+        case "${selected}" in hiddenbar|thaw|none) MENU_BAR_MANAGER="${selected}" ;; *) die "Menu-bar manager selection failed." ;; esac
+      fi
+    elif [ -r /dev/tty ]; then
       selected="$(choose_menu_bar_manager)" || die "Menu-bar manager selection cancelled."
-      case "${selected}" in hiddenbar|ice|none) MENU_BAR_MANAGER="${selected}" ;; *) die "Menu-bar manager selection failed." ;; esac
-    elif ice_cask >/dev/null 2>&1; then
-      MENU_BAR_MANAGER=ice
-      note "No saved menu-bar manager and no interactive terminal; defaulting to Ice."
+      case "${selected}" in hiddenbar|thaw|none) MENU_BAR_MANAGER="${selected}" ;; *) die "Menu-bar manager selection failed." ;; esac
+    elif thaw_cask >/dev/null 2>&1; then
+      MENU_BAR_MANAGER=thaw
+      note "No saved menu-bar manager and no interactive terminal; defaulting to Thaw."
     else
       MENU_BAR_MANAGER=hiddenbar
-      note "Ice is unavailable on this macOS version; defaulting to Hidden Bar."
+      note "Thaw is unavailable on this macOS version; defaulting to Hidden Bar."
     fi
   else
     MENU_BAR_MANAGER="${saved}"
   fi
-  if [ "${MENU_BAR_MANAGER}" = ice ] && ! ice_cask >/dev/null 2>&1; then
-    die "Ice requires macOS 14 or newer."
+  if [ "${MENU_BAR_MANAGER}" = thaw ] && ! thaw_cask >/dev/null 2>&1; then
+    die "Thaw requires macOS 26 or newer."
   fi
 }
 
@@ -677,12 +688,12 @@ cask_installed() {
 provider_domain() {
   case "$1" in
     hiddenbar) printf '%s\n' com.dwarvesv.minimalbar ;;
-    ice) printf '%s\n' com.jordanbaird.Ice ;;
+    thaw) printf '%s\n' com.stonerl.Thaw ;;
   esac
 }
 
 provider_app() {
-  case "$1" in hiddenbar) printf '%s\n' "Hidden Bar" ;; ice) printf '%s\n' Ice ;; esac
+  case "$1" in hiddenbar) printf '%s\n' "Hidden Bar" ;; thaw) printf '%s\n' Thaw ;; esac
 }
 
 provider_helper() {
@@ -730,7 +741,7 @@ backup_provider() {
   fi
   case "${provider}" in
     hiddenbar) HIDDENBAR_SWITCH_BACKUP="${destination}" ;;
-    ice) ICE_SWITCH_BACKUP="${destination}" ;;
+    thaw) THAW_SWITCH_BACKUP="${destination}" ;;
   esac
 }
 
@@ -790,6 +801,9 @@ rollback_menu_bar_switch() {
   if [ "${PREV_HIDDENBAR_INSTALLED}" -eq 0 ] && cask_installed hiddenbar; then
     brew uninstall --cask hiddenbar >/dev/null 2>&1 || true
   fi
+  if [ "${PREV_THAW_INSTALLED}" -eq 0 ] && cask_installed thaw; then
+    brew uninstall --cask thaw >/dev/null 2>&1 || true
+  fi
   if [ "${PREV_ICE_STABLE_INSTALLED}" -eq 0 ] && cask_installed jordanbaird-ice; then
     brew uninstall --cask jordanbaird-ice >/dev/null 2>&1 || true
   fi
@@ -799,6 +813,9 @@ rollback_menu_bar_switch() {
   if [ "${PREV_HIDDENBAR_INSTALLED}" -eq 1 ] && ! cask_installed hiddenbar; then
     brew install --cask hiddenbar >/dev/null 2>&1 || true
   fi
+  if [ "${PREV_THAW_INSTALLED}" -eq 1 ] && ! cask_installed thaw; then
+    brew install --cask thaw >/dev/null 2>&1 || true
+  fi
   if [ "${PREV_ICE_STABLE_INSTALLED}" -eq 1 ] && ! cask_installed jordanbaird-ice; then
     brew install --cask jordanbaird-ice >/dev/null 2>&1 || true
   fi
@@ -806,63 +823,67 @@ rollback_menu_bar_switch() {
     brew install --cask jordanbaird-ice@beta >/dev/null 2>&1 || true
   fi
   restore_backup_for_rollback hiddenbar "${HIDDENBAR_SWITCH_BACKUP}" || true
-  restore_backup_for_rollback ice "${ICE_SWITCH_BACKUP}" || true
+  restore_backup_for_rollback thaw "${THAW_SWITCH_BACKUP}" || true
   case "${PREVIOUS_MENU_BAR_MANAGER}" in
-    hiddenbar|ice) /usr/bin/open -a "$(provider_app "${PREVIOUS_MENU_BAR_MANAGER}")" >/dev/null 2>&1 || true ;;
+    hiddenbar|thaw) /usr/bin/open -a "$(provider_app "${PREVIOUS_MENU_BAR_MANAGER}")" >/dev/null 2>&1 || true ;;
   esac
   return 1
 }
 
 apply_menu_bar_manager() {
-  local desired_ice="" changes=0 remove_hiddenbar=0 remove_ice_stable=0 remove_ice_beta=0 install_cask=""
+  local desired_thaw="" changes=0 remove_hiddenbar=0 remove_thaw=0 remove_ice_stable=0 remove_ice_beta=0 install_cask=""
   PREV_HIDDENBAR_INSTALLED=0
+  PREV_THAW_INSTALLED=0
   PREV_ICE_STABLE_INSTALLED=0
   PREV_ICE_BETA_INSTALLED=0
   HIDDENBAR_SWITCH_BACKUP=""
-  ICE_SWITCH_BACKUP=""
+  THAW_SWITCH_BACKUP=""
   cask_installed hiddenbar && PREV_HIDDENBAR_INSTALLED=1
+  cask_installed thaw && PREV_THAW_INSTALLED=1
   cask_installed jordanbaird-ice && PREV_ICE_STABLE_INSTALLED=1
   cask_installed jordanbaird-ice@beta && PREV_ICE_BETA_INSTALLED=1
   if [ -z "${PREVIOUS_MENU_BAR_MANAGER}" ]; then
-    if [ "${PREV_HIDDENBAR_INSTALLED}" -eq 1 ] && [ "${PREV_ICE_STABLE_INSTALLED}" -eq 0 ] && [ "${PREV_ICE_BETA_INSTALLED}" -eq 0 ]; then
+    if [ "${PREV_HIDDENBAR_INSTALLED}" -eq 1 ] && [ "${PREV_THAW_INSTALLED}" -eq 0 ] && \
+       [ "${PREV_ICE_STABLE_INSTALLED}" -eq 0 ] && [ "${PREV_ICE_BETA_INSTALLED}" -eq 0 ]; then
       PREVIOUS_MENU_BAR_MANAGER=hiddenbar
-    elif [ "${PREV_HIDDENBAR_INSTALLED}" -eq 0 ] && { [ "${PREV_ICE_STABLE_INSTALLED}" -eq 1 ] || [ "${PREV_ICE_BETA_INSTALLED}" -eq 1 ]; }; then
-      PREVIOUS_MENU_BAR_MANAGER=ice
+    elif [ "${PREV_HIDDENBAR_INSTALLED}" -eq 0 ] && [ "${PREV_THAW_INSTALLED}" -eq 1 ] && \
+         [ "${PREV_ICE_STABLE_INSTALLED}" -eq 0 ] && [ "${PREV_ICE_BETA_INSTALLED}" -eq 0 ]; then
+      PREVIOUS_MENU_BAR_MANAGER=thaw
     fi
   fi
 
-  if [ "${MENU_BAR_MANAGER}" = ice ]; then desired_ice="$(ice_cask)"; fi
+  if [ "${MENU_BAR_MANAGER}" = thaw ]; then desired_thaw="$(thaw_cask)"; fi
   case "${MENU_BAR_MANAGER}" in
     hiddenbar)
+      [ "${PREV_THAW_INSTALLED}" -eq 0 ] || remove_thaw=1
       [ "${PREV_ICE_STABLE_INSTALLED}" -eq 0 ] || remove_ice_stable=1
       [ "${PREV_ICE_BETA_INSTALLED}" -eq 0 ] || remove_ice_beta=1
       [ "${PREV_HIDDENBAR_INSTALLED}" -eq 1 ] || install_cask=hiddenbar
       ;;
-    ice)
+    thaw)
       [ "${PREV_HIDDENBAR_INSTALLED}" -eq 0 ] || remove_hiddenbar=1
-      if [ "${desired_ice}" = jordanbaird-ice@beta ]; then
-        [ "${PREV_ICE_STABLE_INSTALLED}" -eq 0 ] || remove_ice_stable=1
-        [ "${PREV_ICE_BETA_INSTALLED}" -eq 1 ] || install_cask="${desired_ice}"
-      else
-        [ "${PREV_ICE_BETA_INSTALLED}" -eq 0 ] || remove_ice_beta=1
-        [ "${PREV_ICE_STABLE_INSTALLED}" -eq 1 ] || install_cask="${desired_ice}"
-      fi
+      [ "${PREV_ICE_STABLE_INSTALLED}" -eq 0 ] || remove_ice_stable=1
+      [ "${PREV_ICE_BETA_INSTALLED}" -eq 0 ] || remove_ice_beta=1
+      [ "${PREV_THAW_INSTALLED}" -eq 1 ] || install_cask="${desired_thaw}"
       ;;
     none)
       [ "${PREV_HIDDENBAR_INSTALLED}" -eq 0 ] || remove_hiddenbar=1
+      [ "${PREV_THAW_INSTALLED}" -eq 0 ] || remove_thaw=1
       [ "${PREV_ICE_STABLE_INSTALLED}" -eq 0 ] || remove_ice_stable=1
       [ "${PREV_ICE_BETA_INSTALLED}" -eq 0 ] || remove_ice_beta=1
       ;;
   esac
-  [ "${remove_hiddenbar}" -eq 0 ] && [ "${remove_ice_stable}" -eq 0 ] && \
-    [ "${remove_ice_beta}" -eq 0 ] && [ -z "${install_cask}" ] || changes=1
+  [ "${remove_hiddenbar}" -eq 0 ] && [ "${remove_thaw}" -eq 0 ] && \
+    [ "${remove_ice_stable}" -eq 0 ] && [ "${remove_ice_beta}" -eq 0 ] && \
+    [ -z "${install_cask}" ] || changes=1
 
   heading "Menu-bar manager"
   note "Selected: ${MENU_BAR_MANAGER}"
   [ -z "${install_cask}" ] || note "Install: ${install_cask}"
   [ "${remove_hiddenbar}" -eq 0 ] || note "Back up and uninstall: hiddenbar"
-  [ "${remove_ice_stable}" -eq 0 ] || note "Back up and uninstall: jordanbaird-ice"
-  [ "${remove_ice_beta}" -eq 0 ] || note "Back up and uninstall: jordanbaird-ice@beta"
+  [ "${remove_thaw}" -eq 0 ] || note "Back up and uninstall: thaw"
+  [ "${remove_ice_stable}" -eq 0 ] || note "Uninstall: jordanbaird-ice"
+  [ "${remove_ice_beta}" -eq 0 ] || note "Uninstall: jordanbaird-ice@beta"
 
   if [ "${changes}" -eq 0 ]; then
     note "Installed manager already matches the selection; no package changes needed."
@@ -878,9 +899,10 @@ apply_menu_bar_manager() {
     quit_provider hiddenbar || { rollback_menu_bar_switch; die "Could not quit Hidden Bar."; }
     run brew uninstall --cask hiddenbar || { rollback_menu_bar_switch; die "Could not uninstall Hidden Bar."; }
   fi
-  if [ "${remove_ice_stable}" -eq 1 ] || [ "${remove_ice_beta}" -eq 1 ]; then
-    backup_provider ice || { rollback_menu_bar_switch; die "Could not back up Ice."; }
-    quit_provider ice || { rollback_menu_bar_switch; die "Could not quit Ice."; }
+  if [ "${remove_thaw}" -eq 1 ]; then
+    backup_provider thaw || { rollback_menu_bar_switch; die "Could not back up Thaw."; }
+    quit_provider thaw || { rollback_menu_bar_switch; die "Could not quit Thaw."; }
+    run brew uninstall --cask thaw || { rollback_menu_bar_switch; die "Could not uninstall Thaw."; }
   fi
   if [ "${remove_ice_stable}" -eq 1 ]; then
     run brew uninstall --cask jordanbaird-ice || { rollback_menu_bar_switch; die "Could not uninstall stable Ice."; }
@@ -1137,9 +1159,8 @@ else
       [ -d "/Applications/Hidden Bar.app" ] || die "Hidden Bar application was not found"
       defaults read com.dwarvesv.minimalbar >/dev/null 2>&1 || die "Hidden Bar preferences were not found"
       ;;
-    ice)
-      [ -d "/Applications/Ice.app" ] || die "Ice application was not found"
-      defaults read com.jordanbaird.Ice >/dev/null 2>&1 || die "Ice preferences were not found"
+    thaw)
+      [ -d "/Applications/Thaw.app" ] || die "Thaw application was not found"
       ;;
     none)
       note "No menu-bar manager selected; application validation skipped."

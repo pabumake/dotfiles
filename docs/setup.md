@@ -42,7 +42,7 @@ Remove the temporary file afterward when it is no longer needed.
 | `--backup-conflicts` | Permit conflict backups when using `--yes` |
 | `--trust-third-party` | Approve the required item-level Homebrew trust entries |
 | `--with-hushlogin` | Explicitly create `~/.hushlogin` |
-| `--menu-bar-manager M` | Select and remember `hiddenbar`, `ice`, or `none` |
+| `--menu-bar-manager M` | Select and remember `hiddenbar`, `thaw`, or `none` |
 | `--switch-bar-manager` | Reopen the interactive provider selector |
 | `--profile-personal` | Enable and remember personal AeroSpace app assignments |
 | `--profile-default` | Disable personal AeroSpace app assignments |
