@@ -77,6 +77,21 @@ gaps.outer.bottom =     8
 gaps.outer.top =        8
 gaps.outer.right =      8
 
+# Monitor assignments:
+#   1-5  → ASUS PG32UCDP (main, center)
+#   6-8  → Dell AW3420DW (ultrawide, top)
+#   9    → Built-in Retina Display (MacBook, utility)
+[workspace-to-monitor-force-assignment]
+1 = 'PG32UCDP'
+2 = 'PG32UCDP'
+3 = 'PG32UCDP'
+4 = 'PG32UCDP'
+5 = 'PG32UCDP'
+6 = 'AW3420DW'
+7 = 'AW3420DW'
+8 = 'AW3420DW'
+9 = 'Built-in Retina Display'
+
 # Keep utility windows out of the tiling tree
 [[on-window-detected]]
 if = 'test %{app-bundle-id} = com.apple.systempreferences'
