@@ -105,12 +105,6 @@ run = 'layout floating'
 if = 'test %{app-bundle-id} = com.apple.finder'
 run = 'layout floating'
 
-# Optional profile behavior is delegated to a managed router. The default
-# profile exits without changing the detected window.
-[[on-window-detected]]
-if = 'true'
-run = 'exec-and-forget "${HOME}/.config/aerospace/personal-window-router.sh"'
-
 # 'main' binding mode declaration
 # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
 # 'main' binding mode must be always presented

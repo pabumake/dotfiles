@@ -96,10 +96,12 @@
   </g>
   <text x="585" y="947" class="action-small">Move workspace by monitor</text>
 
-  <text x="72" y="1055" class="section">PERSONAL PROFILE</text>
+  <text x="72" y="1055" class="section">MONITOR ASSIGNMENTS</text>
   <line x1="72" y1="1075" x2="952" y2="1075" class="divider"/>
 
-  <text x="72" y="1125" class="action">1  Ghostty    ·    2  VSCodium    ·    3  Zen</text>
+  <text x="72" y="1125" class="action">1–5  PG32UCDP    ·    6–8  AW3420DW</text>
+
+  <text x="72" y="1180" class="action">9  Built-in Retina Display</text>
 
   <text x="72" y="1435" class="muted">⌥ Option   CTRL Control   ⇧ Shift</text>
 </svg>

@@ -27,7 +27,6 @@ WITH_HUSHLOGIN=0
 LOCAL_PASS=0
 MENU_BAR_MANAGER=""
 SWITCH_BAR_MANAGER=0
-PROFILE_REQUEST=""
 REPO_DIR="${DEFAULT_REPO_DIR}"
 ORIGINAL_ARGS=("$@")
 
@@ -49,8 +48,6 @@ Options:
   --with-hushlogin      Create ~/.hushlogin after setup
   --menu-bar-manager M  Select hiddenbar, thaw, or none and remember the choice
   --switch-bar-manager  Show the menu-bar manager selector again
-  --profile-personal    Enable and remember personal app workspace assignments
-  --profile-default     Disable personal app workspace assignments
   --repo-dir PATH       Override ~/Documents/dotfiles
   --help                Show this help
 
@@ -122,14 +119,6 @@ while [ "$#" -gt 0 ]; do
       MENU_BAR_MANAGER="$1"
       ;;
     --switch-bar-manager) SWITCH_BAR_MANAGER=1 ;;
-    --profile-personal)
-      [ -z "${PROFILE_REQUEST}" ] || die "Choose only one profile option"
-      PROFILE_REQUEST="personal"
-      ;;
-    --profile-default)
-      [ -z "${PROFILE_REQUEST}" ] || die "Choose only one profile option"
-      PROFILE_REQUEST="default"
-      ;;
     --repo-dir)
       shift
       [ "$#" -gt 0 ] || die "--repo-dir requires a path"
@@ -923,52 +912,6 @@ apply_menu_bar_manager() {
 resolve_menu_bar_manager
 apply_menu_bar_manager
 
-PROFILE_STATE_DIR="${XDG_STATE_HOME:-${HOME}/.local/state}/pabu-dotfiles/profile"
-PROFILE_SELECTION_FILE="${PROFILE_STATE_DIR}/selection"
-DOTFILES_PROFILE="default"
-
-saved_dotfiles_profile() {
-  local saved=""
-  if [ -r "${PROFILE_SELECTION_FILE}" ]; then
-    IFS= read -r saved < "${PROFILE_SELECTION_FILE}" || true
-  fi
-  case "${saved}" in default|personal) printf '%s\n' "${saved}" ;; esac
-}
-
-resolve_dotfiles_profile() {
-  local saved=""
-  saved="$(saved_dotfiles_profile)"
-  if [ -n "${PROFILE_REQUEST}" ]; then
-    DOTFILES_PROFILE="${PROFILE_REQUEST}"
-  elif [ -n "${saved}" ]; then
-    DOTFILES_PROFILE="${saved}"
-  fi
-
-  heading "Dotfiles profile"
-  note "Selected: ${DOTFILES_PROFILE}"
-  if [ -z "${PROFILE_REQUEST}" ]; then
-    if [ -n "${saved}" ]; then
-      note "Preserving the saved profile; use --profile-default or --profile-personal to change it."
-    else
-      note "No saved profile found; using the portable default."
-    fi
-    return
-  fi
-
-  if [ "${DRY_RUN}" -eq 1 ]; then
-    note "Dry run: profile selection would be saved as ${DOTFILES_PROFILE}."
-    return
-  fi
-
-  /bin/mkdir -p "${PROFILE_STATE_DIR}" || die "Could not create profile state directory"
-  printf '%s\n' "${DOTFILES_PROFILE}" > "${PROFILE_SELECTION_FILE}.tmp" || die "Could not stage profile selection"
-  /bin/chmod 600 "${PROFILE_SELECTION_FILE}.tmp" || die "Could not secure profile selection"
-  /bin/mv "${PROFILE_SELECTION_FILE}.tmp" "${PROFILE_SELECTION_FILE}" || die "Could not save profile selection"
-  note "Saved profile selection."
-}
-
-resolve_dotfiles_profile
-
 resolve_path() {
   /usr/bin/perl -MCwd=abs_path -e 'my $p = abs_path(shift); print $p if defined $p' "$1" 2>/dev/null
 }
@@ -1147,7 +1090,6 @@ else
   /bin/zsh -n "${REPO_DIR}/zsh/.zshrc" || die "Zsh config validation failed"
   /bin/bash -n "${REPO_DIR}/borders/.config/borders/bordersrc" || die "JankyBorders config validation failed"
   /bin/bash -n "${REPO_DIR}/scripts/borders-service.sh" || die "JankyBorders service helper validation failed"
-  /bin/bash -n "${REPO_DIR}/aerospace/.config/aerospace/personal-window-router.sh" || die "AeroSpace profile router validation failed"
   /bin/bash -n "${REPO_DIR}/aerospace/.config/aerospace/start-swipeaerospace.sh" || die "SwipeAeroSpace startup helper validation failed"
   /bin/bash -n "${REPO_DIR}/scripts/trackpad-gestures.sh" || die "Trackpad gesture helper validation failed"
 
@@ -1193,5 +1135,4 @@ fi
 heading "Complete"
 note "Repository: ${REPO_DIR}"
 note "Package mode: $([ "${UPGRADE}" -eq 1 ] && printf upgrade || printf install-missing-only)"
-note "Dotfiles profile: ${DOTFILES_PROFILE}"
 note "Only declared replacements and selected menu-bar providers may have been removed."

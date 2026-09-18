@@ -43,10 +43,6 @@ It requires macOS 15.6 or newer and is the macOS installation and update entry p
 JankyBorders is registered as a per-user Homebrew service so it starts at login
 and automatically recovers if its process exits.
 
-Fresh installations use the portable `default` profile. Run bootstrap with
-`--profile-personal` to enable the personal AeroSpace app assignments; later
-updates remember that choice. Use `--profile-default` to disable them again.
-
 To inspect the script before running it:
 
 ```bash
