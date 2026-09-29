@@ -79,6 +79,7 @@ shortcuts stay in place; desktop customizations load through small user-config h
   [Yazi file manager](https://pabumake.github.io/dotfiles/assets/yazi-shortcuts.png)
 - [Shortcut-card SVG template and regeneration](docs/assets/shortcut-cards/README.md)
 - [Menu-bar icon management](https://pabumake.github.io/dotfiles/menubar.html)
+- [Code archive offload](https://pabumake.github.io/dotfiles/migrate-stale-projects.html)
 
 The longer guides live in `/docs` so this README stays useful as a quick entry
 point. GitHub Pages publishes the site from `main` and `/docs`.
@@ -109,6 +110,7 @@ inspiration here:
   [ripgrep](https://github.com/BurntSushi/ripgrep),
   [fd](https://github.com/sharkdp/fd), [fzf](https://github.com/junegunn/fzf),
   [lazygit](https://github.com/jesseduffield/lazygit),
+  [rsync](https://rsync.samba.org/),
   [cliamp](https://github.com/bjarneo/cliamp),
   [Mole](https://github.com/tw93/Mole),
   [Tree-sitter](https://github.com/tree-sitter/tree-sitter), and

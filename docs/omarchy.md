@@ -10,7 +10,7 @@ user. Python 3, pacman, and the Omarchy CLI are prerequisites. The bootstrap
 uses this checkout without fetching, pulling, or changing branches.
 
 ```bash
-cd ~/Documents/dotfiles
+cd ~/src/dotfiles
 ./setup/bootstrap-omarchy.sh --dry-run
 ./setup/bootstrap-omarchy.sh
 ```
@@ -241,7 +241,7 @@ blocks. Otherwise Hyprland will try to load missing Lua files.
 To undo links from this bootstrap:
 
 ```bash
-stow --delete --dir="$HOME/Documents/dotfiles" --target="$HOME" \
+stow --delete --dir="$HOME/src/dotfiles" --target="$HOME" \
   herdr nvim starship yazi gh-manager omarchy-bash omarchy-desktop
 ```
 

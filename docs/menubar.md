@@ -76,7 +76,7 @@ hide and show the menu bar** to **Never**, arrange them, then restore the settin
 Provider helpers share the same guarded export/import implementation:
 
 ```bash
-cd ~/Documents/dotfiles
+cd ~/src/dotfiles
 ./scripts/thaw-settings.sh export
 ./scripts/hiddenbar-settings.sh export
 ```
@@ -111,7 +111,7 @@ The checkpoint tag `menubar-pre-hiddenbar-20260810` predates menu-bar management
 For a complete repository rollback:
 
 ```bash
-cd ~/Documents/dotfiles
+cd ~/src/dotfiles
 git restore --source=menubar-pre-hiddenbar-20260810 -- \
   Brewfile README.md setup/bootstrap.sh docs/index.md docs/setup.md
 git rm docs/menubar.md scripts/app-settings.sh \

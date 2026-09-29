@@ -4,9 +4,9 @@ set -u
 
 REPOSITORY_URL="https://github.com/pabumake/dotfiles.git"
 HOMEBREW_INSTALL_URL="https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
-DEFAULT_REPO_DIR="${HOME}/Documents/dotfiles"
+DEFAULT_REPO_DIR="${HOME}/src/dotfiles"
 
-FORMULAE=(git stow starship eza herdr borders yazi bjarneo/cliamp/cliamp mole ffmpeg-full sevenzip jq poppler zoxide resvg imagemagick-full neovim ripgrep fd fzf lazygit tree-sitter node)
+FORMULAE=(git rsync stow starship eza herdr borders yazi bjarneo/cliamp/cliamp mole ffmpeg-full sevenzip jq poppler zoxide resvg imagemagick-full neovim ripgrep fd fzf lazygit tree-sitter node)
 CASKS=(ghostty aerospace swipeaerospace poke-token-bar font-jetbrains-mono-nerd-font font-symbols-only-nerd-font)
 REPLACED_CASKS=(caffeine flameshot caskhub)
 VORSSAINT_SETTINGS_RELATIVE="vorssaint/settings.plist"
@@ -48,7 +48,7 @@ Options:
   --with-hushlogin      Create ~/.hushlogin after setup
   --menu-bar-manager M  Select hiddenbar, thaw, or none and remember the choice
   --switch-bar-manager  Show the menu-bar manager selector again
-  --repo-dir PATH       Override ~/Documents/dotfiles
+  --repo-dir PATH       Override ~/src/dotfiles
   --help                Show this help
 
 Safety rules:
@@ -1060,6 +1060,31 @@ else
   stow --restow --dir="${REPO_DIR}" --target="${HOME}" "${STOW_PACKAGES[@]}" || die "Stow failed; any conflict backup remains at ${CONFLICT_BACKUP_DIR:-not created}"
 fi
 
+configure_archive_migration_link() {
+  local source="${REPO_DIR}/scripts/migrate-stale-projects.sh"
+  local target_dir="${HOME}/src/archive"
+  local target="${target_dir}/migrate-stale-projects.sh"
+  local resolved=""
+
+  heading "Code archive utility"
+  [ -x "${source}" ] || die "Archive migration utility is missing or not executable: ${source}"
+  if [ -L "${target}" ]; then
+    resolved="$(resolve_path "${target}")"
+    if [ "${resolved}" = "$(resolve_path "${source}")" ]; then
+      note "Archive utility link is current: ${target}"
+      return
+    fi
+    die "Archive utility link points somewhere else: ${target}"
+  elif [ -e "${target}" ]; then
+    die "Archive utility target already exists and was not replaced: ${target}"
+  fi
+
+  run mkdir -p "${target_dir}" || die "Could not create ${target_dir}"
+  run ln -s "${source}" "${target}" || die "Could not link the archive migration utility"
+}
+
+configure_archive_migration_link
+
 if [ "${WITH_HUSHLOGIN}" -eq 1 ]; then
   heading "Login message"
   run touch "${HOME}/.hushlogin" || die "Could not create ~/.hushlogin"
@@ -1092,6 +1117,7 @@ else
   /bin/bash -n "${REPO_DIR}/scripts/borders-service.sh" || die "JankyBorders service helper validation failed"
   /bin/bash -n "${REPO_DIR}/aerospace/.config/aerospace/start-swipeaerospace.sh" || die "SwipeAeroSpace startup helper validation failed"
   /bin/bash -n "${REPO_DIR}/scripts/trackpad-gestures.sh" || die "Trackpad gesture helper validation failed"
+  /bin/zsh -n "${REPO_DIR}/scripts/migrate-stale-projects.sh" || die "Code archive utility validation failed"
 
   command -v yazi >/dev/null 2>&1 || die "Yazi executable was not found"
   command -v ya >/dev/null 2>&1 || die "Yazi CLI executable was not found"

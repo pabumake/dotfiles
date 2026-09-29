@@ -44,13 +44,13 @@ Remove the temporary file afterward when it is no longer needed.
 | `--with-hushlogin` | Explicitly create `~/.hushlogin` |
 | `--menu-bar-manager M` | Select and remember `hiddenbar`, `thaw`, or `none` |
 | `--switch-bar-manager` | Reopen the interactive provider selector |
-| `--repo-dir PATH` | Override `~/Documents/dotfiles` |
+| `--repo-dir PATH` | Override `~/src/dotfiles` |
 | `--help` | Print usage and safety rules |
 
 Local examples:
 
 ```bash
-cd ~/Documents/dotfiles
+cd ~/src/dotfiles
 ./setup/bootstrap.sh --dry-run
 ./setup/bootstrap.sh --upgrade
 ./setup/bootstrap.sh --yes --trust-third-party --backup-conflicts
@@ -175,7 +175,7 @@ process. The managed Zsh config supports both Apple Silicon and Intel prefixes.
 
 ## Repository update rules
 
-The default checkout is `~/Documents/dotfiles` and fresh installations clone
+The default checkout is `~/src/dotfiles` and fresh installations clone
 <https://github.com/pabumake/dotfiles.git>.
 
 | Repository state | Bootstrap behavior |
@@ -264,7 +264,7 @@ unmanaged process is stopped gracefully and replaced by the login service.
 Service controls are kept separate from bootstrap for recovery and diagnostics:
 
 ```bash
-cd ~/Documents/dotfiles
+cd ~/src/dotfiles
 ./scripts/borders-service.sh status
 ./scripts/borders-service.sh restart
 ./scripts/borders-service.sh disable
@@ -302,7 +302,7 @@ Gesture preferences are deliberately managed by a separate helper rather than
 Stow. Its interface is:
 
 ```bash
-cd ~/Documents/dotfiles
+cd ~/src/dotfiles
 ./scripts/trackpad-gestures.sh status
 ./scripts/trackpad-gestures.sh enable --dry-run
 ./scripts/trackpad-gestures.sh restore --dry-run
@@ -329,7 +329,7 @@ will reinstall SwipeAeroSpace because gestures are part of every managed setup.
 
 - **Homebrew:** rerun the official installer or complete the Command Line Tools prompt.
 - **Repository:** resolve local changes or divergence manually, then rerun; never reset merely for the bootstrap.
-- **Packages:** rerun `brew bundle check --verbose --file=~/Documents/dotfiles/Brewfile`.
+- **Packages:** rerun `brew bundle check --verbose --file=~/src/dotfiles/Brewfile`.
 - **Stow:** inspect the printed targets and the timestamped conflict manifest.
 - **JankyBorders:** run `./scripts/borders-service.sh status`, then `restart`; inspect `$(brew --prefix)/var/log/borders/borders.err.log` if validation still fails.
 - **Trackpad gestures:** run `./scripts/trackpad-gestures.sh status`; confirm SwipeAeroSpace has Accessibility permission.

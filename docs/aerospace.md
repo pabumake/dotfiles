@@ -34,7 +34,7 @@ SwipeAeroSpace requires **System Settings → Privacy & Security → Accessibili
 permission. Inspect or recover the integration with:
 
 ```bash
-cd ~/Documents/dotfiles
+cd ~/src/dotfiles
 ./scripts/trackpad-gestures.sh status
 ./scripts/trackpad-gestures.sh restore --dry-run
 ```
@@ -159,7 +159,7 @@ JankyBorders does not require Accessibility permission. Manage and inspect the
 service from the repository:
 
 ```bash
-cd ~/Documents/dotfiles
+cd ~/src/dotfiles
 ./scripts/borders-service.sh status
 ./scripts/borders-service.sh restart
 ```
@@ -181,7 +181,7 @@ before JankyBorders was added. To stop highlighting without changing the
 repository:
 
 ```bash
-cd ~/Documents/dotfiles
+cd ~/src/dotfiles
 ./scripts/borders-service.sh disable
 stow --delete --target="$HOME" borders
 ```
@@ -191,7 +191,7 @@ from the checkpoint, remove the new Stow package, and optionally uninstall the
 formula:
 
 ```bash
-cd ~/Documents/dotfiles
+cd ~/src/dotfiles
 git restore --source=aerospace-pre-jankyborders-20260810 -- \
   Brewfile README.md aerospace/.aerospace.toml setup/bootstrap.sh \
   docs/aerospace.md docs/index.md docs/setup.md
@@ -209,7 +209,7 @@ The repository checkpoint `aerospace-pre-omachy-20260810` contains the exact
 known-good configuration from before the Omachy-inspired workflow was added.
 
 ```bash
-cd ~/Documents/dotfiles
+cd ~/src/dotfiles
 git restore --source=aerospace-pre-omachy-20260810 -- aerospace/.aerospace.toml
 aerospace reload-config --dry-run --warnings-as-errors
 aerospace reload-config

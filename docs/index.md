@@ -15,6 +15,7 @@ ownership, and recovery for the dotfiles in this repository.
 - [AeroSpace workflow and keybindings](aerospace.html)
 - [Ghostty and Herdr keybindings](terminal.html)
 - [Menu-bar icon management](menubar.html)
+- [Code archive offload](migrate-stale-projects.html)
 
 ## Keyboard ownership
 

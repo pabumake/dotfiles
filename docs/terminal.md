@@ -72,7 +72,7 @@ Install or update the managed link through the repository's single setup entry
 point, then reload Herdr:
 
 ```bash
-cd ~/Documents/dotfiles
+cd ~/src/dotfiles
 ./setup/bootstrap.sh --no-repo-update
 herdr server reload-config
 ```
@@ -182,7 +182,7 @@ scrolling, prompt navigation, or numbered tab switching.
 
 ```bash
 /Applications/Ghostty.app/Contents/MacOS/ghostty +validate-config \
-  --config-file=~/Documents/dotfiles/ghostty/.config/ghostty/config.ghostty
+  --config-file=~/src/dotfiles/ghostty/.config/ghostty/config.ghostty
 /Applications/Ghostty.app/Contents/MacOS/ghostty +list-keybinds
 herdr config check
 herdr server reload-config
@@ -196,7 +196,7 @@ state before keybinding ownership changed.
 Restore Ghostty's earlier configuration:
 
 ```bash
-cd ~/Documents/dotfiles
+cd ~/src/dotfiles
 git restore --source=terminal-pre-herdr-keymap-20260810 -- \
   ghostty/.config/ghostty/config.ghostty
 /Applications/Ghostty.app/Contents/MacOS/ghostty +validate-config \
@@ -206,7 +206,7 @@ git restore --source=terminal-pre-herdr-keymap-20260810 -- \
 Return Herdr to its built-in defaults by removing only its Stow link:
 
 ```bash
-cd ~/Documents/dotfiles
+cd ~/src/dotfiles
 stow --delete --target="$HOME" herdr
 herdr server reload-config
 ```

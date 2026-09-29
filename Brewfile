@@ -6,6 +6,7 @@ tap "chattymin/tap"
 
 # Core dotfile and shell tooling
 brew "git"
+brew "rsync"
 brew "stow"
 brew "starship"
 brew "eza"
