@@ -33,7 +33,7 @@ $time\
 $line_break\
 $character"""
 
-palette = 'catppuccin_mocha'
+palette = 'psalabs_motoway'
 
 [fill]
 symbol = " "
@@ -317,3 +317,18 @@ surface0 = "#363a4f"
 base = "#24273a"
 mantle = "#1e2030"
 crust = "#181926"
+
+[palettes.psalabs_motoway]
+red = "#FF2662"
+peach = "#FCA064"
+green = "#11B98B"
+yellow = "#FFE38C"
+blue = "#2E80F2"
+sapphire = "#13A0FF"
+lavender = "#B55CB1"
+text = "#F0F0F0"
+subtext0 = "#F0F0F0"
+overlay1 = "#FCA064"
+surface1 = "#5E60AA"
+surface0 = "#2A2A2A"
+crust = "#2A2A2A"
