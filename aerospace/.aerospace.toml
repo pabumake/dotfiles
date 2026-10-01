@@ -101,9 +101,9 @@ run = 'layout floating'
 if = 'test %{app-bundle-id} = com.apple.calculator'
 run = 'layout floating'
 
-[[on-window-detected]]
-if = 'test %{app-bundle-id} = com.apple.finder'
-run = 'layout floating'
+#[[on-window-detected]]
+#if = 'test %{app-bundle-id} = com.apple.finder'
+#un = 'layout floating'
 
 # 'main' binding mode declaration
 # See: https://nikitabobko.github.io/AeroSpace/guide#binding-modes
