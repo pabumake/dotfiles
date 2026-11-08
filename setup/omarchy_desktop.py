@@ -96,7 +96,7 @@ def hook_content(old, name):
         old = old.replace(binding, '')
         old = old.replace('-- Omarchy Dock - omarchy plugin add https://github.com/rosakodu/omarchy-dock.git --enable\n', '')
         old = old.replace('-- Omarchy assigns this shortcut to Docker by default, so replace it explicitly.\n', '')
-    else:
+    elif name == 'monitors.lua':
         # Migrate the two known blocks, without matching other monitor rules.
         for output, mode, position in [('DP-2', '3840x2160@240.02Hz', '0x0'),
                                        ('DP-3', '3440x1440@120.00Hz', '160x-1152')]:
@@ -152,7 +152,7 @@ class Desktop:
             if 'before' in plugin and (not isinstance(plugin['before'], str) or plugin['before'] == plugin_id):
                 raise RuntimeError(f'Invalid placement anchor for {plugin_id}.')
         self.edits = []
-        for name in ('bindings.lua', 'monitors.lua'):
+        for name in ('bindings.lua', 'monitors.lua', 'input.lua'):
             target = self.home / '.config/hypr' / name
             safe_target(target, self.home)
             old = target.read_text() if target.exists() else (self.omarchy / 'config/hypr' / name).read_text()

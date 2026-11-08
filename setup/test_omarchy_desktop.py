@@ -24,7 +24,7 @@ class DesktopTests(unittest.TestCase):
         self.config.mkdir(parents=True)
         self.hypr = self.home / '.config/hypr'
         self.hypr.mkdir()
-        for name in ('bindings.lua', 'monitors.lua'):
+        for name in ('bindings.lua', 'monitors.lua', 'input.lua'):
             (self.hypr / name).write_text('-- unrelated customization\n')
         self.shell_path = self.config / 'shell.json'
         self.shell_path.write_text(json.dumps({'version': 1, 'idle': {'lock': 913},
