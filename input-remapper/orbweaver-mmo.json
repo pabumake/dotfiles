@@ -1,0 +1,123 @@
+[
+  {
+    "input_combination": [
+      {
+        "type": 1,
+        "code": 41
+      }
+    ],
+    "target_uinput": "keyboard",
+    "output_type": 1,
+    "output_code": 1
+  },
+  {
+    "input_combination": [
+      {
+        "type": 1,
+        "code": 58
+      }
+    ],
+    "target_uinput": "keyboard",
+    "output_type": 1,
+    "output_code": 42
+  },
+  {
+    "input_combination": [
+      {
+        "type": 1,
+        "code": 42
+      }
+    ],
+    "target_uinput": "keyboard",
+    "output_type": 1,
+    "output_code": 29
+  },
+  {
+    "input_combination": [
+      {
+        "type": 1,
+        "code": 17
+      }
+    ],
+    "target_uinput": "keyboard",
+    "output_type": 1,
+    "output_code": 63
+  },
+  {
+    "input_combination": [
+      {
+        "type": 1,
+        "code": 30
+      }
+    ],
+    "target_uinput": "keyboard",
+    "output_type": 1,
+    "output_code": 64
+  },
+  {
+    "input_combination": [
+      {
+        "type": 1,
+        "code": 31
+      }
+    ],
+    "target_uinput": "keyboard",
+    "output_type": 1,
+    "output_code": 65
+  },
+  {
+    "input_combination": [
+      {
+        "type": 1,
+        "code": 32
+      }
+    ],
+    "target_uinput": "keyboard",
+    "output_type": 1,
+    "output_code": 66
+  },
+  {
+    "input_combination": [
+      {
+        "type": 1,
+        "code": 103
+      }
+    ],
+    "target_uinput": "keyboard",
+    "output_type": 1,
+    "output_code": 17
+  },
+  {
+    "input_combination": [
+      {
+        "type": 1,
+        "code": 108
+      }
+    ],
+    "target_uinput": "keyboard",
+    "output_type": 1,
+    "output_code": 31
+  },
+  {
+    "input_combination": [
+      {
+        "type": 1,
+        "code": 105
+      }
+    ],
+    "target_uinput": "keyboard",
+    "output_type": 1,
+    "output_code": 30
+  },
+  {
+    "input_combination": [
+      {
+        "type": 1,
+        "code": 106
+      }
+    ],
+    "target_uinput": "keyboard",
+    "output_type": 1,
+    "output_code": 32
+  }
+]

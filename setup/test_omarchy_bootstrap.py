@@ -40,12 +40,13 @@ class BootstrapTests(unittest.TestCase):
                      '*) echo zen.desktop ;;\nesac')
         # Package managers are stubbed; all file linking uses the real GNU Stow.
         self.command("pacman", "exit 0")
+        self.command("systemctl", "exit 0")
         self.command("omarchy", "echo unexpected-package-install >&2; exit 99")
         self.command("herdr", "exit 0")
         self.command("hyprctl", "exit 0")
         self.command("git", 'case "$2" in *ozdil.security-sentinel) echo https://github.com/ozdil/omarchy-security-sentinel.git ;; *air.workspaces) echo https://github.com/airenare/omarchy-workspaces-by-monitor.git ;; *n0d3x.input-language) echo https://github.com/n0d3xt-max/n0d3x.input-language.git ;; *) echo https://github.com/rosakodu/omarchy-dock.git ;; esac')
         (self.omarchy / "config/hypr").mkdir(parents=True)
-        for name in ("bindings.lua", "monitors.lua"):
+        for name in ("bindings.lua", "monitors.lua", "input.lua"):
             (self.omarchy / "config/hypr" / name).write_text("-- defaults\n")
         plugin = self.home / ".config/omarchy/plugins/rosakodu.dock"
         plugin.mkdir(parents=True)
@@ -199,29 +200,51 @@ class BootstrapTests(unittest.TestCase):
         Path(self.env["TEST_STATE"]).mkdir()
         self.command("yay", "exit 99")
         self.command("pacman", 'case "$2" in\n'
-                     'keeper-password-manager|zen-browser-bin|steam|ghostty) [[ -f "$TEST_STATE/$2" ]] ;;\n'
+                     'keeper-password-manager|zen-browser-bin|input-remapper-git|wowup-cf-bin|steam|ghostty) [[ -f "$TEST_STATE/$2" ]] ;;\n'
                      '*) exit 0 ;;\nesac')
         self.command("omarchy", 'echo "$*" >> "$TEST_STATE/commands"\n'
                      'case "$*" in\n'
-                     '"pkg aur add keeper-password-manager zen-browser-bin") touch "$TEST_STATE/keeper-password-manager" "$TEST_STATE/zen-browser-bin" ;;\n'
+                     '"pkg aur add keeper-password-manager zen-browser-bin input-remapper-git wowup-cf-bin") touch "$TEST_STATE/keeper-password-manager" "$TEST_STATE/zen-browser-bin" "$TEST_STATE/input-remapper-git" "$TEST_STATE/wowup-cf-bin" ;;\n'
                      '"install gaming steam") touch "$TEST_STATE/steam" ;;\n'
                      '"install terminal ghostty") touch "$TEST_STATE/ghostty"; echo com.mitchellh.ghostty.desktop > "$HOME/.config/xdg-terminals.list" ;;\n'
                      '*) exit 99 ;;\nesac')
         before = self.snapshot()
         result = self.invoke("--dry-run")
         self.assertEqual(result.returncode, 0, result.stderr)
+        for gaming in ("steam", "input-remapper", "wowup-cf"):
+            self.assertNotIn(gaming, result.stdout.replace("Gaming setup: skipped (use --gaming)", ""))
+        self.assertIn("Gaming setup: skipped (use --gaming)", result.stdout)
+        result = self.invoke("--gaming", "--dry-run")
+        self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("install gaming steam", result.stdout)
         self.assertIn("install terminal ghostty", result.stdout)
-        self.assertIn("pkg aur add keeper-password-manager zen-browser-bin", result.stdout)
+        self.assertIn("pkg aur add keeper-password-manager zen-browser-bin input-remapper-git wowup-cf-bin", result.stdout)
         self.assertEqual(before, self.snapshot())
         self.assertFalse((Path(self.env["TEST_STATE"]) / "commands").exists())
-        result = self.invoke("--yes")
+        result = self.invoke("--gaming", "--yes")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         commands = (Path(self.env["TEST_STATE"]) / "commands").read_text()
         self.assertEqual(len(commands.splitlines()), 3)
-        result = self.invoke("--yes")
+        result = self.invoke("--gaming", "--yes")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertEqual((Path(self.env["TEST_STATE"]) / "commands").read_text(), commands)
+
+    def test_remapper_service_is_planned_then_enabled_once(self):
+        state = self.base / "remapper-enabled"
+        self.env["REMAPPER_TEST_STATE"] = str(state)
+        self.command("systemctl", '[[ -f "$REMAPPER_TEST_STATE" ]]')
+        self.command("sudo", '[[ "$*" == "systemctl enable --now input-remapper.service" ]] || exit 99\n'
+                     'touch "$REMAPPER_TEST_STATE"')
+        result = self.invoke("--gaming", "--dry-run")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("sudo systemctl enable --now input-remapper.service", result.stdout)
+        self.assertFalse(state.exists())
+        result = self.invoke("--gaming", "--yes")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertTrue(state.exists())
+        self.command("sudo", "exit 99")
+        result = self.invoke("--gaming", "--yes")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_defaults_preserve_unrelated_associations_and_are_backed_up(self):
         # Exercise real xdg-mime with an isolated home and desktop database.

@@ -53,14 +53,68 @@ files, but does not restart running Herdr sessions.
 | --- | --- | --- |
 | Keeper Password Manager | `omarchy pkg aur add keeper-password-manager` | `keeper://` links |
 | Zen Browser | `omarchy pkg aur add zen-browser-bin` | Browser, HTTP/HTTPS links, HTML/XHTML files |
-| Steam | `omarchy install gaming steam` | `steam://` and `steamlink://` links |
+| Steam (gaming) | `omarchy install gaming steam` | `steam://` and `steamlink://` links |
 | Ghostty | `omarchy install terminal ghostty` | Omarchy terminal launcher |
+| Input Remapper (gaming) | `omarchy pkg aur add input-remapper-git` | Graphical device-specific key remapping |
+| WowUp-CF (gaming) | `omarchy pkg aur add wowup-cf-bin` | WoW addon manager with CurseForge support |
 
-Keeper and Zen require Omarchy's `yay` helper. Steam's Omarchy installer also
+Rows marked *gaming* are installed only on request: add `--gaming` to the
+bootstrap (`./setup/bootstrap-omarchy.sh --gaming`). Without it, Steam, Input
+Remapper, WowUp-CF, the Steam URI handlers, and the `input-remapper.service`
+enablement are skipped entirely; the dry run reports "Gaming setup: skipped".
+Re-run with `--gaming` at any time to add them. The AUR applications require Omarchy's `yay` helper. Steam's Omarchy installer also
 selects the system's 32-bit graphics libraries and launches Steam after a new
 installation. Sign in to Keeper, Steam, and browser services yourself; vaults,
 credentials, browser profiles, and games are not copied into the repository.
 Keeper's browser extension is not installed automatically.
+
+### WoW addons (WowUp-CF)
+
+CurseForge publishes no Linux app, so addons are managed with
+[WowUp-CF](https://github.com/WowUp/WowUp.CF), a native addon manager that uses
+CurseForge as a source. The AUR package `wowup-cf-bin` unpacks the official
+AppImage into `/opt/wowup-cf` and installs the `wowup-cf` launcher and menu entry.
+
+Launch **WowUp-CF**, then set each client's install folder (Retail, Classic,
+Classic Era) to the game directory containing its `_retail_`, `_classic_`, or
+`_classic_era_` folder. Use *Get Addons* to search and install; auto-updates
+are optional in its settings. The Windows CurseForge app is not used.
+
+Its settings, the WoW install, and addons are local state and are not tracked
+in this repository. Pair it with the Orbweaver preset below for MMO keybinds.
+
+### Orbweaver key remapping
+
+With `--gaming`, bootstrap installs [Input Remapper](https://github.com/sezanzeb/input-remapper)
+from the AUR and enables `input-remapper.service` at boot. It supports Wayland
+and remaps Linux input events, so no OpenRazer driver or lighting plugin is needed.
+An already enabled, running service is left alone.
+
+Launch **Input Remapper** from the application menu (`input-remapper-gtk`), select
+**Razer Razer Orbweaver Chroma**, and create a preset. Record a keypad button,
+choose its output key or combination, and click **Apply**. Enable the preset's
+autoload option to restore it when the device connects. Select the Orbweaver
+rather than a regular keyboard so the remapping applies only to the keypad.
+Click **Stop** before recording changes to an active mapping.
+
+Presets and autoload preferences remain local in `~/.config/input-remapper-2/`;
+bootstrap does not replace GUI edits or impose a key layout. These are software
+mappings on this Linux installation rather than profiles saved into the keypad.
+Service checks and a recovery command:
+
+```bash
+systemctl status input-remapper.service
+input-remapper-control --command hello
+sudo systemctl stop input-remapper.service
+```
+
+The `omarchy-razer-control` plugin is not installed: it has no Orbweaver-specific
+support and does not provide key remapping.
+
+The optional [Orbweaver MMO preset](https://github.com/pabumake/dotfiles/blob/main/input-remapper/README.md) uses thumb-pad
+movement and Shift/Ctrl layers on the main grid. Install and apply it with
+`python3 setup/orbweaver-mmo.py --apply` from the repository root. It leaves
+autoload preferences alone; game action bindings must be configured in-game.
 
 Defaults use `xdg-settings`, `xdg-mime`, and Omarchy's terminal installer.
 The desktop IDs are `zen.desktop`, `keeperpasswordmanager.desktop`,

@@ -21,6 +21,8 @@ DEPENDENCIES = (
 )
 SOURCE_LINE = '[[ -r "$HOME/.config/pabu-dotfiles/bash.sh" ]] && source "$HOME/.config/pabu-dotfiles/bash.sh"'
 AUR_PACKAGES = ("keeper-password-manager", "zen-browser-bin")
+# Installed only with --gaming.
+GAMING_AUR_PACKAGES = ("input-remapper-git", "wowup-cf-bin")
 TERMINAL_ID = "com.mitchellh.ghostty.desktop"
 MIME_DEFAULTS = {
     "text/html": "zen.desktop",
@@ -28,6 +30,8 @@ MIME_DEFAULTS = {
     "x-scheme-handler/http": "zen.desktop",
     "x-scheme-handler/https": "zen.desktop",
     "x-scheme-handler/keeper": "keeperpasswordmanager.desktop",
+}
+GAMING_MIME_DEFAULTS = {
     "x-scheme-handler/steam": "steam.desktop",
     "x-scheme-handler/steamlink": "steam.desktop",
 }
@@ -47,7 +51,7 @@ def terminal_selected(home):
     return bool(entries) and entries[0] == TERMINAL_ID
 
 
-def default_commands():
+def default_commands(gaming=False):
     # Omarchy's shell exports BROWSER; xdg-settings refuses changes with it set.
     env = {key: value for key, value in os.environ.items() if key != "BROWSER"}
     commands = []
@@ -55,7 +59,7 @@ def default_commands():
                              env=env, text=True, capture_output=True)
     if browser.returncode or browser.stdout.strip() != "zen.desktop":
         commands.append(["xdg-settings", "set", "default-web-browser", "zen.desktop"])
-    for mime, desktop in MIME_DEFAULTS.items():
+    for mime, desktop in {**MIME_DEFAULTS, **(GAMING_MIME_DEFAULTS if gaming else {})}.items():
         current = subprocess.run(["xdg-mime", "query", "default", mime],
                                  env=env, text=True, capture_output=True)
         if current.returncode or current.stdout.strip() != desktop:
@@ -139,6 +143,8 @@ def main():
     parser.add_argument("--dry-run", action="store_true", help="Show changes without writing or installing")
     parser.add_argument("--yes", action="store_true", help="Accept package installation and Bash overlay setup")
     parser.add_argument("--backup-conflicts", action="store_true", help="Back up conflicting Stow targets before replacing them")
+    parser.add_argument("--gaming", action="store_true",
+                        help="Also install the gaming setup: Steam, Input Remapper, WowUp-CF")
     parser.add_argument("--skip-bash", action="store_true", help="Link the overlay without editing ~/.bashrc")
     args = parser.parse_args()
     home = Path.home()
@@ -169,17 +175,25 @@ def main():
     if not shutil.which("node"):
         dependencies += ["nodejs", "npm"]
     missing = [pkg for pkg in dependencies if not installed(pkg)]
-    missing_aur = [pkg for pkg in AUR_PACKAGES if not installed(pkg)]
+    missing_aur = [pkg for pkg in AUR_PACKAGES + (GAMING_AUR_PACKAGES if args.gaming else ())
+                   if not installed(pkg)]
     applications = []
     if missing_aur:
         if not shutil.which("yay"):
-            raise RuntimeError("Omarchy's yay helper is required to install Keeper and Zen.")
+            raise RuntimeError("Omarchy's yay helper is required to install AUR applications.")
         applications.append(["omarchy", "pkg", "aur", "add", *missing_aur])
-    if not installed("steam"):
+    if args.gaming and not installed("steam"):
         applications.append(["omarchy", "install", "gaming", "steam"])
+    remapper_service_change = args.gaming and any(
+        subprocess.run(["systemctl", check, "--quiet", "input-remapper.service"],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode != 0
+        for check in ("is-enabled", "is-active")
+    )
+    if remapper_service_change:
+        applications.append(["sudo", "systemctl", "enable", "--now", "input-remapper.service"])
     terminal_change = (not installed("ghostty") or not (home / ".config/ghostty").exists()
                        or not terminal_selected(home))
-    defaults, desktop_env = default_commands()
+    defaults, desktop_env = default_commands(args.gaming)
     if terminal_change and (home / ".config/xdg-terminals.list").is_symlink():
         raise RuntimeError("xdg-terminals.list is a symlink; refusing to overwrite its owner.")
     mime_preferences = sorted((home / ".config").glob("*mimeapps.list"))
@@ -193,7 +207,9 @@ def main():
     print("Missing AUR packages: " + (" ".join(missing_aur) or "none"))
     print("Bash: " + ("append overlay source (with backup)" if bash_text is not None else "no edit"))
     print("Ghostty shortcuts preserved; Hyprland desktop overlay managed through hooks")
-    print("Defaults: Zen browser, Ghostty terminal, Keeper and Steam URI handlers")
+    print("Defaults: Zen browser, Ghostty terminal, Keeper URI handler"
+          + (", Steam URI handlers" if args.gaming else ""))
+    print("Gaming setup: " + ("Steam, Input Remapper, WowUp-CF" if args.gaming else "skipped (use --gaming)"))
     for command in applications + ([["omarchy", "install", "terminal", "ghostty"]] if terminal_change else []) + defaults:
         print("Planned: " + shlex.join(command))
     for path in conflicts:
@@ -246,7 +262,7 @@ def main():
             backup_path(path)
         for command in defaults:
             run(*command, env=desktop_env)
-        remaining, _ = default_commands()
+        remaining, _ = default_commands(args.gaming)
         if remaining:
             raise RuntimeError("Desktop default verification failed; see the printed preference backups.")
 
