@@ -42,3 +42,6 @@ alias forceupdate='brew update && brew upgrade && brew install --cask --force `b
 autoload -Uz compinit && compinit
 autoload -U +X bashcompinit && bashcompinit
 complete -o nospace -C /opt/homebrew/bin/vault vault
+
+# Hermes Agent command
+case ":$PATH:" in *":$HOME/.local/bin:"*) ;; *) export PATH="$HOME/.local/bin:$PATH" ;; esac
