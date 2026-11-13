@@ -45,6 +45,9 @@ Remove the temporary file afterward when it is no longer needed.
 | `--menu-bar-manager M` | Select and remember `hiddenbar`, `thaw`, or `none` |
 | `--switch-bar-manager` | Reopen the interactive provider selector |
 | `--repo-dir PATH` | Override `~/src/dotfiles` |
+| `--skills-repo-dir PATH` | Select the skills checkout |
+| `--skip-skills` | Skip skill installation and CLI configuration |
+| `--deduplicate-hermes-imports` | Back up verified identical Hermes imports so shared copies take precedence |
 | `--help` | Print usage and safety rules |
 
 Local examples:
@@ -160,6 +163,57 @@ third-party tap or trust entry.
 
 `gh-manager` remains config-only. Its Stow package is linked, but the bootstrap
 does not install its binary or GitHub CLI.
+
+## Agent skills
+
+Bootstrap detects OpenCode and Hermes through `PATH`, user-local CLI locations,
+and the Apple Silicon and Intel Homebrew prefixes. If either is installed,
+`scripts/setup-skills.sh` runs the installer from
+[pabumake/skills](https://github.com/pabumake/skills). The helper can also run
+separately from the rest of the macOS setup:
+
+```bash
+/bin/bash scripts/setup-skills.sh --dry-run
+/bin/bash scripts/setup-skills.sh --repo-dir "$HOME/Documents/skills" --no-repo-update
+```
+
+The default checkout is `~/src/skills`. If it is absent, the helper reuses
+`~/Documents/skills` when that directory is a Git checkout. Use
+`--skills-repo-dir PATH` with bootstrap, or `--repo-dir PATH` with the helper,
+to select another location. The CLIs themselves must already be installed.
+
+The skills installer links the promoted local catalog and refreshes its selected
+Matt Pocock baseline. It also configures any other tools it detects, such as
+Codex or Claude Code. Existing private catalogs can use the skills repository's
+machine-local `local.sh` configuration.
+
+OpenCode discovers `~/.agents/skills` automatically. Hermes receives that path
+in `skills.external_dirs`, preserving existing entries. `HERMES_HOME` selects a
+specific Hermes profile; otherwise the active profile is used. The installer
+reports the selected profile. OpenCode reloads skills automatically.
+
+Hermes-local skills take precedence over the shared directory. Each run reports
+overrides and compares complete directories, including references, scripts,
+symlinks, and executable bits. Ordinary runs retain imported skills. To preview
+and then migrate verified duplicates:
+
+```bash
+/bin/bash scripts/setup-skills.sh --no-repo-update --dry-run --deduplicate-hermes-imports
+/bin/bash scripts/setup-skills.sh --no-repo-update --deduplicate-hermes-imports
+```
+
+Migration moves identical ordinary directories from `skills/claude-code-imports`
+to `skill-import-backups` inside the selected Hermes home. The output gives each
+backup path. Differing imports and foreign links remain in place. Review and
+merge useful local changes before retiring those overrides.
+
+`--dry-run` performs no writes, CLI initialization, Git fetches, or npm requests
+in the skills phase. If a checkout is missing, it reports the clone and defers
+the installer preview. Apply runs require an installer with Hermes and dry-run
+support. The skills repository uses the same clean-checkout and fast-forward
+rules as dotfiles; `--no-repo-update` applies to both repositories and requires
+an existing skills checkout. External installation failures return a nonzero
+status; local links already created remain applied.
 
 ## Homebrew bootstrap
 

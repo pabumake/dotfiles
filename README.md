@@ -43,6 +43,10 @@ It requires macOS 15.6 or newer and is the macOS installation and update entry p
 JankyBorders is registered as a per-user Homebrew service so it starts at login
 and automatically recovers if its process exits.
 
+When OpenCode or Hermes is installed, bootstrap also runs the
+[shared skills setup](docs/setup.md#agent-skills). It reuses an existing skills
+checkout or clones `pabumake/skills` to `~/src/skills`.
+
 To inspect the script before running it:
 
 ```bash

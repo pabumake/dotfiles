@@ -27,6 +27,9 @@ WITH_HUSHLOGIN=0
 LOCAL_PASS=0
 MENU_BAR_MANAGER=""
 SWITCH_BAR_MANAGER=0
+SKILLS_REPO_DIR=""
+SKIP_SKILLS=0
+DEDUPLICATE_HERMES=0
 REPO_DIR="${DEFAULT_REPO_DIR}"
 ORIGINAL_ARGS=("$@")
 
@@ -49,6 +52,9 @@ Options:
   --menu-bar-manager M  Select hiddenbar, thaw, or none and remember the choice
   --switch-bar-manager  Show the menu-bar manager selector again
   --repo-dir PATH       Override ~/src/dotfiles
+  --skills-repo-dir PATH Use an existing skills checkout or clone to this path
+  --skip-skills         Skip skill installation and CLI configuration
+  --deduplicate-hermes-imports Back up identical imported Hermes skills
   --help                Show this help
 
 Safety rules:
@@ -119,6 +125,13 @@ while [ "$#" -gt 0 ]; do
       MENU_BAR_MANAGER="$1"
       ;;
     --switch-bar-manager) SWITCH_BAR_MANAGER=1 ;;
+    --skip-skills) SKIP_SKILLS=1 ;;
+    --deduplicate-hermes-imports) DEDUPLICATE_HERMES=1 ;;
+    --skills-repo-dir)
+      shift
+      [ "$#" -gt 0 ] || die "--skills-repo-dir requires a path"
+      SKILLS_REPO_DIR="$1"
+      ;;
     --repo-dir)
       shift
       [ "$#" -gt 0 ] || die "--repo-dir requires a path"
@@ -154,6 +167,10 @@ fi
 case "${REPO_DIR}" in
   /*) ;;
   *) die "--repo-dir must be an absolute path" ;;
+esac
+case "${SKILLS_REPO_DIR}" in
+  ""|/*) ;;
+  *) die "--skills-repo-dir must be an absolute path" ;;
 esac
 
 find_brew() {
@@ -1082,6 +1099,17 @@ configure_archive_migration_link() {
   run mkdir -p "${target_dir}" || die "Could not create ${target_dir}"
   run ln -s "${source}" "${target}" || die "Could not link the archive migration utility"
 }
+
+if [ "$SKIP_SKILLS" -eq 0 ]; then
+  heading "Agent skills"
+  skills_args=()
+  [ "$DRY_RUN" -eq 0 ] || skills_args+=(--dry-run)
+  [ "$ASSUME_YES" -eq 0 ] || skills_args+=(--yes)
+  [ "$NO_REPO_UPDATE" -eq 0 ] || skills_args+=(--no-repo-update)
+  [ "$DEDUPLICATE_HERMES" -eq 0 ] || skills_args+=(--deduplicate-hermes-imports)
+  [ -z "$SKILLS_REPO_DIR" ] || skills_args+=(--repo-dir "$SKILLS_REPO_DIR")
+  /bin/bash "$REPO_DIR/scripts/setup-skills.sh" ${skills_args[@]+"${skills_args[@]}"} || die "Skill setup did not complete"
+fi
 
 configure_archive_migration_link
 
