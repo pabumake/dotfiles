@@ -56,3 +56,14 @@ remote_image_paste = "ctrl+v"
 
 [ui]
 agent_panel_sort = "spaces"
+status_indicators = "symbols"
+
+[ui.toast]
+delivery = "system"
+
+[ui.sound]
+enabled = true
+
+[theme]
+name = "catppuccin"
+auto_switch = false
