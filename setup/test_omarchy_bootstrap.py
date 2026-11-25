@@ -229,6 +229,26 @@ class BootstrapTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertEqual((Path(self.env["TEST_STATE"]) / "commands").read_text(), commands)
 
+    def test_handy_dictation_is_selected_only_when_unconfigured(self):
+        state = self.base / "dictation"
+        self.env["DICTATION_STATE"] = str(state)
+        self.command("omarchy-default-dictation", '[[ -f "$DICTATION_STATE" ]] && cat "$DICTATION_STATE"; exit 0')
+        self.command("omarchy-dictation-use", 'echo "$1" > "$DICTATION_STATE"')
+        result = self.invoke("--dry-run")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("Planned: omarchy-dictation-use handy", result.stdout)
+        self.assertFalse(state.exists())
+        result = self.invoke("--yes")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(state.read_text().strip(), "handy")
+        self.assertTrue((self.home / ".local/bin/omarchy-dictation-handy").is_symlink())
+        self.assertTrue((self.home / ".config/handy/shortcuts.lua").is_symlink())
+        state.write_text("voxtype\n")
+        result = self.invoke("--yes")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("Dictation backend 'voxtype' kept", result.stdout)
+        self.assertEqual(state.read_text().strip(), "voxtype")
+
     def test_remapper_service_is_planned_then_enabled_once(self):
         state = self.base / "remapper-enabled"
         self.env["REMAPPER_TEST_STATE"] = str(state)

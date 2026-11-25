@@ -12,7 +12,7 @@ import tempfile
 
 
 REPO = Path(__file__).resolve().parent.parent
-PACKAGES = ("herdr", "nvim", "starship", "yazi", "gh-manager", "omarchy-bash", "omarchy-desktop")
+PACKAGES = ("herdr", "nvim", "starship", "yazi", "gh-manager", "omarchy-bash", "omarchy-desktop", "omarchy-handy")
 DEPENDENCIES = (
     "git", "stow", "herdr", "starship", "eza", "yazi", "neovim", "ripgrep",
     "fd", "fzf", "lazygit", "cliamp", "ffmpeg", "7zip", "jq", "poppler",
@@ -20,7 +20,7 @@ DEPENDENCIES = (
     "ttf-jetbrains-mono-nerd",
 )
 SOURCE_LINE = '[[ -r "$HOME/.config/pabu-dotfiles/bash.sh" ]] && source "$HOME/.config/pabu-dotfiles/bash.sh"'
-AUR_PACKAGES = ("keeper-password-manager", "zen-browser-bin")
+AUR_PACKAGES = ("keeper-password-manager", "zen-browser-bin", "handy-bin")
 # Installed only with --gaming.
 GAMING_AUR_PACKAGES = ("input-remapper-git", "wowup-cf-bin")
 TERMINAL_ID = "com.mitchellh.ghostty.desktop"
@@ -191,6 +191,12 @@ def main():
     )
     if remapper_service_change:
         applications.append(["sudo", "systemctl", "enable", "--now", "input-remapper.service"])
+    # Select Handy only when no dictation backend is configured; never override a choice.
+    current_dictation = subprocess.run(["omarchy-default-dictation"], text=True,
+                                       capture_output=True).stdout.strip()
+    dictation_change = current_dictation == ""
+    if current_dictation not in ("", "handy"):
+        print(f"Dictation backend '{current_dictation}' kept; run 'omarchy-dictation-use handy' to switch to Handy.")
     terminal_change = (not installed("ghostty") or not (home / ".config/ghostty").exists()
                        or not terminal_selected(home))
     defaults, desktop_env = default_commands(args.gaming)
@@ -210,6 +216,8 @@ def main():
     print("Defaults: Zen browser, Ghostty terminal, Keeper URI handler"
           + (", Steam URI handlers" if args.gaming else ""))
     print("Gaming setup: " + ("Steam, Input Remapper, WowUp-CF" if args.gaming else "skipped (use --gaming)"))
+    if dictation_change:
+        print("Planned: omarchy-dictation-use handy")
     for command in applications + ([["omarchy", "install", "terminal", "ghostty"]] if terminal_change else []) + defaults:
         print("Planned: " + shlex.join(command))
     for path in conflicts:
@@ -229,6 +237,7 @@ def main():
     for command in applications:
         run(*command)
     run("bash", "-n", REPO / "omarchy-bash/.config/pabu-dotfiles/bash.sh")
+    run("bash", "-n", REPO / "omarchy-handy/.local/bin/omarchy-dictation-handy")
     run("herdr", "config", "check", env={**os.environ, "HERDR_CONFIG_PATH": str(REPO / "herdr/.config/herdr/config.toml")})
 
     backup = None
@@ -293,6 +302,8 @@ def main():
         finally:
             temporary.unlink(missing_ok=True)
     desktop.apply(backup_path)
+    if dictation_change:
+        run("omarchy-dictation-use", "handy")
     run(*stow, "--simulate")
     print("Complete. Open a new Bash shell; use h for Herdr and y for Yazi.")
     print("Neovim installs its plugins on first launch. Existing Herdr sessions were not restarted.")

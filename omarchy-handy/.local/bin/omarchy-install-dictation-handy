@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# omarchy:summary=Install and configure Handy dictation
+
+set -e
+
+if omarchy-cmd-missing handy; then
+  omarchy-pkg-aur-add handy-bin
+fi
+omarchy-pkg-add wtype wl-clipboard
+
+omarchy-dictation-use handy
+omarchy-restart-hyprctl
+omarchy-notification-send -g "Handy dictation ready" "Toggle with Alt + Space; push-to-talk with Alt + Right Alt." -t 10000

@@ -29,7 +29,7 @@ all options. Package installation can still require a sudo password.
 
 ## Shared configuration and packages
 
-Stow links `herdr`, `nvim`, `starship`, `yazi`, `gh-manager`, `omarchy-bash`, and `omarchy-desktop`
+Stow links `herdr`, `nvim`, `starship`, `yazi`, `gh-manager`, `omarchy-bash`, `omarchy-desktop`, and `omarchy-handy`
 into `~/.config`, with directory folding disabled. Existing unrelated files
 remain in place. Custom `XDG_CONFIG_HOME` locations and a symlinked `~/.config`
 are rejected rather than redirected unexpectedly.
@@ -55,6 +55,7 @@ files, but does not restart running Herdr sessions.
 | Zen Browser | `omarchy pkg aur add zen-browser-bin` | Browser, HTTP/HTTPS links, HTML/XHTML files |
 | Steam (gaming) | `omarchy install gaming steam` | `steam://` and `steamlink://` links |
 | Ghostty | `omarchy install terminal ghostty` | Omarchy terminal launcher |
+| Handy | `omarchy pkg aur add handy-bin` | Offline speech-to-text, Omarchy dictation backend |
 | Input Remapper (gaming) | `omarchy pkg aur add input-remapper-git` | Graphical device-specific key remapping |
 | WowUp-CF (gaming) | `omarchy pkg aur add wowup-cf-bin` | WoW addon manager with CurseForge support |
 
@@ -82,6 +83,26 @@ are optional in its settings. The Windows CurseForge app is not used.
 
 Its settings, the WoW install, and addons are local state and are not tracked
 in this repository. Pair it with the Orbweaver preset below for MMO keybinds.
+
+### Handy dictation
+
+[Handy](https://handy.computer/) is offline speech-to-text. No Omarchy plugin
+exists for it, so it integrates through Omarchy's dictation-backend system: the
+`omarchy-handy` Stow package links `omarchy-dictation-handy` and
+`omarchy-install-dictation-handy` into `~/.local/bin` and `handy/shortcuts.lua`
+into `~/.config`, which starts Handy hidden at login. Omarchy's own dictation
+keys then drive it: **Alt + Space** toggles and **Alt + Right Alt** is
+push-to-talk. Handy's built-in shortcut works only on X11, and `wtype` plus
+`wl-clipboard` (installed with the backend) paste the result on Hyprland.
+
+Bootstrap selects Handy with `omarchy-dictation-use handy` only when no
+dictation backend is configured; an existing Voxtype or Superwhisper choice is
+kept (switch with `omarchy-dictation-use handy`, or Setup > Defaults >
+Dictation). Handy has no start/stop/status command on Wayland, so the adapter
+tracks recording state in `$XDG_RUNTIME_DIR` to keep push-to-talk balanced.
+Toggling from Handy's own window or tray can desync it, and `stop` with nothing
+recording does nothing. Choose the speech model in Handy's settings on first
+launch; models and settings are local state.
 
 ### Orbweaver key remapping
 

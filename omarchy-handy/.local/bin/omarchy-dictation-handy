@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# omarchy:summary=Record dictation using Handy
+# omarchy:args=<start|stop|toggle>
+#
+# Handy on Wayland only exposes a toggle (handy --toggle-transcription) and has
+# no start/stop/status command. Recording state is tracked here so push-to-talk
+# start/stop stay balanced. Toggling from Handy's own window or tray can desync
+# it; "omarchy dictation stop" with nothing recording is always a no-op.
+
+state="${XDG_RUNTIME_DIR:-/tmp}/omarchy-dictation-handy.state"
+
+recording() { [[ -f $state ]]; }
+toggle() { handy --toggle-transcription; }
+
+case "${1:-}" in
+  start)
+    recording && exit 0
+    toggle && : > "$state"
+    ;;
+  stop)
+    if omarchy-cmd-missing handy || ! pgrep -x handy >/dev/null || ! recording; then
+      rm -f "$state"
+      exit 0
+    fi
+    rm -f "$state"
+    toggle
+    ;;
+  toggle)
+    if recording; then
+      rm -f "$state"
+      toggle
+    else
+      toggle && : > "$state"
+    fi
+    ;;
+  *) echo "Usage: omarchy dictation handy <start|stop|toggle>" >&2; exit 1 ;;
+esac
