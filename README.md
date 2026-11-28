@@ -109,6 +109,7 @@ currently empty; Orion is a macOS trial.
 
 ## Documentation
 
+- [Windows setup proposal and tool coverage](docs/research/windows-tool-coverage.md), research on the Windows feature branch; no Windows bootstrap is available yet.
 - [Documentation home](https://pabumake.github.io/dotfiles/)
 - [Bootstrap, updates, and Stow usage](https://pabumake.github.io/dotfiles/setup.html)
 - [AeroSpace workflow and keybindings](https://pabumake.github.io/dotfiles/aerospace.html)
