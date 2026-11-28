@@ -10,7 +10,9 @@ jobs:
   isolated-tests:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - name: Run isolated tests without installing packages
         shell: pwsh
         run: ./setup/test_windows_bootstrap.ps1
