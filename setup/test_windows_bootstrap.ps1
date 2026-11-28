@@ -270,3 +270,5 @@ try {
     }
     Write-Host "$script:passed Windows bootstrap tests passed. Package managers were stubbed."
 } finally { Remove-Item -LiteralPath $testRoot -Recurse -Force }
+# Tests deliberately exercise nonzero child exit codes. Do not leak them to CI.
+exit 0

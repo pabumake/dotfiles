@@ -51,10 +51,10 @@ try {
     Write-Host 'Existing executables outside WinGet are retained. Package scope defaults to user.'
     $deferred = @($plan | Where-Object Action -eq 'deferred-scope' | ForEach-Object { $_.Package.name })
     if ($deferred.Count) { Write-Host "Deferred machine-scope packages: $($deferred -join ', '). Select them explicitly with -MachinePackages if permitted." }
-    if (-not $PSCmdlet.ShouldProcess('Selected Windows packages and user configuration', 'Apply printed plan')) { return }
+    if (-not $PSCmdlet.ShouldProcess('Selected Windows packages and user configuration', 'Apply printed plan')) { $global:LASTEXITCODE = 0; return }
     if (@($plan | Where-Object Action -eq 'unsupported').Count) { throw 'Unsupported package architecture. Use -SkipPackages with the listed logical names to exclude those tools.' }
     if (@($configs | Where-Object Action -eq 'conflict').Count -and -not $BackupConflicts) { throw 'Configuration conflicts require -BackupConflicts. Nothing was installed or copied.' }
-    if (-not $Yes -and (Read-Host 'Apply this Windows setup? [y/N]') -notmatch '^(?i)y(es)?$') { Write-Host 'Setup declined.'; return }
+    if (-not $Yes -and (Read-Host 'Apply this Windows setup? [y/N]') -notmatch '^(?i)y(es)?$') { Write-Host 'Setup declined.'; $global:LASTEXITCODE = 0; return }
     Invoke-DotfilesPackagePlan $plan -AcceptAgreements:$AcceptAgreements
     foreach ($trial in $trials) { Invoke-DotfilesTrialInstaller $trial }
     # Installers can update persistent PATH; refresh this process without changing it on disk.
@@ -72,6 +72,7 @@ try {
     Write-Host 'Complete. Open a new PowerShell session and select Pabu PowerShell in Windows Terminal.'
     if ($deferred.Count) { Write-Host "Still deferred: $($deferred -join ', ')." }
     Write-Host 'Run :checkhealth in Neovim and test Yazi previews. Existing Herdr trials are updated separately upstream.'
+    $global:LASTEXITCODE = 0
 } catch {
     Write-Error -Message $_ -ErrorAction Continue
     exit 1
