@@ -24,7 +24,8 @@ current run; omitting them later leaves those applications installed.
 
 ## Guides
 
-- [Windows setup proposal and tool coverage](research/windows-tool-coverage.html), research only; Windows installation is not implemented yet.
+- [Windows bootstrap preview](windows.html), feature-branch implementation awaiting native application testing
+- [Windows tool coverage and decisions](research/windows-tool-coverage.html)
 - [Bootstrap, updates, and Stow usage](setup.html)
 - [Omarchy bootstrap and Bash integration](omarchy.html)
 - [AeroSpace workflow and keybindings](aerospace.html)

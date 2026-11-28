@@ -1,0 +1,22 @@
+{
+  "profiles": [
+    {
+      "guid": "{a18dad04-e991-4ea8-8515-240bb0bd27fe}",
+      "name": "Pabu PowerShell",
+      "commandline": "pwsh.exe -NoLogo",
+      "startingDirectory": "%USERPROFILE%",
+      "font": { "face": "JetBrainsMono Nerd Font" },
+      "colorScheme": "Pabu Catppuccin Mocha"
+    }
+  ],
+  "schemes": [
+    {
+      "name": "Pabu Catppuccin Mocha",
+      "background": "#1e1e2e", "foreground": "#cdd6f4", "cursorColor": "#f5e0dc", "selectionBackground": "#585b70",
+      "black": "#45475a", "red": "#f38ba8", "green": "#a6e3a1", "yellow": "#f9e2af",
+      "blue": "#89b4fa", "purple": "#cba6f7", "cyan": "#94e2d5", "white": "#bac2de",
+      "brightBlack": "#585b70", "brightRed": "#f38ba8", "brightGreen": "#a6e3a1", "brightYellow": "#f9e2af",
+      "brightBlue": "#89b4fa", "brightPurple": "#cba6f7", "brightCyan": "#94e2d5", "brightWhite": "#a6adc8"
+    }
+  ]
+}

@@ -1,0 +1,445 @@
+{
+  "schemaVersion": 1,
+  "packages": [
+    {
+      "name": "powershell",
+      "id": "Microsoft.PowerShell",
+      "source": "winget",
+      "group": "core",
+      "commands": [
+        "pwsh"
+      ],
+      "architectures": [
+        "x64",
+        "arm64"
+      ],
+      "scopes": [
+        "machine"
+      ]
+    },
+    {
+      "name": "terminal",
+      "id": "Microsoft.WindowsTerminal",
+      "source": "winget",
+      "group": "core",
+      "commands": [
+        "wt"
+      ],
+      "architectures": [
+        "x64",
+        "arm64"
+      ],
+      "scopes": [
+        "user",
+        "machine"
+      ]
+    },
+    {
+      "name": "git",
+      "id": "Git.Git",
+      "source": "winget",
+      "group": "core",
+      "commands": [
+        "git"
+      ],
+      "architectures": [
+        "x64",
+        "arm64"
+      ],
+      "scopes": [
+        "user",
+        "machine"
+      ]
+    },
+    {
+      "name": "starship",
+      "id": "Starship.Starship",
+      "source": "winget",
+      "group": "core",
+      "commands": [
+        "starship"
+      ],
+      "architectures": [
+        "x64",
+        "arm64"
+      ],
+      "scopes": [
+        "user",
+        "machine"
+      ]
+    },
+    {
+      "name": "eza",
+      "id": "eza-community.eza",
+      "source": "winget",
+      "group": "core",
+      "commands": [
+        "eza"
+      ],
+      "architectures": [
+        "x64"
+      ],
+      "scopes": [
+        "user",
+        "machine"
+      ]
+    },
+    {
+      "name": "yazi",
+      "id": "sxyazi.yazi",
+      "source": "winget",
+      "group": "core",
+      "commands": [
+        "yazi"
+      ],
+      "architectures": [
+        "x64",
+        "arm64"
+      ],
+      "scopes": [
+        "user",
+        "machine"
+      ]
+    },
+    {
+      "name": "neovim",
+      "id": "Neovim.Neovim",
+      "source": "winget",
+      "group": "core",
+      "commands": [
+        "nvim"
+      ],
+      "architectures": [
+        "x64",
+        "arm64"
+      ],
+      "scopes": [
+        "user",
+        "machine"
+      ]
+    },
+    {
+      "name": "ripgrep",
+      "id": "BurntSushi.ripgrep.MSVC",
+      "source": "winget",
+      "group": "core",
+      "commands": [
+        "rg"
+      ],
+      "architectures": [
+        "x64",
+        "arm64"
+      ],
+      "scopes": [
+        "user",
+        "machine"
+      ]
+    },
+    {
+      "name": "fd",
+      "id": "sharkdp.fd",
+      "source": "winget",
+      "group": "core",
+      "commands": [
+        "fd"
+      ],
+      "architectures": [
+        "x64",
+        "arm64"
+      ],
+      "scopes": [
+        "user",
+        "machine"
+      ]
+    },
+    {
+      "name": "fzf",
+      "id": "junegunn.fzf",
+      "source": "winget",
+      "group": "core",
+      "commands": [
+        "fzf"
+      ],
+      "architectures": [
+        "x64",
+        "arm64"
+      ],
+      "scopes": [
+        "user",
+        "machine"
+      ]
+    },
+    {
+      "name": "lazygit",
+      "id": "JesseDuffield.lazygit",
+      "source": "winget",
+      "group": "core",
+      "commands": [
+        "lazygit"
+      ],
+      "architectures": [
+        "x64",
+        "arm64"
+      ],
+      "scopes": [
+        "user",
+        "machine"
+      ]
+    },
+    {
+      "name": "tree-sitter",
+      "id": "tree-sitter.tree-sitter-cli",
+      "source": "winget",
+      "group": "core",
+      "commands": [
+        "tree-sitter"
+      ],
+      "architectures": [
+        "x64",
+        "arm64"
+      ],
+      "scopes": [
+        "user",
+        "machine"
+      ]
+    },
+    {
+      "name": "node",
+      "id": "OpenJS.NodeJS.LTS",
+      "source": "winget",
+      "group": "core",
+      "commands": [
+        "node"
+      ],
+      "architectures": [
+        "x64",
+        "arm64"
+      ],
+      "scopes": [
+        "machine"
+      ]
+    },
+    {
+      "name": "jq",
+      "id": "jqlang.jq",
+      "source": "winget",
+      "group": "core",
+      "commands": [
+        "jq"
+      ],
+      "architectures": [
+        "x64",
+        "arm64"
+      ],
+      "scopes": [
+        "user",
+        "machine"
+      ]
+    },
+    {
+      "name": "7zip",
+      "id": "7zip.7zip",
+      "source": "winget",
+      "group": "core",
+      "commands": [
+        "7z"
+      ],
+      "architectures": [
+        "x64",
+        "arm64"
+      ],
+      "scopes": [
+        "machine"
+      ]
+    },
+    {
+      "name": "font",
+      "id": "DEVCOM.JetBrainsMonoNerdFont",
+      "source": "winget",
+      "group": "core",
+      "commands": [],
+      "architectures": [
+        "x64",
+        "arm64"
+      ],
+      "scopes": [
+        "machine"
+      ]
+    },
+    {
+      "name": "zoxide",
+      "id": "ajeetdsouza.zoxide",
+      "source": "winget",
+      "group": "core",
+      "commands": [
+        "zoxide"
+      ],
+      "architectures": [
+        "x64",
+        "arm64"
+      ],
+      "scopes": [
+        "user",
+        "machine"
+      ]
+    },
+    {
+      "name": "ffmpeg",
+      "id": "Gyan.FFmpeg",
+      "source": "winget",
+      "group": "previews",
+      "commands": [
+        "ffmpeg",
+        "ffprobe"
+      ],
+      "architectures": [
+        "x64"
+      ],
+      "scopes": [
+        "user",
+        "machine"
+      ]
+    },
+    {
+      "name": "poppler",
+      "id": "oschwartz10612.Poppler",
+      "source": "winget",
+      "group": "previews",
+      "commands": [
+        "pdftoppm"
+      ],
+      "architectures": [
+        "x64"
+      ],
+      "scopes": [
+        "user",
+        "machine"
+      ]
+    },
+    {
+      "name": "resvg",
+      "id": "linebender.resvg",
+      "source": "winget",
+      "group": "previews",
+      "commands": [
+        "resvg"
+      ],
+      "architectures": [
+        "x64",
+        "arm64"
+      ],
+      "scopes": [
+        "user",
+        "machine"
+      ]
+    },
+    {
+      "name": "imagemagick",
+      "id": "ImageMagick.ImageMagick",
+      "source": "winget",
+      "group": "previews",
+      "commands": [
+        "magick"
+      ],
+      "architectures": [
+        "x64",
+        "arm64"
+      ],
+      "scopes": [
+        "user",
+        "machine"
+      ]
+    },
+    {
+      "name": "keeper",
+      "id": "KeeperSecurity.KeeperDesktop",
+      "source": "winget",
+      "group": "apps",
+      "commands": [],
+      "architectures": [
+        "x64",
+        "arm64"
+      ],
+      "scopes": [
+        "user",
+        "machine"
+      ]
+    },
+    {
+      "name": "zen",
+      "id": "Zen-Team.Zen-Browser",
+      "source": "winget",
+      "group": "apps",
+      "commands": [],
+      "architectures": [
+        "x64",
+        "arm64"
+      ],
+      "scopes": [
+        "user",
+        "machine"
+      ]
+    },
+    {
+      "name": "handy",
+      "id": "cjpais.Handy",
+      "source": "winget",
+      "group": "apps",
+      "commands": [],
+      "architectures": [
+        "x64",
+        "arm64"
+      ],
+      "scopes": [
+        "user",
+        "machine"
+      ]
+    },
+    {
+      "name": "steam",
+      "id": "Valve.Steam",
+      "source": "winget",
+      "group": "gaming",
+      "commands": [],
+      "architectures": [
+        "x64",
+        "arm64"
+      ],
+      "scopes": [
+        "user",
+        "machine"
+      ]
+    },
+    {
+      "name": "wowup-cf",
+      "id": "WowUp.CF",
+      "source": "winget",
+      "group": "gaming",
+      "commands": [],
+      "architectures": [
+        "x64",
+        "arm64"
+      ],
+      "scopes": [
+        "user",
+        "machine"
+      ]
+    },
+    {
+      "name": "wezterm",
+      "id": "wez.wezterm",
+      "source": "winget",
+      "group": "trials",
+      "commands": [
+        "wezterm"
+      ],
+      "architectures": [
+        "x64"
+      ],
+      "scopes": [
+        "user",
+        "machine"
+      ]
+    }
+  ]
+}

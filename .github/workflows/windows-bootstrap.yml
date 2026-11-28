@@ -1,0 +1,19 @@
+name: Windows bootstrap
+on:
+  push:
+    paths: ['setup/**', 'windows/**', 'starship/**', 'nvim/**', 'yazi/**', 'herdr/**', '.github/workflows/windows-bootstrap.yml']
+  pull_request:
+    paths: ['setup/**', 'windows/**', 'starship/**', 'nvim/**', 'yazi/**', 'herdr/**', '.github/workflows/windows-bootstrap.yml']
+permissions:
+  contents: read
+jobs:
+  isolated-tests:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run isolated tests without installing packages
+        shell: pwsh
+        run: ./setup/test_windows_bootstrap.ps1
+      - name: Preview the real entry point
+        shell: pwsh
+        run: ./setup/bootstrap-windows.ps1 -WhatIf -IncludePreviews -IncludeTrials

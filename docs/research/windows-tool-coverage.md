@@ -7,9 +7,10 @@ title: Windows setup proposal and tool coverage
 
 Researched on 2026-11-28 against the tools declared at repository commit
 `236cd7c`. Work belongs on `codex/windows-setup-research` until Windows testing
-is complete. This document proposes decisions; it does not claim a working
-Windows installer. Package catalogue entries and upstream documentation were
-checked from macOS, not by installing on Windows.
+is complete. This document records the initial research and proposed decisions.
+The branch now has a [Windows bootstrap preview](../windows.md); its package
+installation and native application behavior still require Windows testing.
+Catalogue entries and upstream documentation were checked from macOS.
 
 The target is a future work PC. Admin rights and WSL availability are unknown,
 so neither is a baseline requirement. Desktop window management is excluded.

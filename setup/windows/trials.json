@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "scripts": [
+    {
+      "name": "herdr",
+      "command": "herdr",
+      "url": "https://raw.githubusercontent.com/herdrdev/herdr/e8d7d9705a7a2c89cef4dd42079379f05685af87/distribution/install.ps1",
+      "sha256": "369e0d2b5a5f976e11b512f3c4b610a2eba6119732b292a2f587ca8f80fe0baf",
+      "arguments": [
+        "-Channel",
+        "stable",
+        "-ManifestUrl",
+        "https://herdr.dev/latest.json"
+      ]
+    }
+  ]
+}
