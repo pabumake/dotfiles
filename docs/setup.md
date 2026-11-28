@@ -56,6 +56,8 @@ Local examples:
 ```bash
 cd ~/src/dotfiles
 ./setup/bootstrap.sh --dry-run
+./setup/bootstrap.sh --no-repo-update
+./setup/bootstrap.sh --include-trials --dry-run
 ./setup/bootstrap.sh --upgrade
 ./setup/bootstrap.sh --yes --trust-third-party --backup-conflicts
 ./setup/bootstrap.sh --switch-bar-manager
@@ -70,7 +72,15 @@ changing Homebrew's trust configuration.
 ## What gets installed
 
 The committed `Brewfile` is the source of truth for Homebrew packages.
-ZMK Studio is installed separately from its official release archive.
+Additional installation paths have their own controls:
+
+| Component | Source | When it runs |
+| --- | --- | --- |
+| Standard Homebrew packages | `Brewfile` | Every bootstrap; upgrades require `--upgrade` |
+| Trial Homebrew packages | `Brewfile.trials` | Only with `--include-trials` |
+| ZMK Studio | `scripts/install-zmk-studio.sh` | Every bootstrap; existing apps are preserved unless `--upgrade` is supplied |
+| Menu-bar manager | Remembered Hidden Bar, Thaw, or None choice | Every bootstrap; change with `--menu-bar-manager` or `--switch-bar-manager` |
+| Shared agent skills | `scripts/setup-skills.sh` | When OpenCode or Hermes is detected; bypass with `--skip-skills` |
 
 ### Taps
 
@@ -97,8 +107,10 @@ On Apple Silicon, bootstrap also installs `vorssaint`. Vorssaint does not ship
 an Intel build, so Intel systems skip it.
 
 Hidden Bar or Thaw is installed separately after the remembered provider choice
-is resolved. Thaw requires macOS 26+. Thaw is the default first-run choice; the
-selector or `--menu-bar-manager` can choose Hidden Bar or None instead.
+is resolved. Thaw requires macOS 26+ and is the default on those versions.
+Earlier supported versions default to Hidden Bar. The selector or
+`--menu-bar-manager` can choose any available provider or None. These are the
+only managed menu-bar providers.
 
 Normal runs use Homebrew Bundle's install-only mode. Existing packages are not
 upgraded unless `--upgrade` is supplied, and `brew bundle cleanup` is never used.
@@ -180,9 +192,10 @@ from the [official release](https://github.com/zmkfirmware/zmk-studio/releases/t
 The universal macOS app supports Apple Silicon and Intel. The installer verifies
 the archive's pinned SHA-256 checksum and installs into `~/Applications` without
 sudo. An existing app in `~/Applications` or `/Applications` is preserved by
-default. `--upgrade` applies the pinned version and backs up a replaced app
-beside its installation. A protected `/Applications` installation requires a
-writable destination through the standalone helper's `--app-dir` option.
+default. With `--upgrade`, a matching pinned version is left alone; a different
+version is backed up beside the installation and replaced with the pin.
+A protected `/Applications` installation requires a writable destination through
+the standalone helper's `--app-dir` option.
 
 To install it separately from bootstrap:
 
@@ -304,6 +317,10 @@ The default checkout is `~/src/dotfiles` and fresh installations clone
 
 Automated runs stop on dirty, divergent, or non-`main` checkouts unless
 `--no-repo-update` was explicitly supplied.
+
+When testing local edits, run `./setup/bootstrap.sh --no-repo-update`, adding
+`--dry-run` to preview. This flag also skips updates to an existing skills
+checkout. The Omarchy bootstrap always uses the current checkout directly.
 
 ## Stow packages
 
@@ -443,7 +460,8 @@ will reinstall SwipeAeroSpace because gestures are part of every managed setup.
 
 - **Homebrew:** rerun the official installer or complete the Command Line Tools prompt.
 - **Repository:** resolve local changes or divergence manually, then rerun; never reset merely for the bootstrap.
-- **Packages:** rerun `brew bundle check --verbose --file=~/src/dotfiles/Brewfile`.
+- **Packages:** rerun `brew bundle check --verbose --file="$HOME/src/dotfiles/Brewfile"`. An available update can make this check fail even when bootstrap's install-only mode needs no new packages.
+- **Trials:** inspect `brew bundle list --all --file="$HOME/src/dotfiles/Brewfile.trials"`; add `--include-trials` to install them through bootstrap.
 - **Stow:** inspect the printed targets and the timestamped conflict manifest.
 - **JankyBorders:** run `./scripts/borders-service.sh status`, then `restart`; inspect `$(brew --prefix)/var/log/borders/borders.err.log` if validation still fails.
 - **Trackpad gestures:** run `./scripts/trackpad-gestures.sh status`; confirm SwipeAeroSpace has Accessibility permission.

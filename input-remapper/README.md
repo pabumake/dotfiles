@@ -4,9 +4,11 @@ For the Razer Orbweaver Chroma (`1532:0207`), using the factory inputs confirmed
 on this machine. Input Remapper applies this only to the selected Orbweaver
 device group. Unlisted keys pass through, including Alt, Space, and Tab.
 
-Install a copy and optionally apply it:
+Install Input Remapper through the optional Omarchy gaming setup, then copy
+and optionally apply the preset. Run from the repository root:
 
 ```bash
+./setup/bootstrap-omarchy.sh --gaming
 python3 setup/orbweaver-mmo.py --dry-run --apply
 python3 setup/orbweaver-mmo.py --apply
 ```
@@ -15,7 +17,8 @@ This creates `~/.config/input-remapper-2/presets/Razer Razer Orbweaver Chroma/Or
 It preserves other presets and autoload preferences. Reinstalling backs up a
 changed copy before replacement. GUI changes remain local; copy the edited
 preset back to `input-remapper/orbweaver-mmo.json` explicitly to keep them here.
-The ordinary bootstrap installs Input Remapper but does not overwrite presets.
+Bootstrap installs Input Remapper only with `--gaming` and does not copy this
+preset automatically. Omitting `--gaming` on later runs leaves it installed.
 
 ## Physical layout and emitted keys
 

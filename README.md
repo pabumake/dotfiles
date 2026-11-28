@@ -1,22 +1,30 @@
 # Pabu's dotfiles
 
-Personal macOS, Omarchy, and terminal configuration managed with [GNU Stow](https://www.gnu.org/software/stow/).
+Personal macOS and Omarchy configuration managed with [GNU Stow](https://www.gnu.org/software/stow/).
 
 ## Packages
 
-| Package | Purpose |
-| --- | --- |
-| `aerospace` | Omachy-inspired macOS tiling and workspace management |
-| `borders` | Supervised Catppuccin Mocha focused-window highlighting |
-| `ghostty` | Terminal appearance and host-level shortcuts |
-| `herdr` | Terminal workspaces, tabs, panes, and navigation |
-| `nvim` | Neovim configuration |
-| `starship` | Shell prompt |
-| `yazi` | Terminal file management with rich previews |
-| `zsh` | Shell configuration and aliases |
-| `gh-manager` | GitHub Manager configuration |
+| Stow package | Platform | Purpose |
+| --- | --- | --- |
+| `aerospace` | macOS | Omachy-inspired tiling and workspace management |
+| `borders` | macOS | Supervised Catppuccin Mocha focused-window highlighting |
+| `ghostty` | macOS | Terminal appearance and host-level shortcuts |
+| `zsh` | macOS | Shell configuration and aliases |
+| `herdr` | Both | Terminal workspaces, tabs, panes, and navigation |
+| `nvim` | Both | Neovim configuration |
+| `starship` | Both | Shell prompt |
+| `yazi` | Both | Terminal file management with rich previews |
+| `gh-manager` | Both | GitHub Manager configuration; binary installed separately |
+| `omarchy-bash` | Omarchy | Bash overlay loaded after Omarchy defaults |
+| `omarchy-desktop` | Omarchy | Hyprland bindings, monitors, keyboard layout, and shell plugins |
+| `omarchy-handy` | Omarchy | Handy dictation adapters and startup configuration |
 
-Bootstrap offers [Hidden Bar](https://github.com/dwarvesf/hidden),
+The bootstraps select the packages for their platform. Omarchy keeps its own
+Ghostty configuration. The legacy `bash/.bashrc` is not installed by either
+bootstrap. Menu-bar preferences and the optional Input Remapper preset use
+separate helpers rather than Stow.
+
+On macOS, bootstrap offers [Hidden Bar](https://github.com/dwarvesf/hidden),
 [Thaw](https://github.com/thaw-app/Thaw), or no menu-bar manager. The choice is
 remembered locally and can be changed safely with `--switch-bar-manager`. Thaw is
 the default on supported macOS versions unless another choice is selected.
@@ -29,6 +37,8 @@ Mission Control gesture and SwipeAeroSpace's workspace overview are disabled,
 so vertical swipes do not display an overlay.
 
 ## Quick start
+
+### macOS
 
 Bootstrap a new Mac or update an existing checkout with the same command:
 
@@ -45,8 +55,16 @@ and automatically recovers if its process exits.
 Bootstrap also installs the native ZMK Studio app for keyboard configuration.
 For a standalone install, run `./scripts/install-zmk-studio.sh`.
 
+From an existing checkout, preview or apply without updating the repository:
+
+```bash
+cd ~/src/dotfiles
+./setup/bootstrap.sh --dry-run --no-repo-update
+./setup/bootstrap.sh --no-repo-update
+```
+
 Both bootstraps remove an installed Cliamp on the next run. To try optional
-macOS apps, including Kagi's Orion browser, run:
+macOS apps, including Kagi's Orion browser, run from the checkout:
 
 ```bash
 ./setup/bootstrap.sh --include-trials
@@ -55,7 +73,7 @@ macOS apps, including Kagi's Orion browser, run:
 Trials live in `Brewfile.trials`, separate from the standard `Brewfile`.
 The flag applies to that run only. Later runs without it leave trial apps installed.
 
-When OpenCode or Hermes is installed, bootstrap also runs the
+When OpenCode or Hermes is installed, the macOS bootstrap also runs the
 [shared skills setup](docs/setup.md#agent-skills). It reuses an existing skills
 checkout or clones `pabumake/skills` to `~/src/skills`.
 
@@ -68,21 +86,28 @@ less "$bootstrap_file"
 /bin/bash "$bootstrap_file"
 ```
 
-## Documentation
+### Omarchy
 
 For an existing Omarchy installation, run from this checkout:
 
 ```bash
 ./setup/bootstrap-omarchy.sh --dry-run
 ./setup/bootstrap-omarchy.sh
+# Optional Steam, Input Remapper, and WowUp-CF setup:
+./setup/bootstrap-omarchy.sh --gaming
 ```
 
-Omarchy also manages a desktop overlay for the dock, keybindings, and monitor
-layout. See [desktop editing and apply/capture commands](docs/omarchy.md#desktop-overlay).
+The default setup installs Keeper, Zen, Ghostty, and Handy, and manages the
+dock, keybindings, monitors, and US International keyboard layout. Gaming is
+opt-in on each run. The [Orbweaver MMO preset](input-remapper/README.md) is
+copied and applied separately; bootstrap preserves local presets.
 
 The [Omarchy bootstrap guide](docs/omarchy.md) covers shared terminal configs,
-Keeper, Steam, Zen, Ghostty, application defaults, Bash integration, and backups. Omarchy's Ghostty
-shortcuts stay in place; desktop customizations load through small user-config hooks.
+application defaults, dictation, gaming, desktop editing, Bash integration, and
+backups. Omarchy accepts `--include-trials`, but its trial package lists are
+currently empty; Orion is a macOS trial.
+
+## Documentation
 
 - [Documentation home](https://pabumake.github.io/dotfiles/)
 - [Bootstrap, updates, and Stow usage](https://pabumake.github.io/dotfiles/setup.html)
@@ -98,7 +123,21 @@ shortcuts stay in place; desktop customizations load through small user-config h
 - [Code archive offload](https://pabumake.github.io/dotfiles/migrate-stale-projects.html)
 
 The longer guides live in `/docs` so this README stays useful as a quick entry
-point. GitHub Pages publishes the site from `main` and `/docs`.
+point. Configure GitHub Pages to publish from `main` and `/docs` as described
+in the [setup guide](docs/setup.md#enable-github-pages).
+
+## Validation
+
+Run the bootstrap tests from the repository root:
+
+```bash
+python3 -m unittest discover -s setup -p 'test_*.py'
+```
+
+Tests use temporary directories and stubbed package managers. GNU Stow is
+required for the Omarchy integration tests; the MIME association test also
+requires `xdg-mime`. Missing tools cause those tests to be skipped. The tests
+do not install applications or change live desktop preferences.
 
 ## Thanks
 
@@ -137,7 +176,7 @@ inspiration here:
   [Catppuccin](https://github.com/catppuccin/catppuccin)
 - **Inspiration and documentation:** [Omachy](https://github.com/dough654/omachy),
   [Jekyll](https://github.com/jekyll/jekyll), and the
-  [Minimal theme](https://github.com/pages-themes/minimal)
+  [Hacker theme](https://github.com/pages-themes/hacker)
 
 The Neovim lockfile contains the complete pinned plugin list; those projects and
 their contributors are appreciated as well.

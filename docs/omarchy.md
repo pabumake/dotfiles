@@ -21,18 +21,27 @@ For unattended setup, explicitly allow replacements of conflicting configs:
 ./setup/bootstrap-omarchy.sh --yes --backup-conflicts
 ```
 
-`--dry-run` only inspects the system and reports missing packages, conflicting
-files, Bash changes, desktop hooks, and dock changes. `--yes` accepts installation, retired-package removal, and Bash integration;
-it requires `--backup-conflicts` if existing Stow targets need replacement.
-`--skip-bash` links the Bash overlay but leaves `.bashrc` alone. `--help` lists
-all options. Package installation can still require a sudo password.
+| Option | Behavior |
+| --- | --- |
+| `--dry-run` | Report missing and retired packages, conflicts, Bash changes, and desktop integration without applying them |
+| `--yes` | Accept installation, retired-package removal, and Bash integration |
+| `--backup-conflicts` | Back up conflicting Stow targets before replacing them; required with `--yes` when conflicts exist |
+| `--skip-bash` | Link the Bash overlay without editing `.bashrc` |
+| `--gaming` | Also install Steam, Input Remapper, and WowUp-CF and configure their integration |
+| `--include-trials` | Include trial package lists for this run; currently empty on Omarchy |
+| `--help` | List all options |
+
+Package changes can still require a sudo password. Unlike the macOS bootstrap,
+this entry point does not update the checkout or provide an upgrade flag.
 
 ## Shared configuration and packages
 
-Stow links `herdr`, `nvim`, `starship`, `yazi`, `gh-manager`, `omarchy-bash`, `omarchy-desktop`, and `omarchy-handy`
-into `~/.config`, with directory folding disabled. Existing unrelated files
-remain in place. Custom `XDG_CONFIG_HOME` locations and a symlinked `~/.config`
-are rejected rather than redirected unexpectedly.
+Stow links `herdr`, `nvim`, `starship`, `yazi`, `gh-manager`, `omarchy-bash`,
+`omarchy-desktop`, and `omarchy-handy` below your home directory, with directory
+folding disabled. Configuration lives under `~/.config`; the Handy adapters
+also create links under `~/.local/bin`. Existing unrelated files remain in
+place. Custom `XDG_CONFIG_HOME` locations and a symlinked `~/.config` are
+rejected rather than redirected unexpectedly.
 
 Missing terminal dependencies are installed using `omarchy pkg add`: Git, Stow, Herdr,
 Starship, eza, Yazi, Neovim, ripgrep, fd, fzf, lazygit, FFmpeg, 7zip,
@@ -73,7 +82,9 @@ Rows marked *gaming* are installed only on request: add `--gaming` to the
 bootstrap (`./setup/bootstrap-omarchy.sh --gaming`). Without it, Steam, Input
 Remapper, WowUp-CF, the Steam URI handlers, and the `input-remapper.service`
 enablement are skipped entirely; the dry run reports "Gaming setup: skipped".
-Re-run with `--gaming` at any time to add them. The AUR applications require Omarchy's `yay` helper. Steam's Omarchy installer also
+Rerun with `--gaming` at any time to add them. Later runs without the flag leave
+installed gaming apps, associations, and the service in place. The AUR
+applications require Omarchy's `yay` helper. Steam's Omarchy installer also
 selects the system's 32-bit graphics libraries and launches Steam after a new
 installation. Sign in to Keeper, Steam, and browser services yourself; vaults,
 credentials, browser profiles, and games are not copied into the repository.
@@ -96,14 +107,18 @@ in this repository. Pair it with the Orbweaver preset below for MMO keybinds.
 
 ### Handy dictation
 
-[Handy](https://handy.computer/) is offline speech-to-text. No Omarchy plugin
-exists for it, so it integrates through Omarchy's dictation-backend system: the
+[Handy](https://handy.computer/) provides offline speech-to-text. This repository
+integrates it through Omarchy's dictation-backend system. The
 `omarchy-handy` Stow package links `omarchy-dictation-handy` and
 `omarchy-install-dictation-handy` into `~/.local/bin` and `handy/shortcuts.lua`
 into `~/.config`, which starts Handy hidden at login. Omarchy's own dictation
 keys then drive it: **Alt + Space** toggles and **Alt + Right Alt** is
-push-to-talk. Handy's built-in shortcut works only on X11, and `wtype` plus
-`wl-clipboard` (installed with the backend) paste the result on Hyprland.
+push-to-talk. The tracked backend installer also installs `wtype` and
+`wl-clipboard`, selects Handy, reloads Hyprland, and shows the dictation keys:
+
+```bash
+omarchy-install-dictation-handy
+```
 
 Bootstrap selects Handy with `omarchy-dictation-use handy` only when no
 dictation backend is configured; an existing Voxtype or Superwhisper choice is
@@ -147,9 +162,12 @@ movement and Shift/Ctrl layers on the main grid. Install and apply it with
 `python3 setup/orbweaver-mmo.py --apply` from the repository root. It leaves
 autoload preferences alone; game action bindings must be configured in-game.
 
+### Desktop associations
+
 Defaults use `xdg-settings`, `xdg-mime`, and Omarchy's terminal installer.
 The desktop IDs are `zen.desktop`, `keeperpasswordmanager.desktop`,
-`steam.desktop`, and `com.mitchellh.ghostty.desktop`. The script removes the
+`steam.desktop`, and `com.mitchellh.ghostty.desktop`; Steam associations are
+managed only with `--gaming`. The script removes the
 shell's `BROWSER` variable only from the default-setting subprocess environment
 so it cannot block `xdg-settings`. Unrelated associations such as mail and PDFs
 are preserved. Keeper is registered for its own URI scheme; this does not
@@ -176,16 +194,23 @@ Edit `omarchy-desktop/.config/pabu-dotfiles/omarchy/` in this checkout:
 | --- | --- |
 | `bindings.lua` | Personal shortcuts; Super+Shift+D replaces Docker with the dock |
 | `monitors.lua` | Shared DP-2/DP-3 layout, 1.25 scale, and GDK_SCALE=1 |
+| `input.lua` | US International layout using `kb_layout = "us"` and `kb_variant = "intl"` |
 | `plugins.json` | Plugin list with Git URLs, IDs, bar sections, and optional placement anchors |
-| `dock-settings.json` | Dock preferences; `{}` initially uses plugin defaults |
-| `dock-pinned.json` | Pinned apps and folders; initially empty |
+| `dock-settings.json` | Tracked hover, autohide, appearance, and widget settings |
+| `dock-pinned.json` | Pinned apps and folders; initially `{"pinned": []}` |
 
 Stow exposes these files under `~/.config/pabu-dotfiles/omarchy/`. Small marked
-`dofile(...)` blocks at the end of `~/.config/hypr/bindings.lua` and
-`monitors.lua` load the Lua overlays. Existing unrelated user configuration stays
-in place; setup migrates the known dock binding and DP-2/DP-3 rules with backups.
+`dofile(...)` blocks at the end of `~/.config/hypr/bindings.lua`,
+`monitors.lua`, and `input.lua` load the Lua overlays. Existing unrelated user
+configuration stays in place; setup migrates the known dock binding and
+DP-2/DP-3 rules with backups.
 The same monitor layout applies on every Omarchy machine. Other outputs use the
 preferred-mode, automatic-position fallback at scale 1.25.
+
+The input overlay sets US International on every managed Omarchy machine.
+Quotes act as dead keys; type `"` followed by `a`, `o`, or `u` for umlauts.
+The input-language widget remains available for switching layouts. Edit the
+tracked `input.lua` to change the managed layout.
 
 Run these commands from the repository root:
 
@@ -273,15 +298,15 @@ stored in the widget's `shell.json` entry and remain local, as do generated pins
 
 After an Omarchy config reset, rerun desktop apply to restore hooks. There is no
 post-update hook. Additional Lua customization modules can be loaded with
-`dofile` from the tracked bindings or monitors file. Never edit packaged files
+`dofile` from the tracked bindings, monitors, or input file. Never edit packaged files
 under `/usr/share/omarchy/` for personal settings.
 
-To undo desktop apply, remove the two marked hook blocks before unlinking the
+To undo desktop apply, remove the three marked hook blocks before unlinking the
 Stow package, or restore the backed-up Hyprland files. Restore desired dock JSON
-and shell settings from the printed backup directory. On this machine the initial
-dock JSON files were absent; remove those generated files to return to that state.
-The plugin remains installed; disable it with `omarchy plugin disable rosakodu.dock`
-if desired. Capture also backs up repository files before replacing their contents.
+and shell settings from the printed backup directory. If a dock JSON file was
+originally absent, remove the generated file to restore that state. Plugins
+remain installed; disable them individually with `omarchy plugin disable ID`.
+Capture also backs up repository files before replacing their contents.
 
 ## Bash integration
 
@@ -321,13 +346,15 @@ do not create repeat backups for unchanged files.
 
 Before removing desktop overlay links, restore the backed-up Hyprland files or
 remove their marked `BEGIN pabu-dotfiles omarchy` / `END pabu-dotfiles omarchy`
-blocks. Otherwise Hyprland will try to load missing Lua files.
+blocks from `bindings.lua`, `monitors.lua`, and `input.lua`. Otherwise Hyprland
+will try to load missing Lua files. Before unlinking `omarchy-handy`, select
+another installed dictation backend through **Setup → Defaults → Dictation**.
 
 To undo links from this bootstrap:
 
 ```bash
 stow --delete --dir="$HOME/src/dotfiles" --target="$HOME" \
-  herdr nvim starship yazi gh-manager omarchy-bash omarchy-desktop
+  herdr nvim starship yazi gh-manager omarchy-bash omarchy-desktop omarchy-handy
 ```
 
 Then restore the desired files and desktop preferences from the printed backup directory. Restore
@@ -340,5 +367,9 @@ made other edits. Installed packages remain installed.
 python3 -m unittest discover -s setup -p 'test_omarchy_*.py'
 ```
 
-Tests use temporary home directories, real GNU Stow and `xdg-mime`, and stubbed
-package installers. They do not install packages or change your live defaults.
+Tests use temporary home directories, real GNU Stow, and stubbed package
+installers. On macOS, the fixtures emulate the Linux platform for bootstrap
+tests. The MIME association test uses real `xdg-mime` and is skipped when it is
+unavailable; the Stow integration tests are skipped when GNU Stow is absent.
+Tests do not install packages or change your live defaults. To include macOS
+package and skills-setup tests, use `-p 'test_*.py'` instead.

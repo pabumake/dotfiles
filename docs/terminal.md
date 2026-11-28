@@ -6,8 +6,9 @@ title: Ghostty, Herdr, and Yazi
 # Ghostty, Herdr, and Yazi
 
 Herdr is the primary terminal workspace layer. It owns workspaces, tabs, panes,
-navigation, splits, zoom, resize mode, and its sidebar. Ghostty owns only
-terminal-host functions that Herdr cannot provide.
+navigation, splits, zoom, resize mode, and its sidebar. Both bootstraps link the
+shared Herdr and Yazi configs. The Ghostty keybindings below describe the
+managed macOS config; Omarchy retains its own Ghostty configuration and shortcuts.
 
 ## Yazi file manager
 
@@ -68,14 +69,25 @@ herdr/
 This maps to `~/.config/herdr/config.toml` while leaving Herdr's logs, sockets,
 and session state untouched.
 
-Install or update the managed link through the repository's single setup entry
-point, then reload Herdr:
+Install or update the managed link through the entry point for your platform,
+then reload Herdr:
 
 ```bash
 cd ~/src/dotfiles
 ./setup/bootstrap.sh --no-repo-update
 herdr server reload-config
 ```
+
+On Omarchy, use `./setup/bootstrap-omarchy.sh` instead. Bootstrap checks Herdr's
+config but leaves running sessions alone; reload explicitly to apply changes.
+
+### Herdr appearance and notifications
+
+The shared config uses the Catppuccin theme with automatic theme switching
+disabled. It sorts the agent panel by spaces, displays status as symbols,
+delivers toasts through system notifications, and enables notification sounds.
+Onboarding is disabled. These settings apply on both platforms and live in
+`herdr/.config/herdr/config.toml` alongside the keybindings.
 
 ## How the Herdr prefix works
 
@@ -180,12 +192,19 @@ scrolling, prompt navigation, or numbered tab switching.
 
 ## Validate
 
+On either platform, check and reload Herdr:
+
 ```bash
-/Applications/Ghostty.app/Contents/MacOS/ghostty +validate-config \
-  --config-file=~/src/dotfiles/ghostty/.config/ghostty/config.ghostty
-/Applications/Ghostty.app/Contents/MacOS/ghostty +list-keybinds
 herdr config check
 herdr server reload-config
+```
+
+On macOS, also validate the managed Ghostty config and list active bindings:
+
+```bash
+/Applications/Ghostty.app/Contents/MacOS/ghostty +validate-config \
+  --config-file="$HOME/src/dotfiles/ghostty/.config/ghostty/config.ghostty"
+/Applications/Ghostty.app/Contents/MacOS/ghostty +list-keybinds
 ```
 
 ## Recovery
