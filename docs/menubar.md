@@ -13,7 +13,7 @@ Bootstrap manages one native menu-bar provider at a time:
 | Hidden Bar | `hiddenbar` | Simple divider-based hiding; no special permissions |
 | None | — | Backs up and removes all managed providers |
 
-[Thaw](https://github.com/thaw-app/Thaw) is the successor to Ice.
+[Thaw](https://github.com/thaw-app/Thaw) provides menu-bar layout controls.
 [Hidden Bar](https://github.com/dwarvesf/hidden) is MIT licensed. The dotfiles
 bootstrap requires macOS 15.6 or newer. Thaw requires macOS 26 or newer.
 
@@ -22,8 +22,7 @@ bootstrap requires macOS 15.6 or newer. Thaw requires macOS 26 or newer.
 The first bootstrap uses `fzf` for an Up/Down + Enter selector, with Thaw
 preselected and a numbered fallback where pressing Enter also chooses Thaw. On a
 noninteractive first run, Thaw is selected automatically if it is available.
-If Ice is already installed, bootstrap detects it and prompts to switch to Thaw
-before presenting the full selector. The successful choice is stored outside the
+The successful choice is stored outside the
 repository at `~/.local/state/pabu-dotfiles/menu-bar-manager/selection` and
 reused by updates.
 

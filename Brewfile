@@ -1,7 +1,6 @@
 tap "nikitabobko/tap"
 tap "FelixKratz/formulae"
 tap "mediosz/tap"
-tap "bjarneo/cliamp"
 tap "chattymin/tap"
 
 # Core dotfile and shell tooling
@@ -13,7 +12,6 @@ brew "eza"
 brew "herdr"
 brew "borders"
 brew "yazi"
-brew "bjarneo/cliamp/cliamp"
 brew "mole"
 
 # Yazi preview, archive, and navigation tooling

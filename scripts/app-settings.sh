@@ -21,11 +21,6 @@ case "${PROVIDER}" in
     APP_NAME="Thaw"
     DEFAULTS_NAME="Thaw"
     ;;
-  ice)
-    DOMAIN="com.jordanbaird.Ice"
-    APP_NAME="Ice"
-    DEFAULTS_NAME="Ice"
-    ;;
   *) printf 'ERROR: Unknown provider: %s\n' "${PROVIDER}" >&2; exit 1 ;;
 esac
 

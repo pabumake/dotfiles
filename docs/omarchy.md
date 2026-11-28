@@ -22,7 +22,7 @@ For unattended setup, explicitly allow replacements of conflicting configs:
 ```
 
 `--dry-run` only inspects the system and reports missing packages, conflicting
-files, Bash changes, desktop hooks, and dock changes. `--yes` accepts installation and Bash integration;
+files, Bash changes, desktop hooks, and dock changes. `--yes` accepts installation, retired-package removal, and Bash integration;
 it requires `--backup-conflicts` if existing Stow targets need replacement.
 `--skip-bash` links the Bash overlay but leaves `.bashrc` alone. `--help` lists
 all options. Package installation can still require a sudo password.
@@ -35,13 +35,23 @@ remain in place. Custom `XDG_CONFIG_HOME` locations and a symlinked `~/.config`
 are rejected rather than redirected unexpectedly.
 
 Missing terminal dependencies are installed using `omarchy pkg add`: Git, Stow, Herdr,
-Starship, eza, Yazi, Neovim, ripgrep, fd, fzf, lazygit, Cliamp, FFmpeg, 7zip,
+Starship, eza, Yazi, Neovim, ripgrep, fd, fzf, lazygit, FFmpeg, 7zip,
 jq, Poppler, zoxide, resvg, ImageMagick, the Tree-sitter CLI, and JetBrains
 Mono Nerd Font. Node.js and npm are added only if `node` is absent from PATH,
-preserving an available mise runtime. Herdr and Cliamp are available from the
+preserving an available mise runtime. Herdr is available from the
 Omarchy package repository.
 Packages already installed are not explicitly upgraded. If package mirrors
 are stale, complete the normal Omarchy system update before retrying.
+
+Cliamp is retired. If installed, bootstrap removes it with
+`sudo pacman -R --noconfirm cliamp` after setup approval. It retains dependencies
+and user data. `--dry-run` reports the removal without running it; later runs
+skip removal once Cliamp is absent.
+
+`--include-trials` opts into the `TRIAL_DEPENDENCIES` and `TRIAL_AUR_PACKAGES`
+lists in `setup/omarchy_bootstrap.py` for that run. Both lists are currently
+empty. Orion is configured only in the separate macOS `Brewfile.trials`.
+Without the flag, trial packages are left installed and are not upgraded.
 
 `gh-manager` is configuration-only; its binary is not installed. Neovim installs
 plugins on first launch. The bootstrap checks Herdr's config before replacing

@@ -24,7 +24,7 @@ ownership, and recovery for the dotfiles in this repository.
 | macOS windows and workspaces | AeroSpace |
 | Three-finger horizontal workspace swipes | SwipeAeroSpace |
 | Focused-window outline | JankyBorders, supervised by a Homebrew login service |
-| Native menu-bar icon visibility | Selected Hidden Bar or Ice provider |
+| Native menu-bar icon visibility | Selected Hidden Bar or Thaw provider |
 | Terminal workspaces, tabs, panes, navigation, zoom, and resize | Herdr |
 | Clipboard, search, font size, terminal windows, and fullscreen | Ghostty |
 

@@ -42,6 +42,18 @@ existing config that conflicts with Stow. Package upgrades require `--upgrade`.
 It requires macOS 15.6 or newer and is the macOS installation and update entry point.
 JankyBorders is registered as a per-user Homebrew service so it starts at login
 and automatically recovers if its process exits.
+Bootstrap also installs the native ZMK Studio app for keyboard configuration.
+For a standalone install, run `./scripts/install-zmk-studio.sh`.
+
+Both bootstraps remove an installed Cliamp on the next run. To try optional
+macOS apps, including Kagi's Orion browser, run:
+
+```bash
+./setup/bootstrap.sh --include-trials
+```
+
+Trials live in `Brewfile.trials`, separate from the standard `Brewfile`.
+The flag applies to that run only. Later runs without it leave trial apps installed.
 
 When OpenCode or Hermes is installed, bootstrap also runs the
 [shared skills setup](docs/setup.md#agent-skills). It reuses an existing skills
@@ -115,7 +127,6 @@ inspiration here:
   [fd](https://github.com/sharkdp/fd), [fzf](https://github.com/junegunn/fzf),
   [lazygit](https://github.com/jesseduffield/lazygit),
   [rsync](https://rsync.samba.org/),
-  [cliamp](https://github.com/bjarneo/cliamp),
   [Mole](https://github.com/tw93/Mole),
   [Tree-sitter](https://github.com/tree-sitter/tree-sitter), and
   [Node.js](https://github.com/nodejs/node)

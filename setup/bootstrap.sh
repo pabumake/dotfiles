@@ -6,7 +6,7 @@ REPOSITORY_URL="https://github.com/pabumake/dotfiles.git"
 HOMEBREW_INSTALL_URL="https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
 DEFAULT_REPO_DIR="${HOME}/src/dotfiles"
 
-FORMULAE=(git rsync stow starship eza herdr borders yazi bjarneo/cliamp/cliamp mole ffmpeg-full sevenzip jq poppler zoxide resvg imagemagick-full neovim ripgrep fd fzf lazygit tree-sitter node)
+FORMULAE=(git rsync stow starship eza herdr borders yazi mole ffmpeg-full sevenzip jq poppler zoxide resvg imagemagick-full neovim ripgrep fd fzf lazygit tree-sitter node)
 CASKS=(ghostty aerospace swipeaerospace poke-token-bar font-jetbrains-mono-nerd-font font-symbols-only-nerd-font)
 REPLACED_CASKS=(caffeine flameshot caskhub)
 VORSSAINT_SETTINGS_RELATIVE="vorssaint/settings.plist"
@@ -14,12 +14,13 @@ if [ "$(uname -m)" = "arm64" ]; then
   CASKS+=(vorssaint)
 fi
 STOW_PACKAGES=(aerospace borders ghostty herdr nvim starship yazi zsh gh-manager)
-TRUSTED_FORMULAE=(felixkratz/formulae/borders bjarneo/cliamp/cliamp)
+TRUSTED_FORMULAE=(felixkratz/formulae/borders)
 TRUSTED_CASKS=(mediosz/tap/swipeaerospace nikitabobko/tap/aerospace chattymin/tap/poke-token-bar)
 
 DRY_RUN=0
 ASSUME_YES=0
 UPGRADE=0
+INCLUDE_TRIALS=0
 NO_REPO_UPDATE=0
 BACKUP_CONFLICTS=0
 TRUST_THIRD_PARTY=0
@@ -45,6 +46,7 @@ Options:
   --dry-run             Show planned actions without changing anything
   --yes                 Accept ordinary prompts after printing the plan
   --upgrade             Upgrade declared packages after installing missing ones
+  --include-trials      Also install optional packages from Brewfile.trials
   --no-repo-update      Use the current checkout without fetching or pulling
   --backup-conflicts    Approve conflict backups when combined with --yes
   --trust-third-party   Approve required third-party Homebrew trust
@@ -63,7 +65,8 @@ Safety rules:
   * Existing configs are listed and require backup approval before replacement.
   * Third-party Homebrew trust is item-scoped and requires separate approval.
   * Installed Homebrew packages are not upgraded unless --upgrade is supplied.
-  * Only explicitly replaced casks and superseded menu-bar providers are removed.
+  * Only retired packages, replaced casks, and superseded menu-bar providers are removed.
+  * Trial packages are opt-in per run; omitting --include-trials leaves them installed.
 USAGE
 }
 
@@ -115,6 +118,7 @@ while [ "$#" -gt 0 ]; do
     --dry-run) DRY_RUN=1 ;;
     --yes) ASSUME_YES=1 ;;
     --upgrade) UPGRADE=1 ;;
+    --include-trials) INCLUDE_TRIALS=1 ;;
     --no-repo-update) NO_REPO_UPDATE=1 ;;
     --backup-conflicts) BACKUP_CONFLICTS=1 ;;
     --trust-third-party) TRUST_THIRD_PARTY=1 ;;
@@ -192,13 +196,16 @@ load_brew_environment() {
 
 print_declared_packages() {
   local item
-  note "Taps: nikitabobko/tap FelixKratz/formulae mediosz/tap bjarneo/cliamp"
+  note "Taps: nikitabobko/tap FelixKratz/formulae mediosz/tap chattymin/tap"
   printf '    Formulae:'
   for item in "${FORMULAE[@]}"; do printf ' %s' "${item}"; done
   printf '\n    Casks:'
   for item in "${CASKS[@]}"; do printf ' %s' "${item}"; done
   printf '\n'
-  note "Menu-bar manager: selected separately (Hidden Bar, Ice, or None)."
+  if [ "${INCLUDE_TRIALS}" -eq 1 ]; then
+    note "Optional trial packages from Brewfile.trials would also be installed."
+  fi
+  note "Menu-bar manager: selected separately (Hidden Bar, Thaw, or None)."
 }
 
 install_homebrew() {
@@ -361,6 +368,9 @@ if [ "${LOCAL_PASS}" -eq 0 ]; then
 fi
 
 [ -f "${REPO_DIR}/Brewfile" ] || die "Brewfile not found in ${REPO_DIR}"
+if [ "${INCLUDE_TRIALS}" -eq 1 ]; then
+  [ -f "${REPO_DIR}/Brewfile.trials" ] || die "Brewfile.trials not found in ${REPO_DIR}"
+fi
 
 print_package_status() {
   local item
@@ -462,7 +472,6 @@ prepare_third_party_trust() {
     for item in "${missing_formulae[@]}"; do
       case "${item}" in
         felixkratz/formulae/*) run brew tap FelixKratz/formulae || return 1 ;;
-        bjarneo/cliamp/*) run brew tap bjarneo/cliamp || return 1 ;;
       esac
       run brew trust --formula "${item}" || return 1
     done
@@ -491,24 +500,67 @@ note "Declared packages are installed before any replaced casks are removed."
 note "gh-manager remains config-only."
 prepare_third_party_trust || die "Could not prepare third-party Homebrew trust"
 
-if ! brew bundle check --file="${REPO_DIR}/Brewfile" >/dev/null 2>&1 || [ "${UPGRADE}" -eq 1 ]; then
-  if [ "${DRY_RUN}" -eq 1 ]; then
-    run brew bundle install --no-upgrade --file="${REPO_DIR}/Brewfile"
-    if [ "${UPGRADE}" -eq 1 ]; then
-      run brew bundle upgrade --file="${REPO_DIR}/Brewfile"
-    fi
-  else
-    if ! confirm "Apply the Homebrew package plan?"; then
+apply_brewfile() {
+  local file="$1"
+  if ! brew bundle check --file="${file}" >/dev/null 2>&1 || [ "${UPGRADE}" -eq 1 ]; then
+    if [ "${DRY_RUN}" -eq 0 ] && ! confirm "Apply the Homebrew package plan for ${file}?"; then
       die "Package phase declined."
     fi
-    run brew bundle install --no-upgrade --file="${REPO_DIR}/Brewfile" || die "Homebrew bundle installation failed"
+    run brew bundle install --no-upgrade --file="${file}" || die "Homebrew bundle installation failed"
     if [ "${UPGRADE}" -eq 1 ]; then
-      run brew bundle upgrade --file="${REPO_DIR}/Brewfile" || die "Homebrew bundle upgrade failed"
+      run brew bundle upgrade --file="${file}" || die "Homebrew bundle upgrade failed"
     fi
+  else
+    note "All dependencies in ${file} are already installed."
   fi
+}
+
+apply_brewfile "${REPO_DIR}/Brewfile"
+heading "Optional trial packages"
+if [ "${INCLUDE_TRIALS}" -eq 1 ]; then
+  note "Trial Brewfile: ${REPO_DIR}/Brewfile.trials"
+  brew bundle list --all --file="${REPO_DIR}/Brewfile.trials" || die "Could not list trial packages"
+  apply_brewfile "${REPO_DIR}/Brewfile.trials"
 else
-  note "All declared dependencies are already installed."
+  note "Skipped. Use --include-trials to install packages from Brewfile.trials."
 fi
+
+cleanup_retired_packages() {
+  local installed_packages
+  local item
+  heading "Retired packages"
+  if brew list --formula cliamp >/dev/null 2>&1; then
+    note "Remove: cliamp"
+    if [ "${DRY_RUN}" -eq 0 ] && ! confirm "Uninstall retired cliamp?"; then
+      die "Cliamp removal declined."
+    fi
+    run env HOMEBREW_NO_AUTOREMOVE=1 brew uninstall --formula cliamp || die "Could not uninstall cliamp"
+  else
+    note "Cliamp is already absent."
+  fi
+  if brew tap | /usr/bin/grep -Fxq bjarneo/cliamp; then
+    installed_packages="$(brew list --full-name)" || die "Could not inspect installed Homebrew packages"
+    for item in ${installed_packages}; do
+      case "${item}" in
+        cliamp|bjarneo/cliamp/cliamp) ;; # Ignore the planned removal during dry runs.
+        bjarneo/cliamp/*)
+          note "Keeping bjarneo/cliamp because ${item} still uses it."
+          return ;;
+      esac
+    done
+    run brew untap bjarneo/cliamp || die "Could not remove the retired cliamp tap"
+  fi
+}
+
+cleanup_retired_packages
+
+heading "ZMK Studio"
+ZMK_STUDIO_ARGS=("${REPO_DIR}/scripts/install-zmk-studio.sh")
+[ "${DRY_RUN}" -eq 0 ] || ZMK_STUDIO_ARGS+=(--dry-run)
+[ "${UPGRADE}" -eq 0 ] || ZMK_STUDIO_ARGS+=(--upgrade)
+[ "${ASSUME_YES}" -eq 1 ] || ZMK_STUDIO_ARGS+=(--confirm)
+/bin/bash "${ZMK_STUDIO_ARGS[@]}" || \
+  die "ZMK Studio installation failed"
 
 cleanup_replaced_casks() {
   local item
@@ -593,11 +645,6 @@ thaw_cask() {
   fi
 }
 
-ice_installed_anywhere() {
-  cask_installed jordanbaird-ice || cask_installed jordanbaird-ice@beta || \
-    [ -d "/Applications/Ice.app" ]
-}
-
 choose_menu_bar_manager() {
   local selected=""
   local answer=""
@@ -661,15 +708,7 @@ resolve_menu_bar_manager() {
     selected="$(choose_menu_bar_manager)" || die "Menu-bar manager selection cancelled."
     case "${selected}" in hiddenbar|thaw|none) MENU_BAR_MANAGER="${selected}" ;; *) die "Menu-bar manager selection failed." ;; esac
   elif [ -z "${saved}" ]; then
-    if ice_installed_anywhere && [ -r /dev/tty ]; then
-      note "Ice is installed. Thaw is its replacement and will be installed instead."
-      if confirm "Switch from Ice to Thaw now?"; then
-        MENU_BAR_MANAGER=thaw
-      else
-        selected="$(choose_menu_bar_manager)" || die "Menu-bar manager selection cancelled."
-        case "${selected}" in hiddenbar|thaw|none) MENU_BAR_MANAGER="${selected}" ;; *) die "Menu-bar manager selection failed." ;; esac
-      fi
-    elif [ -r /dev/tty ]; then
+    if [ -r /dev/tty ]; then
       selected="$(choose_menu_bar_manager)" || die "Menu-bar manager selection cancelled."
       case "${selected}" in hiddenbar|thaw|none) MENU_BAR_MANAGER="${selected}" ;; *) die "Menu-bar manager selection failed." ;; esac
     elif thaw_cask >/dev/null 2>&1; then
@@ -810,23 +849,11 @@ rollback_menu_bar_switch() {
   if [ "${PREV_THAW_INSTALLED}" -eq 0 ] && cask_installed thaw; then
     brew uninstall --cask thaw >/dev/null 2>&1 || true
   fi
-  if [ "${PREV_ICE_STABLE_INSTALLED}" -eq 0 ] && cask_installed jordanbaird-ice; then
-    brew uninstall --cask jordanbaird-ice >/dev/null 2>&1 || true
-  fi
-  if [ "${PREV_ICE_BETA_INSTALLED}" -eq 0 ] && cask_installed jordanbaird-ice@beta; then
-    brew uninstall --cask jordanbaird-ice@beta >/dev/null 2>&1 || true
-  fi
   if [ "${PREV_HIDDENBAR_INSTALLED}" -eq 1 ] && ! cask_installed hiddenbar; then
     brew install --cask hiddenbar >/dev/null 2>&1 || true
   fi
   if [ "${PREV_THAW_INSTALLED}" -eq 1 ] && ! cask_installed thaw; then
     brew install --cask thaw >/dev/null 2>&1 || true
-  fi
-  if [ "${PREV_ICE_STABLE_INSTALLED}" -eq 1 ] && ! cask_installed jordanbaird-ice; then
-    brew install --cask jordanbaird-ice >/dev/null 2>&1 || true
-  fi
-  if [ "${PREV_ICE_BETA_INSTALLED}" -eq 1 ] && ! cask_installed jordanbaird-ice@beta; then
-    brew install --cask jordanbaird-ice@beta >/dev/null 2>&1 || true
   fi
   restore_backup_for_rollback hiddenbar "${HIDDENBAR_SWITCH_BACKUP}" || true
   restore_backup_for_rollback thaw "${THAW_SWITCH_BACKUP}" || true
@@ -837,23 +864,17 @@ rollback_menu_bar_switch() {
 }
 
 apply_menu_bar_manager() {
-  local desired_thaw="" changes=0 remove_hiddenbar=0 remove_thaw=0 remove_ice_stable=0 remove_ice_beta=0 install_cask=""
+  local desired_thaw="" changes=0 remove_hiddenbar=0 remove_thaw=0 install_cask=""
   PREV_HIDDENBAR_INSTALLED=0
   PREV_THAW_INSTALLED=0
-  PREV_ICE_STABLE_INSTALLED=0
-  PREV_ICE_BETA_INSTALLED=0
   HIDDENBAR_SWITCH_BACKUP=""
   THAW_SWITCH_BACKUP=""
   cask_installed hiddenbar && PREV_HIDDENBAR_INSTALLED=1
   cask_installed thaw && PREV_THAW_INSTALLED=1
-  cask_installed jordanbaird-ice && PREV_ICE_STABLE_INSTALLED=1
-  cask_installed jordanbaird-ice@beta && PREV_ICE_BETA_INSTALLED=1
   if [ -z "${PREVIOUS_MENU_BAR_MANAGER}" ]; then
-    if [ "${PREV_HIDDENBAR_INSTALLED}" -eq 1 ] && [ "${PREV_THAW_INSTALLED}" -eq 0 ] && \
-       [ "${PREV_ICE_STABLE_INSTALLED}" -eq 0 ] && [ "${PREV_ICE_BETA_INSTALLED}" -eq 0 ]; then
+    if [ "${PREV_HIDDENBAR_INSTALLED}" -eq 1 ] && [ "${PREV_THAW_INSTALLED}" -eq 0 ]; then
       PREVIOUS_MENU_BAR_MANAGER=hiddenbar
-    elif [ "${PREV_HIDDENBAR_INSTALLED}" -eq 0 ] && [ "${PREV_THAW_INSTALLED}" -eq 1 ] && \
-         [ "${PREV_ICE_STABLE_INSTALLED}" -eq 0 ] && [ "${PREV_ICE_BETA_INSTALLED}" -eq 0 ]; then
+    elif [ "${PREV_HIDDENBAR_INSTALLED}" -eq 0 ] && [ "${PREV_THAW_INSTALLED}" -eq 1 ]; then
       PREVIOUS_MENU_BAR_MANAGER=thaw
     fi
   fi
@@ -862,25 +883,18 @@ apply_menu_bar_manager() {
   case "${MENU_BAR_MANAGER}" in
     hiddenbar)
       [ "${PREV_THAW_INSTALLED}" -eq 0 ] || remove_thaw=1
-      [ "${PREV_ICE_STABLE_INSTALLED}" -eq 0 ] || remove_ice_stable=1
-      [ "${PREV_ICE_BETA_INSTALLED}" -eq 0 ] || remove_ice_beta=1
       [ "${PREV_HIDDENBAR_INSTALLED}" -eq 1 ] || install_cask=hiddenbar
       ;;
     thaw)
       [ "${PREV_HIDDENBAR_INSTALLED}" -eq 0 ] || remove_hiddenbar=1
-      [ "${PREV_ICE_STABLE_INSTALLED}" -eq 0 ] || remove_ice_stable=1
-      [ "${PREV_ICE_BETA_INSTALLED}" -eq 0 ] || remove_ice_beta=1
       [ "${PREV_THAW_INSTALLED}" -eq 1 ] || install_cask="${desired_thaw}"
       ;;
     none)
       [ "${PREV_HIDDENBAR_INSTALLED}" -eq 0 ] || remove_hiddenbar=1
       [ "${PREV_THAW_INSTALLED}" -eq 0 ] || remove_thaw=1
-      [ "${PREV_ICE_STABLE_INSTALLED}" -eq 0 ] || remove_ice_stable=1
-      [ "${PREV_ICE_BETA_INSTALLED}" -eq 0 ] || remove_ice_beta=1
       ;;
   esac
   [ "${remove_hiddenbar}" -eq 0 ] && [ "${remove_thaw}" -eq 0 ] && \
-    [ "${remove_ice_stable}" -eq 0 ] && [ "${remove_ice_beta}" -eq 0 ] && \
     [ -z "${install_cask}" ] || changes=1
 
   heading "Menu-bar manager"
@@ -888,8 +902,6 @@ apply_menu_bar_manager() {
   [ -z "${install_cask}" ] || note "Install: ${install_cask}"
   [ "${remove_hiddenbar}" -eq 0 ] || note "Back up and uninstall: hiddenbar"
   [ "${remove_thaw}" -eq 0 ] || note "Back up and uninstall: thaw"
-  [ "${remove_ice_stable}" -eq 0 ] || note "Uninstall: jordanbaird-ice"
-  [ "${remove_ice_beta}" -eq 0 ] || note "Uninstall: jordanbaird-ice@beta"
 
   if [ "${changes}" -eq 0 ]; then
     note "Installed manager already matches the selection; no package changes needed."
@@ -909,12 +921,6 @@ apply_menu_bar_manager() {
     backup_provider thaw || { rollback_menu_bar_switch; die "Could not back up Thaw."; }
     quit_provider thaw || { rollback_menu_bar_switch; die "Could not quit Thaw."; }
     run brew uninstall --cask thaw || { rollback_menu_bar_switch; die "Could not uninstall Thaw."; }
-  fi
-  if [ "${remove_ice_stable}" -eq 1 ]; then
-    run brew uninstall --cask jordanbaird-ice || { rollback_menu_bar_switch; die "Could not uninstall stable Ice."; }
-  fi
-  if [ "${remove_ice_beta}" -eq 1 ]; then
-    run brew uninstall --cask jordanbaird-ice@beta || { rollback_menu_bar_switch; die "Could not uninstall Ice beta."; }
   fi
   if [ -n "${install_cask}" ]; then
     run brew install --cask "${install_cask}" || { rollback_menu_bar_switch; die "Could not install ${install_cask}."; }

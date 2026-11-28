@@ -15,7 +15,7 @@ REPO = Path(__file__).resolve().parent.parent
 PACKAGES = ("herdr", "nvim", "starship", "yazi", "gh-manager", "omarchy-bash", "omarchy-desktop", "omarchy-handy")
 DEPENDENCIES = (
     "git", "stow", "herdr", "starship", "eza", "yazi", "neovim", "ripgrep",
-    "fd", "fzf", "lazygit", "cliamp", "ffmpeg", "7zip", "jq", "poppler",
+    "fd", "fzf", "lazygit", "ffmpeg", "7zip", "jq", "poppler",
     "zoxide", "resvg", "imagemagick", "tree-sitter-cli",
     "ttf-jetbrains-mono-nerd",
 )
@@ -23,6 +23,10 @@ SOURCE_LINE = '[[ -r "$HOME/.config/pabu-dotfiles/bash.sh" ]] && source "$HOME/.
 AUR_PACKAGES = ("keeper-password-manager", "zen-browser-bin", "handy-bin")
 # Installed only with --gaming.
 GAMING_AUR_PACKAGES = ("input-remapper-git", "wowup-cf-bin")
+# Opt-in packages under evaluation. Orion is currently a macOS-only trial here.
+TRIAL_DEPENDENCIES = ()
+TRIAL_AUR_PACKAGES = ()
+RETIRED_PACKAGES = ("cliamp",)
 TERMINAL_ID = "com.mitchellh.ghostty.desktop"
 MIME_DEFAULTS = {
     "text/html": "zen.desktop",
@@ -141,7 +145,8 @@ def confirm(question):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dry-run", action="store_true", help="Show changes without writing or installing")
-    parser.add_argument("--yes", action="store_true", help="Accept package installation and Bash overlay setup")
+    parser.add_argument("--yes", action="store_true", help="Accept package installation, retired-package removal, and Bash overlay setup")
+    parser.add_argument("--include-trials", action="store_true", help="Also install optional trial packages configured for Omarchy")
     parser.add_argument("--backup-conflicts", action="store_true", help="Back up conflicting Stow targets before replacing them")
     parser.add_argument("--gaming", action="store_true",
                         help="Also install the gaming setup: Steam, Input Remapper, WowUp-CF")
@@ -167,6 +172,12 @@ def main():
     conflicts = conflicts_for(REPO, home)
     bash_text = None if args.skip_bash else bash_content(home, omarchy)
     dependencies = list(DEPENDENCIES)
+    aur_packages = list(AUR_PACKAGES)
+    if args.gaming:
+        aur_packages.extend(GAMING_AUR_PACKAGES)
+    if args.include_trials:
+        dependencies.extend(TRIAL_DEPENDENCIES)
+        aur_packages.extend(TRIAL_AUR_PACKAGES)
     if any(plan['build'] for plan in desktop.plugin_plans) and not shutil.which("cargo"):
         dependencies.append("rust")
     if any(plugin['id'] == "ozdil.security-sentinel" for plugin in desktop.plugins):
@@ -175,8 +186,9 @@ def main():
     if not shutil.which("node"):
         dependencies += ["nodejs", "npm"]
     missing = [pkg for pkg in dependencies if not installed(pkg)]
-    missing_aur = [pkg for pkg in AUR_PACKAGES + (GAMING_AUR_PACKAGES if args.gaming else ())
-                   if not installed(pkg)]
+    missing_aur = [pkg for pkg in aur_packages if not installed(pkg)]
+    retired = [pkg for pkg in RETIRED_PACKAGES if installed(pkg)]
+    removals = [["sudo", "pacman", "-R", "--noconfirm", *retired]] if retired else []
     applications = []
     if missing_aur:
         if not shutil.which("yay"):
@@ -211,6 +223,9 @@ def main():
     print("Stow packages: " + " ".join(PACKAGES))
     print("Missing system packages: " + (" ".join(missing) or "none"))
     print("Missing AUR packages: " + (" ".join(missing_aur) or "none"))
+    print("Retired packages to remove: " + (" ".join(retired) or "none"))
+    print("Trial packages: " + ((" ".join(TRIAL_DEPENDENCIES + TRIAL_AUR_PACKAGES) or "none configured for Omarchy")
+                                if args.include_trials else "skipped; use --include-trials"))
     print("Bash: " + ("append overlay source (with backup)" if bash_text is not None else "no edit"))
     print("Ghostty shortcuts preserved; Hyprland desktop overlay managed through hooks")
     print("Defaults: Zen browser, Ghostty terminal, Keeper URI handler"
@@ -218,7 +233,7 @@ def main():
     print("Gaming setup: " + ("Steam, Input Remapper, WowUp-CF" if args.gaming else "skipped (use --gaming)"))
     if dictation_change:
         print("Planned: omarchy-dictation-use handy")
-    for command in applications + ([["omarchy", "install", "terminal", "ghostty"]] if terminal_change else []) + defaults:
+    for command in removals + applications + ([["omarchy", "install", "terminal", "ghostty"]] if terminal_change else []) + defaults:
         print("Planned: " + shlex.join(command))
     for path in conflicts:
         print(f"Conflict (backup required): {path}")
@@ -235,6 +250,8 @@ def main():
     if missing:
         run("omarchy", "pkg", "add", *missing)
     for command in applications:
+        run(*command)
+    for command in removals:
         run(*command)
     run("bash", "-n", REPO / "omarchy-bash/.config/pabu-dotfiles/bash.sh")
     run("bash", "-n", REPO / "omarchy-handy/.local/bin/omarchy-dictation-handy")

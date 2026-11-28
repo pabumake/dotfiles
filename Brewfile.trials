@@ -1,0 +1,3 @@
+# Optional macOS trials. Installed only with bootstrap.sh --include-trials.
+# Move accepted packages into Brewfile; uninstall rejected trials explicitly.
+cask "orion"

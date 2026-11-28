@@ -6,8 +6,10 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 
 SPEC = importlib.util.spec_from_file_location("bootstrap", Path(__file__).with_name("omarchy_bootstrap.py"))
@@ -39,10 +41,12 @@ class BootstrapTests(unittest.TestCase):
                      'x-scheme-handler/steam*) echo steam.desktop ;;\n'
                      '*) echo zen.desktop ;;\nesac')
         # Package managers are stubbed; all file linking uses the real GNU Stow.
-        self.command("pacman", "exit 0")
+        self.command("pacman", '[[ "$2" != cliamp ]]')
+        self.command("sudo", "echo unexpected-sudo >&2; exit 99")
         self.command("systemctl", "exit 0")
         self.command("omarchy", "echo unexpected-package-install >&2; exit 99")
         self.command("herdr", "exit 0")
+        self.command("omarchy-default-dictation", "echo handy")
         self.command("hyprctl", "exit 0")
         self.command("git", 'case "$2" in *ozdil.security-sentinel) echo https://github.com/ozdil/omarchy-security-sentinel.git ;; *air.workspaces) echo https://github.com/airenare/omarchy-workspaces-by-monitor.git ;; *n0d3x.input-language) echo https://github.com/n0d3xt-max/n0d3x.input-language.git ;; *) echo https://github.com/rosakodu/omarchy-dock.git ;; esac')
         (self.omarchy / "config/hypr").mkdir(parents=True)
@@ -78,7 +82,15 @@ class BootstrapTests(unittest.TestCase):
         path.chmod(0o755)
 
     def invoke(self, *args):
-        return subprocess.run(["bash", str(bootstrap.REPO / "setup/bootstrap-omarchy.sh"), *args],
+        command = ["bash", str(bootstrap.REPO / "setup/bootstrap-omarchy.sh")]
+        if sys.platform != "linux":
+            # Fixtures emulate Omarchy; permit package-manager tests on macOS too.
+            command = [sys.executable, "-c",
+                       "import runpy, sys; sys.platform = 'linux'; "
+                       "directory = sys.argv.pop(1); sys.path.insert(0, directory); "
+                       "runpy.run_path(directory + '/omarchy_bootstrap.py', run_name='__main__')",
+                       str(bootstrap.REPO / "setup")]
+        return subprocess.run([*command, *args],
                               env=self.env, text=True, capture_output=True)
 
     def snapshot(self):
@@ -200,6 +212,7 @@ class BootstrapTests(unittest.TestCase):
         Path(self.env["TEST_STATE"]).mkdir()
         self.command("yay", "exit 99")
         self.command("pacman", 'case "$2" in\n'
+                     'cliamp) exit 1 ;;\n'
                      'keeper-password-manager|zen-browser-bin|input-remapper-git|wowup-cf-bin|steam|ghostty) [[ -f "$TEST_STATE/$2" ]] ;;\n'
                      '*) exit 0 ;;\nesac')
         self.command("omarchy", 'echo "$*" >> "$TEST_STATE/commands"\n'
@@ -266,6 +279,65 @@ class BootstrapTests(unittest.TestCase):
         result = self.invoke("--gaming", "--yes")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
+    def test_retired_cliamp_removal_is_planned_and_only_runs_once(self):
+        state = self.base / "cliamp-installed"
+        state.touch()
+        log = self.base / "removal-log"
+        self.env.update(TEST_CLIAMP=str(state), TEST_REMOVALS=str(log))
+        self.command("pacman", '[[ "$2" != cliamp || -f "$TEST_CLIAMP" ]]')
+        self.command("sudo", '[[ "$*" == "pacman -R --noconfirm cliamp" ]] || exit 99\n'
+                     'echo "$*" >> "$TEST_REMOVALS"\nrm "$TEST_CLIAMP"')
+        before = self.snapshot()
+        result = self.invoke("--dry-run", "--include-trials")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("sudo pacman -R --noconfirm cliamp", result.stdout)
+        self.assertIn("none configured for Omarchy", result.stdout)
+        self.assertTrue(state.exists())
+        self.assertFalse(log.exists())
+        self.assertEqual(before, self.snapshot())
+        result = self.invoke("--yes")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertFalse(state.exists())
+        result = self.invoke("--yes")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(log.read_text(), "pacman -R --noconfirm cliamp\n")
+
+    def test_conflicts_prevent_retired_package_removal(self):
+        (self.home / ".config/starship.toml").write_text("keep me")
+        self.command("pacman", "exit 0")
+        result = self.invoke("--yes")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("Conflicts require --backup-conflicts", result.stderr)
+        self.assertNotIn("unexpected-sudo", result.stderr)
+
+    def test_future_omarchy_trials_are_installed_only_with_flag(self):
+        from contextlib import ExitStack, redirect_stdout
+        import io
+
+        for flags in ([], ["--include-trials"]):
+            with self.subTest(flags=flags), ExitStack() as stack:
+                stack.enter_context(patch.dict(os.environ, self.env))
+                stack.enter_context(patch.object(sys, "argv", ["bootstrap", "--yes", "--skip-bash", *flags]))
+                stack.enter_context(patch.object(sys, "platform", "linux"))
+                stack.enter_context(patch.object(bootstrap, "TRIAL_DEPENDENCIES", ("trial-cli",)))
+                stack.enter_context(patch.object(bootstrap, "TRIAL_AUR_PACKAGES", ("trial-app-bin",)))
+                stack.enter_context(patch.object(bootstrap, "installed",
+                                                side_effect=lambda pkg: pkg not in ("cliamp", "trial-cli", "trial-app-bin")))
+                stack.enter_context(patch.object(bootstrap.shutil, "which", return_value="/test/bin"))
+                desktop = stack.enter_context(patch("omarchy_desktop.Desktop")).return_value
+                desktop.plugin_plans = []
+                desktop.plugins = []
+                stack.enter_context(patch.object(bootstrap, "default_commands", return_value=([], self.env)))
+                commands = stack.enter_context(patch.object(bootstrap, "run"))
+                stack.enter_context(redirect_stdout(io.StringIO()))
+                bootstrap.main()
+                package_calls = [call.args for call in commands.call_args_list
+                                 if call.args[:2] == ("omarchy", "pkg")]
+                self.assertEqual(package_calls, [("omarchy", "pkg", "add", "trial-cli"),
+                                                 ("omarchy", "pkg", "aur", "add", "trial-app-bin")]
+                                 if flags else [])
+
+    @unittest.skipUnless(shutil.which("xdg-mime"), "xdg-mime is required for real MIME association tests")
     def test_defaults_preserve_unrelated_associations_and_are_backed_up(self):
         # Exercise real xdg-mime with an isolated home and desktop database.
         (self.bin / "xdg-mime").unlink()

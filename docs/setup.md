@@ -38,6 +38,7 @@ Remove the temporary file afterward when it is no longer needed.
 | `--dry-run` | Report every phase without changing files, packages, or Git state |
 | `--yes` | Accept ordinary prompts after the plan is printed |
 | `--upgrade` | Upgrade declared packages after installing missing ones |
+| `--include-trials` | Also install optional packages from `Brewfile.trials` for this run |
 | `--no-repo-update` | Use the current checkout without fetching or pulling |
 | `--backup-conflicts` | Permit conflict backups when using `--yes` |
 | `--trust-third-party` | Approve the required item-level Homebrew trust entries |
@@ -68,7 +69,8 @@ changing Homebrew's trust configuration.
 
 ## What gets installed
 
-The committed `Brewfile` is the source of truth.
+The committed `Brewfile` is the source of truth for Homebrew packages.
+ZMK Studio is installed separately from its official release archive.
 
 ### Taps
 
@@ -76,19 +78,19 @@ The committed `Brewfile` is the source of truth.
 nikitabobko/tap
 FelixKratz/formulae
 mediosz/tap
-bjarneo/cliamp
+chattymin/tap
 ```
 
 ### Formulae
 
 ```text
-git stow starship eza herdr borders yazi bjarneo/cliamp/cliamp mole ffmpeg-full sevenzip jq poppler zoxide resvg imagemagick-full neovim ripgrep fd fzf lazygit tree-sitter node
+git rsync stow starship eza herdr borders yazi mole ffmpeg-full sevenzip jq poppler zoxide resvg imagemagick-full neovim ripgrep fd fzf lazygit tree-sitter node
 ```
 
 ### Casks
 
 ```text
-ghostty aerospace swipeaerospace font-jetbrains-mono-nerd-font font-symbols-only-nerd-font
+ghostty aerospace swipeaerospace poke-token-bar font-jetbrains-mono-nerd-font font-symbols-only-nerd-font
 ```
 
 On Apple Silicon, bootstrap also installs `vorssaint`. Vorssaint does not ship
@@ -106,10 +108,16 @@ first; `--yes` accepts this ordinary prompt. Intel systems skip the cleanup
 because Vorssaint is unavailable there. Menu-bar providers retain their separate
 confirmed removal workflow.
 
+Cliamp is retired. Every run checks for its installed formula and offers to
+uninstall it, including runs where all standard packages are already installed.
+`--yes` accepts removal; `--dry-run` only prints it. The old `bjarneo/cliamp` tap
+is removed when no other installed package uses it. User data and unrelated
+dependencies are retained.
+
 On Homebrew versions that enforce tap trust, bootstrap checks the current trust
 configuration and asks before adding any missing entries. Trust is limited to
-the five required definitions: `felixkratz/formulae/borders`,
-`bjarneo/cliamp/cliamp`, `mediosz/tap/swipeaerospace`,
+the four required definitions: `felixkratz/formulae/borders`,
+`mediosz/tap/swipeaerospace`,
 `nikitabobko/tap/aerospace`, and `chattymin/tap/poke-token-bar`. It never trusts
 a complete third-party tap.
 
@@ -132,13 +140,65 @@ AeroSpace receives the same item-level treatment: bootstrap trusts only the
 PokeTokenBar comes from the `chattymin/tap` Homebrew tap. Bootstrap trusts only
 the `chattymin/tap/poke-token-bar` cask.
 
-Cliamp comes from the `bjarneo/cliamp` tap. Bootstrap trusts only the
-`bjarneo/cliamp/cliamp` formula. Its default Homebrew installation also installs
-the formula's runtime dependencies.
-
 Vorssaint comes from Homebrew's official cask catalog, so it does not need a
 third-party trust entry. The cask requires Apple Silicon and is skipped on
 Intel systems.
+
+### Optional trial installations
+
+`Brewfile.trials` holds macOS packages under evaluation. It currently contains
+[Kagi's Orion browser](https://formulae.brew.sh/cask/orion), using the official
+Homebrew `orion` cask. It is excluded from the standard `Brewfile`.
+
+```bash
+./setup/bootstrap.sh --include-trials --dry-run
+./setup/bootstrap.sh --include-trials
+./setup/bootstrap.sh --include-trials --upgrade
+```
+
+The flag is opt-in for each run and is not remembered. With it, bootstrap lists
+the trial packages and installs missing ones without upgrades. Combining it
+with `--upgrade` also upgrades trials. Runs without the flag neither install,
+upgrade, nor remove trials. Installing Orion does not change the default browser.
+
+Add future trials to `Brewfile.trials`. To adopt one, move its declaration into
+`Brewfile` and update bootstrap's package summary arrays. To reject Orion, remove
+its trial declaration and explicitly uninstall it on each test Mac:
+
+```bash
+brew uninstall --cask orion
+```
+
+Removing a declaration alone does not uninstall a package. Trials from
+third-party taps also need item-level entries in bootstrap's trust handling;
+Orion uses the official catalog and needs none.
+
+### ZMK Studio
+
+Bootstrap installs [ZMK Studio](https://zmk.dev/docs/features/studio) 0.3.1
+from the [official release](https://github.com/zmkfirmware/zmk-studio/releases/tag/v0.3.1).
+The universal macOS app supports Apple Silicon and Intel. The installer verifies
+the archive's pinned SHA-256 checksum and installs into `~/Applications` without
+sudo. An existing app in `~/Applications` or `/Applications` is preserved by
+default. `--upgrade` applies the pinned version and backs up a replaced app
+beside its installation. A protected `/Applications` installation requires a
+writable destination through the standalone helper's `--app-dir` option.
+
+To install it separately from bootstrap:
+
+```bash
+./scripts/install-zmk-studio.sh --dry-run
+./scripts/install-zmk-studio.sh
+```
+
+Use `--upgrade` to replace an existing version, or `--app-dir /absolute/path`
+to select a destination. Open the app from that directory and grant Bluetooth
+access when macOS requests it. The keyboard must already have firmware with
+Studio support enabled.
+
+To update the pinned release, change `VERSION` and `SHA256` in
+`scripts/install-zmk-studio.sh` after checking the official archive, then update
+the version documented here.
 
 ### Vorssaint settings
 
